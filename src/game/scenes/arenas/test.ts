@@ -304,7 +304,7 @@ export class TestScene extends Phaser.Scene {
         { key: 'spr_sword_3' },
         { key: 'spr_sword_4' },
       ],
-      frameRate: 2,
+      frameRate: 24,
       repeat: -1,
     });
 
