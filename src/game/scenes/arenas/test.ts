@@ -128,6 +128,13 @@ export class TestScene extends Phaser.Scene {
         frameHeight: 16,
       }
     );
+
+    for (let i = 0; i < 2; i++) {
+      this.load.image(
+        `spr_bullet_${i}`,
+        `assets/sprites/combat/range/spr_bullet/spr_bullet_${i}.png`
+      );
+    }
   }
 
   create() {
@@ -292,9 +299,12 @@ export class TestScene extends Phaser.Scene {
       repeat: -1,
     });
 
-    // Create a sprite using the first frame
-    const sprite = this.add.sprite(400, 300, 'spr_sword_0');
-    sprite.play('anims_attack_sword_trail');
+    this.anims.create({
+      key: 'anims_attack_bullet',
+      frames: [{ key: 'spr_bullet_0' }, { key: 'spr_bullet_1' }],
+      frameRate: 12,
+      repeat: -1,
+    });
   }
 
   setPlayerState(newState: PlayerState) {
