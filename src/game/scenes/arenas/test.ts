@@ -378,7 +378,6 @@ export class TestScene extends Phaser.Scene {
 
   createWeapons() {
     this.sword = this.physics.add.sprite(this.character.x, this.character.y, 'spr_sword_0');
-    this.sword.setVisible(false);
 
     this.bullet = this.physics.add.sprite(this.character.x, this.character.y, 'spr_bullet_0');
     this.createWeaponsAnimations();
