@@ -31,6 +31,7 @@ declare -A types_emojis=(
   [dep_del]="➖"
   [dep_down]="📉"
   [dep_up]="📈"
+  [deploy]="🚀"
   [dev]="👨‍💻"
   [doc]="📝"
   [feat]="✨"

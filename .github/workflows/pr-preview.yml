@@ -1,0 +1,46 @@
+name: Deploy PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Inject PR environment variables
+        run: |
+          echo "PR_PREVIEW=true" >> $GITHUB_ENV
+          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Deploy to GitHub Pages (PR Preview)
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./dist
+          destination_dir: preview/pr-${{ github.event.pull_request.number }}
+          keep_files: true
+
+      - name: Comment PR with preview link
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            🚀 Preview Ready:  
+            🔗 https://vulpy-labs.github.io/slash-out/preview/pr-${{ github.event.pull_request.number }}/
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

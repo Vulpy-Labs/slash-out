@@ -28,4 +28,9 @@ export default [
   {
     ignores: ['dist', 'node_modules', 'log.js', 'vite/config.prod.mjs', 'scripts/git-hooks'],
   },
+  {
+    env: {
+      node: true,
+    },
+  },
 ];
