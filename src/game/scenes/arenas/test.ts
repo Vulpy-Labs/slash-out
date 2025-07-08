@@ -385,9 +385,15 @@ export class TestScene extends Phaser.Scene {
 
   createWeaponCollisions() {
     this.sword.setCollideWorldBounds(true);
+    this.bullet.setCollideWorldBounds(true);
+
     (this.sword.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+    (this.bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+
     this.physics.add.overlap(this.sword, this.character);
     this.physics.add.overlap(this.sword, this.platforms);
+    this.physics.add.overlap(this.bullet, this.character);
+    this.physics.add.overlap(this.bullet, this.platforms);
   }
 
   updateCharacterMovement() {
