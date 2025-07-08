@@ -4,6 +4,7 @@ import {
   VIRTUAL_HEIGHT,
   VIRTUAL_WIDTH,
   SWORD_CONFIG,
+  BULLET_CONFIG,
 } from '../../constants';
 
 type PlayerState =
@@ -13,11 +14,17 @@ type PlayerState =
   | 'IN_AIR'
   | 'LOOKING_UP'
   | 'LOOKING_DOWN'
-  | 'ATTACKING'
+  | 'ATTACKING_FORWARD'
   | 'ATTACKING_UP'
   | 'ATTACKING_DOWN';
 
-type WeaponState = 'SWORD_FORWARD' | 'SWORD_UP' | 'SWORD_DOWN';
+type WeaponState =
+  | 'SWORD_FORWARD'
+  | 'SWORD_UP'
+  | 'SWORD_DOWN'
+  | 'SHOOTING_FORWARD'
+  | 'SHOOTING_UP'
+  | 'SHOOTING_DOWN';
 
 export class TestScene extends Phaser.Scene {
   // Map
@@ -40,12 +47,14 @@ export class TestScene extends Phaser.Scene {
     down: Phaser.Input.Keyboard.Key;
     jump: Phaser.Input.Keyboard.Key;
     attack: Phaser.Input.Keyboard.Key;
+    shoot: Phaser.Input.Keyboard.Key;
     dash: Phaser.Input.Keyboard.Key;
   };
 
   // Weapons
   weaponState: WeaponState;
   sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  bullet: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
   constructor() {
     super('TestScene');
@@ -331,7 +340,7 @@ export class TestScene extends Phaser.Scene {
       case 'LOOKING_DOWN':
         this.character.anims.play('anim_look_down', true);
         break;
-      case 'ATTACKING':
+      case 'ATTACKING_FORWARD':
         this.character.anims.play('anim_attack_sword', true);
         break;
       case 'ATTACKING_UP':
@@ -358,6 +367,15 @@ export class TestScene extends Phaser.Scene {
       case 'SWORD_DOWN':
         this.sword.anims.play('anims_attack_sword_trail', true);
         break;
+      case 'SHOOTING_FORWARD':
+        this.bullet.anims.play('anims_attack_bullet', true);
+        break;
+      case 'SHOOTING_UP':
+        this.bullet.anims.play('anims_attack_bullet', true);
+        break;
+      case 'SHOOTING_DOWN':
+        this.bullet.anims.play('anims_attack_bullet', true);
+        break;
     }
   }
 
@@ -372,6 +390,7 @@ export class TestScene extends Phaser.Scene {
       down: keyboard.addKey('S'),
       jump: keyboard.addKey('SPACE'),
       attack: keyboard.addKey('F'),
+      shoot: keyboard.addKey('G'),
       dash: keyboard.addKey('SHIFT'),
     };
   }
@@ -542,29 +561,43 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateCharacterAttack() {
+    this.updateSwordAttack();
+    this.updateBulletAttack();
+  }
+
+  updateSwordAttack() {
     if (this.keyboardInputs.attack.isDown) {
       this.sword.setVisible(true);
       if (this.playerState === 'LOOKING_UP') {
         this.setPlayerState('ATTACKING_UP');
+        this.setWeaponState('SWORD_UP');
       } else if (this.playerState === 'LOOKING_DOWN') {
         this.setPlayerState('ATTACKING_DOWN');
+        this.setWeaponState('SWORD_DOWN');
       } else {
-        this.setPlayerState('ATTACKING');
+        this.setPlayerState('ATTACKING_FORWARD');
+        this.setWeaponState('SWORD_FORWARD');
       }
     } else {
       if (this.sword) this.sword.setVisible(false);
     }
   }
 
-  updateSwordAttack() {
-    if (this.keyboardInputs.attack.isDown) {
+  updateBulletAttack() {
+    if (this.keyboardInputs.shoot.isDown) {
+      this.bullet.setVisible(true);
       if (this.playerState === 'LOOKING_UP') {
-        this.setWeaponState('SWORD_UP');
+        this.setPlayerState('ATTACKING_UP');
+        this.setWeaponState('SHOOTING_UP');
       } else if (this.playerState === 'LOOKING_DOWN') {
-        this.setWeaponState('SWORD_DOWN');
+        this.setPlayerState('ATTACKING_DOWN');
+        this.setWeaponState('SHOOTING_DOWN');
       } else {
-        this.setWeaponState('SWORD_FORWARD');
+        this.setPlayerState('ATTACKING_FORWARD');
+        this.setWeaponState('SHOOTING_FORWARD');
       }
+    } else {
+      if (this.bullet) this.bullet.setVisible(false);
     }
   }
 }
