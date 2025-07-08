@@ -460,6 +460,7 @@ export class TestScene extends Phaser.Scene {
 
   updateWeaponsPosition() {
     this.updateSwordPosition();
+    this.updateBulletPosition();
   }
 
   updateSwordPosition() {
@@ -499,6 +500,45 @@ export class TestScene extends Phaser.Scene {
     this.sword.setAngle(angle);
     this.sword.body.setSize(width, height);
     this.sword.setPosition(x, y);
+  }
+
+  updateBulletPosition() {
+    const originX = 0.5;
+    const originY = 0.5;
+
+    let x = this.character.x;
+    let y = this.character.y;
+    let angle = 0;
+    let width = BULLET_CONFIG.width;
+    let height = BULLET_CONFIG.height;
+
+    if (this.playerState === 'LOOKING_UP') {
+      angle = -90;
+      width = BULLET_CONFIG.height;
+      height = BULLET_CONFIG.width;
+      x = this.character.x;
+      y = this.character.y - this.character.height / 2 - height / 2;
+    } else if (this.playerState === 'LOOKING_DOWN') {
+      angle = 90;
+      width = BULLET_CONFIG.height;
+      height = BULLET_CONFIG.width;
+      x = this.character.x;
+      y = this.character.y + this.character.height / 2 + height / 2;
+    } else {
+      if (this.character.flipX) {
+        angle = 180;
+        x = this.character.x - this.character.width / 2 - width / 2;
+      } else {
+        angle = 0;
+        x = this.character.x + this.character.width / 2 + width / 2;
+      }
+      y = this.character.y;
+    }
+
+    this.bullet.setOrigin(originX, originY);
+    this.bullet.setAngle(angle);
+    this.bullet.body.setSize(width, height);
+    this.bullet.setPosition(x, y);
   }
 
   updateCharacterAttack() {
