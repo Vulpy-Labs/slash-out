@@ -415,6 +415,17 @@ export class TestScene extends Phaser.Scene {
     this.physics.add.overlap(this.sword, this.platforms);
   }
 
+  createBullet() {
+    this.bullet = this.physics.add.sprite(this.character.x, this.character.y, 'spr_bullet_0');
+    this.createBulletCollision();
+    this.updateBulletAttachmentToCharacter();
+  }
+
+  createBulletCollision() {
+    this.bullet.setCollideWorldBounds(true);
+
+    (this.bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+
     this.physics.add.overlap(this.bullet, this.character);
     this.physics.add.overlap(this.bullet, this.platforms);
   }
