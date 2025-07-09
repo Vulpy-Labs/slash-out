@@ -489,19 +489,19 @@ export class TestScene extends Phaser.Scene {
     let x = this.character.x;
     let y = this.character.y;
     let angle = 0;
-    let width = SWORD_CONFIG.width;
-    let height = SWORD_CONFIG.height;
+    let width = SWORD_CONFIG.WIDTH;
+    let height = SWORD_CONFIG.HEIGHT;
 
     if (this.playerState === 'LOOKING_UP') {
       angle = -90;
-      width = SWORD_CONFIG.height;
-      height = SWORD_CONFIG.width;
+      width = SWORD_CONFIG.HEIGHT;
+      height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y - this.character.height / 2 - height / 2;
     } else if (this.playerState === 'LOOKING_DOWN') {
       angle = 90;
-      width = SWORD_CONFIG.height;
-      height = SWORD_CONFIG.width;
+      width = SWORD_CONFIG.HEIGHT;
+      height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y + this.character.height / 2 + height / 2;
     } else {
@@ -528,19 +528,19 @@ export class TestScene extends Phaser.Scene {
     let x = this.character.x;
     let y = this.character.y;
     let angle = 0;
-    let width = BULLET_CONFIG.width;
-    let height = BULLET_CONFIG.height;
+    let width = BULLET_CONFIG.WIDTH;
+    let height = BULLET_CONFIG.HEIGHT;
 
     if (this.playerState === 'LOOKING_UP') {
       angle = -90;
-      width = BULLET_CONFIG.height;
-      height = BULLET_CONFIG.width;
+      width = BULLET_CONFIG.HEIGHT;
+      height = BULLET_CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y - this.character.height / 2 - height / 2;
     } else if (this.playerState === 'LOOKING_DOWN') {
       angle = 90;
-      width = BULLET_CONFIG.height;
-      height = BULLET_CONFIG.width;
+      width = BULLET_CONFIG.HEIGHT;
+      height = BULLET_CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y + this.character.height / 2 + height / 2;
     } else {
@@ -568,6 +568,7 @@ export class TestScene extends Phaser.Scene {
   updateSwordAttack() {
     if (this.keyboardInputs.attack.isDown) {
       this.sword.setVisible(true);
+
       if (this.playerState === 'LOOKING_UP') {
         this.setPlayerState('ATTACKING_UP');
         this.setWeaponState('SWORD_UP');
@@ -623,16 +624,16 @@ export class TestScene extends Phaser.Scene {
     switch (this.weaponState) {
       case 'SHOOTING_FORWARD':
         if (this.character.flipX) {
-          this.bullet.setVelocityX(-BULLET_CONFIG.velocity);
+          this.bullet.setVelocityX(-BULLET_CONFIG.VELOCITY);
         } else {
-          this.bullet.setVelocityX(BULLET_CONFIG.velocity);
+          this.bullet.setVelocityX(BULLET_CONFIG.VELOCITY);
         }
         break;
       case 'SHOOTING_UP':
-        this.bullet.setVelocityY(-BULLET_CONFIG.velocity);
+        this.bullet.setVelocityY(-BULLET_CONFIG.VELOCITY);
         break;
       case 'SHOOTING_DOWN':
-        this.bullet.setVelocityY(BULLET_CONFIG.velocity);
+        this.bullet.setVelocityY(BULLET_CONFIG.VELOCITY);
         break;
     }
   }
