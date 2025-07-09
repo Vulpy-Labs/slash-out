@@ -55,6 +55,7 @@ export class TestScene extends Phaser.Scene {
   weaponState: WeaponState;
   sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   bullet: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  bulletsLeft = BULLET_CONFIG.CLIP_SIZE;
 
   constructor() {
     super('TestScene');
@@ -599,38 +600,26 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateBulletAttack() {
-    if (this.keyboardInputs.shoot.isDown) {
-      this.bullet.setVisible(true);
-      this.updateBulletAttachmentToCharacter();
+    if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.shoot)) {
+      if (this.bulletsLeft) {
+        this.createBullet();
 
-      if (this.playerState === 'LOOKING_UP') {
-        this.setPlayerState('ATTACKING_UP');
-        this.setWeaponState('SHOOTING_UP');
-      } else if (this.playerState === 'LOOKING_DOWN') {
-        this.setPlayerState('ATTACKING_DOWN');
-        this.setWeaponState('SHOOTING_DOWN');
-      } else {
-        this.setPlayerState('ATTACKING_FORWARD');
-        this.setWeaponState('SHOOTING_FORWARD');
+        if (this.playerState === 'LOOKING_UP') {
+          this.setPlayerState('ATTACKING_UP');
+          this.setWeaponState('SHOOTING_UP');
+        } else if (this.playerState === 'LOOKING_DOWN') {
+          this.setPlayerState('ATTACKING_DOWN');
+          this.setWeaponState('SHOOTING_DOWN');
+        } else {
+          this.setPlayerState('ATTACKING_FORWARD');
+          this.setWeaponState('SHOOTING_FORWARD');
+        }
+
+        this.updateBulletMovement();
+        this.bulletsLeft--;
       }
-
-      this.updateBulletMovement();
-    } else {
-      // if (this.bullet) this.bullet.setVisible(false);
     }
   }
-
-  /**
-   * Todo: (V) => Criar projétil quando o jogador apertar o botão de atirar
-   * Todo: (V) => Mover projétil para frente
-   * Todo: (V) => Mover projétil para trás
-   * Todo: (V) => Mover projétil para cima
-   * Todo: (V) => Mover projétil para baixo
-   * Todo: (V) => Resolver problema com projétil na diagonal
-   * Todo: () => Adicionar contagem de projéteis
-   * Todo: () => Refatorar funções
-   * Todo: () =>
-   */
 
   updateBulletMovement() {
     this.bullet.setVelocity(0, 0);
