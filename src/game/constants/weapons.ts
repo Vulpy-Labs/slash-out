@@ -5,4 +5,5 @@ export const SWORD_CONFIG = {
 export const BULLET_CONFIG = {
   width: 16,
   height: 16,
+  velocity: 210,
 };

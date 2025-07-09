@@ -156,7 +156,7 @@ export class TestScene extends Phaser.Scene {
 
   update() {
     this.updateCharacterMovement();
-    this.updateWeaponsPosition();
+    this.updateWeaponsAttachmentToCharacter();
     this.updateCharacterAttack();
   }
 
@@ -453,7 +453,7 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateVerticalMovement() {
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.isPlayerTouchingGround) {
+    if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
       this.character.setVelocityY(-CHARACTER_SPEED_Y);
       this.setPlayerState('JUMPING');
     }
@@ -477,12 +477,12 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  updateWeaponsPosition() {
-    this.updateSwordPosition();
-    this.updateBulletPosition();
+  updateWeaponsAttachmentToCharacter() {
+    this.updateSwordAttachmentToCharacter();
+    // this.updateBulletAttachmentToCharacter();
   }
 
-  updateSwordPosition() {
+  updateSwordAttachmentToCharacter() {
     const originX = 0.5;
     const originY = 0.5;
 
@@ -521,7 +521,7 @@ export class TestScene extends Phaser.Scene {
     this.sword.setPosition(x, y);
   }
 
-  updateBulletPosition() {
+  updateBulletAttachmentToCharacter() {
     const originX = 0.5;
     const originY = 0.5;
 
@@ -586,6 +586,8 @@ export class TestScene extends Phaser.Scene {
   updateBulletAttack() {
     if (this.keyboardInputs.shoot.isDown) {
       this.bullet.setVisible(true);
+      this.updateBulletAttachmentToCharacter();
+
       if (this.playerState === 'LOOKING_UP') {
         this.setPlayerState('ATTACKING_UP');
         this.setWeaponState('SHOOTING_UP');
@@ -596,8 +598,42 @@ export class TestScene extends Phaser.Scene {
         this.setPlayerState('ATTACKING_FORWARD');
         this.setWeaponState('SHOOTING_FORWARD');
       }
+
+      this.updateBulletMovement();
     } else {
-      if (this.bullet) this.bullet.setVisible(false);
+      // if (this.bullet) this.bullet.setVisible(false);
+    }
+  }
+
+  /**
+   * Todo: (V) => Criar projétil quando o jogador apertar o botão de atirar
+   * Todo: (V) => Mover projétil para frente
+   * Todo: (V) => Mover projétil para trás
+   * Todo: (V) => Mover projétil para cima
+   * Todo: (V) => Mover projétil para baixo
+   * Todo: (V) => Resolver problema com projétil na diagonal
+   * Todo: () => Adicionar contagem de projéteis
+   * Todo: () => Refatorar funções
+   * Todo: () =>
+   */
+
+  updateBulletMovement() {
+    this.bullet.setVelocity(0, 0);
+
+    switch (this.weaponState) {
+      case 'SHOOTING_FORWARD':
+        if (this.character.flipX) {
+          this.bullet.setVelocityX(-BULLET_CONFIG.velocity);
+        } else {
+          this.bullet.setVelocityX(BULLET_CONFIG.velocity);
+        }
+        break;
+      case 'SHOOTING_UP':
+        this.bullet.setVelocityY(-BULLET_CONFIG.velocity);
+        break;
+      case 'SHOOTING_DOWN':
+        this.bullet.setVelocityY(BULLET_CONFIG.velocity);
+        break;
     }
   }
 }
