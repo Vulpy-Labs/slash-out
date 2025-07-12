@@ -24,7 +24,8 @@ type WeaponState =
   | 'SWORD_DOWN'
   | 'SHOOTING_FORWARD'
   | 'SHOOTING_UP'
-  | 'SHOOTING_DOWN';
+  | 'SHOOTING_DOWN'
+  | 'BULLET_DESTROYED';
 
 export class TestScene extends Phaser.Scene {
   // Map
@@ -144,6 +145,9 @@ export class TestScene extends Phaser.Scene {
         `spr_bullet_${i}`,
         `assets/sprites/combat/range/spr_bullet/spr_bullet_${i}.png`
       );
+    }
+    for (let i = 0; i < 16; i++) {
+      this.load.image(`spr_blast_${i}`, `assets/sprites/combat/range/spr_blast/spr_blast_${i}.png`);
     }
   }
 
@@ -315,6 +319,15 @@ export class TestScene extends Phaser.Scene {
       frameRate: 12,
       repeat: -1,
     });
+
+    this.anims.create({
+      key: 'anims_attack_bullet_destroy',
+      frames: new Array(15).fill('').map((_, index) => ({
+        key: `spr_blast_${index}`,
+      })),
+      frameRate: 30,
+      repeat: 1,
+    });
   }
 
   setPlayerState(newState: PlayerState) {
@@ -377,6 +390,9 @@ export class TestScene extends Phaser.Scene {
       case 'SHOOTING_DOWN':
         this.bullet.anims.play('anims_attack_bullet', true);
         break;
+      case 'BULLET_DESTROYED':
+        this.bullet.anims.play('anims_attack_bullet_destroy');
+        break;
     }
   }
 
@@ -427,8 +443,13 @@ export class TestScene extends Phaser.Scene {
 
     (this.bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
 
-    this.physics.add.overlap(this.bullet, this.character);
-    this.physics.add.overlap(this.bullet, this.platforms);
+    this.physics.add.collider(this.bullet, this.character, () => {});
+    this.physics.add.collider(this.bullet, this.platforms, () => {
+      this.destroyBullet();
+    });
+    this.physics.add.collider(this.bullet, this.platforms, () => {
+      this.destroyBullet();
+    });
   }
 
   updateCharacterMovement() {
@@ -639,5 +660,13 @@ export class TestScene extends Phaser.Scene {
         this.bullet.setVelocityY(BULLET_CONFIG.VELOCITY);
         break;
     }
+  }
+
+  destroyBullet() {
+    this.setWeaponState('BULLET_DESTROYED');
+
+    setTimeout(() => {
+      this.bullet.destroy();
+    }, 450);
   }
 }
