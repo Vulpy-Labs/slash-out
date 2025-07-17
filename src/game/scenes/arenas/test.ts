@@ -622,7 +622,14 @@ export class TestScene extends Phaser.Scene {
     this.sword.setPosition(x, y);
   }
 
-  updateBulletAttachmentToCharacter() {
+  updateBulletAttachmentToCharacter({ id }: { id: string }) {
+    const bullet = this.bullets.find(({ bulletId }) => bulletId === id);
+
+    if (!bullet)
+      throw new Error(
+        `Not possible to attach bullet to the character. Bullet not found for id: ${id}`
+      );
+
     const originX = 0.5;
     const originY = 0.5;
 
@@ -655,10 +662,10 @@ export class TestScene extends Phaser.Scene {
       y = this.character.y;
     }
 
-    this.bullet.setOrigin(originX, originY);
-    this.bullet.setAngle(angle);
-    this.bullet.body.setSize(width, height);
-    this.bullet.setPosition(x, y);
+    bullet.setOrigin(originX, originY);
+    bullet.setAngle(angle);
+    bullet.body.setSize(width, height);
+    bullet.setPosition(x, y);
   }
 
   updateCharacterAttack() {
