@@ -467,7 +467,7 @@ export class TestScene extends Phaser.Scene {
 
     this.bullets.push(bullet);
     this.createBulletCollision({ bullet });
-    this.updateBulletAttachmentToCharacter({ id: bulletId });
+    this.updateBulletAttachmentToCharacter({ bullet });
 
     return bulletId;
   }
@@ -588,13 +588,9 @@ export class TestScene extends Phaser.Scene {
     this.sword.setPosition(x, y);
   }
 
-  updateBulletAttachmentToCharacter({ id }: { id: string }) {
-    const bullet = this.bullets.find(({ bulletId }) => bulletId === id);
-
+  updateBulletAttachmentToCharacter({ bullet }: { bullet: BulletType }) {
     if (!bullet)
-      throw new Error(
-        `Not possible to attach bullet to the character. Bullet not found for id: ${id}`
-      );
+      throw new Error(`Not possible to attach bullet to the character. Bullet is undefined`);
 
     const originX = 0.5;
     const originY = 0.5;
