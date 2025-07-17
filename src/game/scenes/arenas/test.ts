@@ -29,6 +29,16 @@ type WeaponState =
   | 'SHOOTING_DOWN'
   | 'BULLET_DESTROYED';
 
+type WeaponStateProps = {
+  newState: WeaponState;
+  objId?: string;
+};
+
+type BulletType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
+  bulletId: string;
+  beingDestroyed: boolean;
+};
+
 export class TestScene extends Phaser.Scene {
   // Map
   gameWidth = VIRTUAL_WIDTH;
