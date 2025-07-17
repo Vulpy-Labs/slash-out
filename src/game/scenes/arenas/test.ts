@@ -678,13 +678,13 @@ export class TestScene extends Phaser.Scene {
 
       if (this.playerState === 'LOOKING_UP') {
         this.setPlayerState('ATTACKING_UP');
-        this.setWeaponState('SWORD_UP');
+        this.setWeaponState({ newState: 'SWORD_UP' });
       } else if (this.playerState === 'LOOKING_DOWN') {
         this.setPlayerState('ATTACKING_DOWN');
-        this.setWeaponState('SWORD_DOWN');
+        this.setWeaponState({ newState: 'SWORD_DOWN' });
       } else {
         this.setPlayerState('ATTACKING_FORWARD');
-        this.setWeaponState('SWORD_FORWARD');
+        this.setWeaponState({ newState: 'SWORD_FORWARD' });
       }
     } else {
       if (this.sword) this.sword.setVisible(false);
