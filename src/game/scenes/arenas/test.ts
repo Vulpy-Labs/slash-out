@@ -456,7 +456,6 @@ export class TestScene extends Phaser.Scene {
   }
 
   createBullet() {
-    // Todo: () => trocar bulletId por id
     const bulletId = uuidv4();
     const bullet = this.physics.add.sprite(
       this.character.x,
@@ -720,6 +719,7 @@ export class TestScene extends Phaser.Scene {
     bullet.once('animationcomplete', (animation: Phaser.Animations.Animation) => {
       if (animation.key === 'anims_attack_bullet_destroy') {
         const index = this.bullets.indexOf(bullet);
+
         if (index === -1)
           throw new Error(
             `Not possible to destroy the bullet. It wasn't found for index: ${index}`
