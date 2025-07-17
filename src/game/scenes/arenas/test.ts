@@ -36,7 +36,7 @@ type WeaponStateProps = {
 
 type BulletType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
   bulletId: string;
-  beingDestroyed: boolean;
+  isBeingDestroyed: boolean;
 };
 
 export class TestScene extends Phaser.Scene {
@@ -464,7 +464,7 @@ export class TestScene extends Phaser.Scene {
       'spr_bullet_0'
     ) as BulletType;
     bullet.bulletId = bulletId;
-    bullet.beingDestroyed = false;
+    bullet.isBeingDestroyed = false;
 
     this.bullets.push(bullet);
     this.createBulletCollision({ bullet });
@@ -709,10 +709,9 @@ export class TestScene extends Phaser.Scene {
     if (!bullet)
       throw new Error(`Not possible to destroy the bullet. It wasn't found for id: ${id}`);
 
-    if (bullet.beingDestroyed) return;
+    if (bullet.isBeingDestroyed) return;
 
-    bullet.beingDestroyed = true;
-
+    bullet.isBeingDestroyed = true;
     this.setWeaponState({
       newState: 'BULLET_DESTROYED',
       objId: bullet.bulletId,
