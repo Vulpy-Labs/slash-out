@@ -680,26 +680,29 @@ export class TestScene extends Phaser.Scene {
         }
 
         this.bulletsLeft--;
+        this.updateBulletMovement({ id });
       }
     }
   }
 
-  updateBulletMovement() {
-    this.bullet.setVelocity(0, 0);
+  updateBulletMovement({ id }: { id: string }) {
+    const bullet = this.bullets.find(({ bulletId }) => bulletId === id);
+
+    if (!bullet) throw new Error(`Not possible to move projectile. Bullet not found for id: ${id}`);
 
     switch (this.weaponState) {
       case 'SHOOTING_FORWARD':
         if (this.character.flipX) {
-          this.bullet.setVelocityX(-BULLET_CONFIG.VELOCITY);
+          bullet.setVelocityX(-BULLET_CONFIG.VELOCITY);
         } else {
-          this.bullet.setVelocityX(BULLET_CONFIG.VELOCITY);
+          bullet.setVelocityX(BULLET_CONFIG.VELOCITY);
         }
         break;
       case 'SHOOTING_UP':
-        this.bullet.setVelocityY(-BULLET_CONFIG.VELOCITY);
+        bullet.setVelocityY(-BULLET_CONFIG.VELOCITY);
         break;
       case 'SHOOTING_DOWN':
-        this.bullet.setVelocityY(BULLET_CONFIG.VELOCITY);
+        bullet.setVelocityY(BULLET_CONFIG.VELOCITY);
         break;
     }
   }
