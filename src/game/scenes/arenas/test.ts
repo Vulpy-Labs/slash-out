@@ -126,7 +126,6 @@ export class TestScene extends Phaser.Scene {
   }
 
   loadWeaponsAssets() {
-    // Sword slash trail
     for (let i = 0; i < 5; i++) {
       this.load.image(`spr_sword_${i}`, `assets/sprites/combat/melee/spr_sword/spr_sword_${i}.png`);
     }
