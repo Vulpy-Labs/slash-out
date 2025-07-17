@@ -580,7 +580,6 @@ export class TestScene extends Phaser.Scene {
 
   updateWeaponsAttachmentToCharacter() {
     this.updateSwordAttachmentToCharacter();
-    // this.updateBulletAttachmentToCharacter();
   }
 
   updateSwordAttachmentToCharacter() {
