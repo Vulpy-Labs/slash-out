@@ -377,6 +377,19 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
+  validateBulletId({ objId }: { objId: string | undefined }) {
+    try {
+      if (objId) {
+        const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
+        if (!bullet) throw new Error(`Bullet not found for id: ${objId}`);
+
+        return true;
+      }
+    } catch (error: any) {
+      throw Error(error);
+    }
+  }
+
   setWeaponState({ newState, objId }: WeaponStateProps) {
     this.weaponState = newState;
 
