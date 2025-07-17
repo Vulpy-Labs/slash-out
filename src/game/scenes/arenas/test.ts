@@ -735,11 +735,32 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  destroyBullet() {
-    this.setWeaponState('BULLET_DESTROYED');
+  destroyBullet({ id }: { id: string }) {
+    const bullet = this.bullets.find(({ bulletId }) => bulletId === id);
 
-    setTimeout(() => {
-      this.bullet.destroy();
-    }, 450);
+    if (!bullet)
+      throw new Error(`Not possible to destroy the bullet. It wasn't found for id: ${id}`);
+
+    if (bullet.beingDestroyed) return;
+
+    bullet.beingDestroyed = true;
+
+    this.setWeaponState({
+      newState: 'BULLET_DESTROYED',
+      objId: bullet.bulletId,
+    });
+
+    bullet.once('animationcomplete', (animation: Phaser.Animations.Animation) => {
+      if (animation.key === 'anims_attack_bullet_destroy') {
+        const index = this.bullets.indexOf(bullet);
+        if (index === -1)
+          throw new Error(
+            `Not possible to destroy the bullet. It wasn't found for index: ${index}`
+          );
+
+        this.bullets.splice(index, 1);
+        bullet.destroy();
+      }
+    });
   }
 }
