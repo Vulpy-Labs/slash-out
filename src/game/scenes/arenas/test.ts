@@ -365,9 +365,7 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  setWeaponState(newState: WeaponState) {
-    if (this.weaponState === newState) return;
-
+  setWeaponState({ newState, objId }: WeaponStateProps) {
     this.weaponState = newState;
 
     switch (newState) {
@@ -381,16 +379,62 @@ export class TestScene extends Phaser.Scene {
         this.sword.anims.play('anims_attack_sword_trail', true);
         break;
       case 'SHOOTING_FORWARD':
-        this.bullet.anims.play('anims_attack_bullet', true);
+        if (objId !== undefined) {
+          const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
+          if (!bullet)
+            throw new Error(
+              `Error while trying to play bullet's ${newState} animation. Bullet not found for id: ${objId}`
+            );
+
+          bullet.anims.play('anims_attack_bullet', true);
+        } else {
+          this.bullets[this.bullets.length - 1].anims.play('anims_attack_bullet', true);
+        }
         break;
       case 'SHOOTING_UP':
-        this.bullet.anims.play('anims_attack_bullet', true);
+        if (objId !== undefined) {
+          const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
+          if (!bullet)
+            throw new Error(
+              `Error while trying to play bullet's ${newState} animation. Bullet not found for id: ${objId}`
+            );
+
+          bullet.anims.play('anims_attack_bullet', true);
+        } else {
+          this.bullets[this.bullets.length - 1].anims.play('anims_attack_bullet', true);
+        }
         break;
       case 'SHOOTING_DOWN':
-        this.bullet.anims.play('anims_attack_bullet', true);
+        if (objId !== undefined) {
+          const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
+          if (!bullet)
+            throw new Error(
+              `Error while trying to play bullet's ${newState} animation. Bullet not found for id: ${objId}`
+            );
+
+          bullet.anims.play('anims_attack_bullet', true);
+        } else {
+          this.bullets[this.bullets.length - 1].anims.play('anims_attack_bullet', true);
+        }
         break;
       case 'BULLET_DESTROYED':
-        this.bullet.anims.play('anims_attack_bullet_destroy');
+        try {
+          if (objId !== undefined) {
+            const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
+
+            if (!bullet)
+              throw new Error(
+                `Error while trying to play bullet's ${newState} animation. Bullet not found for id: ${objId}`
+              );
+
+            bullet.anims.play('anims_attack_bullet_destroy', true);
+          } else {
+            this.bullets[this.bullets.length - 1].anims.play('anims_attack_bullet_destroy');
+          }
+        } catch (e: any) {
+          throw Error(e);
+        }
+
         break;
     }
   }
@@ -622,20 +666,19 @@ export class TestScene extends Phaser.Scene {
   updateBulletAttack() {
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.shoot)) {
       if (this.bulletsLeft) {
-        this.createBullet();
+        const id = this.createBullet();
 
         if (this.playerState === 'LOOKING_UP') {
           this.setPlayerState('ATTACKING_UP');
-          this.setWeaponState('SHOOTING_UP');
+          this.setWeaponState({ newState: 'SHOOTING_UP' });
         } else if (this.playerState === 'LOOKING_DOWN') {
           this.setPlayerState('ATTACKING_DOWN');
-          this.setWeaponState('SHOOTING_DOWN');
+          this.setWeaponState({ newState: 'SHOOTING_DOWN' });
         } else {
           this.setPlayerState('ATTACKING_FORWARD');
-          this.setWeaponState('SHOOTING_FORWARD');
+          this.setWeaponState({ newState: 'SHOOTING_FORWARD' });
         }
 
-        this.updateBulletMovement();
         this.bulletsLeft--;
       }
     }
