@@ -506,7 +506,7 @@ export class TestScene extends Phaser.Scene {
   }
 
   createBulletCollision({ bullet }: { bullet: BulletType }) {
-    bullet.setCollideWorldBounds(true);
+    bullet.setCollideWorldBounds(false);
     (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
 
     this.physics.add.collider(bullet, this.character, () => {
