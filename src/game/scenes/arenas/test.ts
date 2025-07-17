@@ -495,17 +495,15 @@ export class TestScene extends Phaser.Scene {
     return bulletId;
   }
 
-  createBulletCollision() {
-    this.bullet.setCollideWorldBounds(true);
+  createBulletCollision({ bullet }: { bullet: BulletType }) {
+    bullet.setCollideWorldBounds(true);
+    (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
 
-    (this.bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
-
-    this.physics.add.collider(this.bullet, this.character, () => {});
-    this.physics.add.collider(this.bullet, this.platforms, () => {
-      this.destroyBullet();
+    this.physics.add.collider(bullet, this.character, () => {
+      this.destroyBullet({ id: bullet.bulletId });
     });
-    this.physics.add.collider(this.bullet, this.platforms, () => {
-      this.destroyBullet();
+    this.physics.add.collider(bullet, this.platforms, () => {
+      this.destroyBullet({ id: bullet.bulletId });
     });
   }
 
