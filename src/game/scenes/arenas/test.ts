@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import {
   CHARACTER_SPEED_X,
   CHARACTER_SPEED_Y,
@@ -476,9 +478,21 @@ export class TestScene extends Phaser.Scene {
   }
 
   createBullet() {
-    this.bullet = this.physics.add.sprite(this.character.x, this.character.y, 'spr_bullet_0');
-    this.createBulletCollision();
-    this.updateBulletAttachmentToCharacter();
+    // Todo: () => trocar bulletId por id
+    const bulletId = uuidv4();
+    const bullet = this.physics.add.sprite(
+      this.character.x,
+      this.character.y,
+      'spr_bullet_0'
+    ) as BulletType;
+    bullet.bulletId = bulletId;
+    bullet.beingDestroyed = false;
+
+    this.bullets.push(bullet);
+    this.createBulletCollision({ bullet });
+    this.updateBulletAttachmentToCharacter({ id: bulletId });
+
+    return bulletId;
   }
 
   createBulletCollision() {
