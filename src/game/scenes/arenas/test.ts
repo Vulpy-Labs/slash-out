@@ -67,7 +67,7 @@ export class TestScene extends Phaser.Scene {
   // Weapons
   weaponState: WeaponState;
   sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-  bullet: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  bullets: BulletType[] = [];
   bulletsLeft = BULLET_CONFIG.CLIP_SIZE;
 
   constructor() {
