@@ -390,63 +390,18 @@ export class TestScene extends Phaser.Scene {
       case 'SWORD_DOWN':
         this.sword.anims.play('anims_attack_sword_trail', true);
         break;
-      case 'SHOOTING_FORWARD':
-        if (objId !== undefined) {
-          const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
-          if (!bullet)
-            throw new Error(
-              `Error while trying to play bullet's ${newState} animation. Bullet not found for id: ${objId}`
-            );
-
-          bullet.anims.play('anims_attack_bullet', true);
-        } else {
-          this.bullets[this.bullets.length - 1].anims.play('anims_attack_bullet', true);
-        }
-        break;
-      case 'SHOOTING_UP':
-        if (objId !== undefined) {
-          const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
-          if (!bullet)
-            throw new Error(
-              `Error while trying to play bullet's ${newState} animation. Bullet not found for id: ${objId}`
-            );
-
-          bullet.anims.play('anims_attack_bullet', true);
-        } else {
-          this.bullets[this.bullets.length - 1].anims.play('anims_attack_bullet', true);
-        }
-        break;
-      case 'SHOOTING_DOWN':
-        if (objId !== undefined) {
-          const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
-          if (!bullet)
-            throw new Error(
-              `Error while trying to play bullet's ${newState} animation. Bullet not found for id: ${objId}`
-            );
-
-          bullet.anims.play('anims_attack_bullet', true);
-        } else {
-          this.bullets[this.bullets.length - 1].anims.play('anims_attack_bullet', true);
-        }
-        break;
       case 'BULLET_DESTROYED':
-        try {
-          if (objId !== undefined) {
-            const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
+      case 'SHOOTING_FORWARD':
+      case 'SHOOTING_UP':
+      case 'SHOOTING_DOWN':
+        if (this.validateBulletId({ objId })) {
+          const bullet = this.bullets.find(({ bulletId }) => bulletId === objId)!;
 
-            if (!bullet)
-              throw new Error(
-                `Error while trying to play bullet's ${newState} animation. Bullet not found for id: ${objId}`
-              );
-
-            bullet.anims.play('anims_attack_bullet_destroy', true);
-          } else {
-            this.bullets[this.bullets.length - 1].anims.play('anims_attack_bullet_destroy');
-          }
-        } catch (e: any) {
-          throw Error(e);
+          bullet.anims.play(
+            newState === 'BULLET_DESTROYED' ? 'anims_attack_bullet_destroy' : 'anims_attack_bullet',
+            true
+          );
         }
-
         break;
     }
   }
