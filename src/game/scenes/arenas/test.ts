@@ -609,7 +609,7 @@ export class TestScene extends Phaser.Scene {
       y = this.character.y;
     }
 
-    this.sword.setOrigin(BULLET_CONFIG.ORIGIN_X, BULLET_CONFIG.ORIGIN_Y);
+    bullet.setOrigin(BULLET_CONFIG.ORIGIN_X, BULLET_CONFIG.ORIGIN_Y);
     bullet.setAngle(angle);
     bullet.body.setSize(width, height);
     bullet.setPosition(x, y);
