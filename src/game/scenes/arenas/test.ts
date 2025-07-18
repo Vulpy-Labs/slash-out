@@ -580,9 +580,6 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateBulletAttachmentToCharacter({ bullet }: { bullet: BulletType }) {
-    if (!bullet)
-      throw new Error(`Not possible to attach bullet to the character. Bullet is undefined`);
-
     let x = this.character.x;
     let y = this.character.y;
     let angle = 0;
