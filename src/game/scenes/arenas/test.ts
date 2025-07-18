@@ -386,7 +386,7 @@ export class TestScene extends Phaser.Scene {
         return true;
       }
     } catch (error: any) {
-      throw Error(error);
+      throw new Error(`Error in validateBulletId: ${error.message}. Input objId: ${objId}`);
     }
   }
 
