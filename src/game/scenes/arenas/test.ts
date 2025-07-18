@@ -377,17 +377,13 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  validateBulletId({ objId }: { objId: string | undefined }) {
-    try {
-      if (objId) {
-        const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
-        if (!bullet) throw new Error(`Bullet not found for id: ${objId}`);
+  getBulletById({ objId }: { objId: string | undefined }) {
+    if (!objId) throw new Error(`Not possible to get bullet. Id not informed: ${objId}`);
 
-        return true;
-      }
-    } catch (error: any) {
-      throw new Error(`Error in validateBulletId: ${error.message}. Input objId: ${objId}`);
-    }
+    const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
+
+    if (!bullet) throw new Error(`Bullet not found for id: ${objId}`);
+    return bullet;
   }
 
   setWeaponState({ newState, objId }: WeaponStateProps) {
@@ -407,14 +403,12 @@ export class TestScene extends Phaser.Scene {
       case 'SHOOTING_FORWARD':
       case 'SHOOTING_UP':
       case 'SHOOTING_DOWN':
-        if (this.validateBulletId({ objId })) {
-          const bullet = this.bullets.find(({ bulletId }) => bulletId === objId)!;
+        const bullet = this.getBulletById({ objId });
 
-          bullet.anims.play(
-            newState === 'BULLET_DESTROYED' ? 'anims_attack_bullet_destroy' : 'anims_attack_bullet',
-            true
-          );
-        }
+        bullet.anims.play(
+          newState === 'BULLET_DESTROYED' ? 'anims_attack_bullet_destroy' : 'anims_attack_bullet',
+          true
+        );
         break;
     }
   }
