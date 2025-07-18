@@ -544,9 +544,6 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateSwordAttachmentToCharacter() {
-    const originX = 0.5;
-    const originY = 0.5;
-
     let x = this.character.x;
     let y = this.character.y;
     let angle = 0;
@@ -576,7 +573,7 @@ export class TestScene extends Phaser.Scene {
       y = this.character.y;
     }
 
-    this.sword.setOrigin(originX, originY);
+    this.sword.setOrigin(SWORD_CONFIG.ORIGIN_X, SWORD_CONFIG.ORIGIN_Y);
     this.sword.setAngle(angle);
     this.sword.body.setSize(width, height);
     this.sword.setPosition(x, y);
@@ -585,9 +582,6 @@ export class TestScene extends Phaser.Scene {
   updateBulletAttachmentToCharacter({ bullet }: { bullet: BulletType }) {
     if (!bullet)
       throw new Error(`Not possible to attach bullet to the character. Bullet is undefined`);
-
-    const originX = 0.5;
-    const originY = 0.5;
 
     let x = this.character.x;
     let y = this.character.y;
@@ -618,7 +612,7 @@ export class TestScene extends Phaser.Scene {
       y = this.character.y;
     }
 
-    bullet.setOrigin(originX, originY);
+    this.sword.setOrigin(BULLET_CONFIG.ORIGIN_X, BULLET_CONFIG.ORIGIN_Y);
     bullet.setAngle(angle);
     bullet.body.setSize(width, height);
     bullet.setPosition(x, y);
