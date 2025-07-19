@@ -31,7 +31,7 @@ type WeaponState =
 
 type WeaponStateProps = {
   newState: WeaponState;
-  objId?: string;
+  weapon: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 };
 
 type BulletType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
@@ -387,13 +387,9 @@ export class TestScene extends Phaser.Scene {
 
     switch (newState) {
       case 'SWORD_FORWARD':
-        this.sword.anims.play('anims_attack_sword_trail', true);
-        break;
       case 'SWORD_UP':
-        this.sword.anims.play('anims_attack_sword_trail', true);
-        break;
       case 'SWORD_DOWN':
-        this.sword.anims.play('anims_attack_sword_trail', true);
+        weapon.anims.play('anims_attack_sword_trail', true);
         break;
       case 'BULLET_DESTROYED':
       case 'SHOOTING_FORWARD':
@@ -621,13 +617,13 @@ export class TestScene extends Phaser.Scene {
 
       if (this.playerState === 'LOOKING_UP') {
         this.setPlayerState('ATTACKING_UP');
-        this.setWeaponState({ newState: 'SWORD_UP' });
+        this.setWeaponState({ newState: 'SWORD_UP', weapon: this.sword });
       } else if (this.playerState === 'LOOKING_DOWN') {
         this.setPlayerState('ATTACKING_DOWN');
-        this.setWeaponState({ newState: 'SWORD_DOWN' });
+        this.setWeaponState({ newState: 'SWORD_DOWN', weapon: this.sword });
       } else {
         this.setPlayerState('ATTACKING_FORWARD');
-        this.setWeaponState({ newState: 'SWORD_FORWARD' });
+        this.setWeaponState({ newState: 'SWORD_FORWARD', weapon: this.sword });
       }
     } else {
       if (this.sword) this.sword.setVisible(false);
@@ -637,30 +633,26 @@ export class TestScene extends Phaser.Scene {
   updateBulletAttack() {
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.shoot)) {
       if (this.bulletsLeft) {
-        const id = this.createBullet();
+        const bullet = this.createBullet();
 
         if (this.playerState === 'LOOKING_UP') {
           this.setPlayerState('ATTACKING_UP');
-          this.setWeaponState({ newState: 'SHOOTING_UP', objId: id });
+          this.setWeaponState({ newState: 'SHOOTING_UP', weapon: bullet });
         } else if (this.playerState === 'LOOKING_DOWN') {
           this.setPlayerState('ATTACKING_DOWN');
-          this.setWeaponState({ newState: 'SHOOTING_DOWN', objId: id });
+          this.setWeaponState({ newState: 'SHOOTING_DOWN', weapon: bullet });
         } else {
           this.setPlayerState('ATTACKING_FORWARD');
-          this.setWeaponState({ newState: 'SHOOTING_FORWARD', objId: id });
+          this.setWeaponState({ newState: 'SHOOTING_FORWARD', weapon: bullet });
         }
 
         this.bulletsLeft--;
-        this.updateBulletMovement({ id });
+        this.updateBulletMovement({ bullet });
       }
     }
   }
 
-  updateBulletMovement({ id }: { id: string }) {
-    const bullet = this.bullets.find(({ bulletId }) => bulletId === id);
-
-    if (!bullet) throw new Error(`Not possible to move projectile. Bullet not found for id: ${id}`);
-
+  updateBulletMovement({ bullet }: { bullet: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody }) {
     switch (this.weaponState) {
       case 'SHOOTING_FORWARD':
         if (this.character.flipX) {
