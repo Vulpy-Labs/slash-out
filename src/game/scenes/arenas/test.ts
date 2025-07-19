@@ -423,20 +423,22 @@ export class TestScene extends Phaser.Scene {
     this.sword = this.physics.add.sprite(this.character.x, this.character.y, 'spr_sword_0');
 
     this.createWeaponsAnimations();
-    this.createWeaponCollisions();
+    this.createSwordCollision({ sword: this.sword });
   }
 
-  createWeaponCollisions() {
-    this.createSwordCollision();
-  }
+  createSwordCollision({ sword }: { sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody }) {
+    sword.setCollideWorldBounds(true);
 
-  createSwordCollision() {
-    this.sword.setCollideWorldBounds(true);
+    (sword.body as Phaser.Physics.Arcade.Body).allowGravity = false;
 
-    (this.sword.body as Phaser.Physics.Arcade.Body).allowGravity = false;
-
-    this.physics.add.overlap(this.sword, this.character);
-    this.physics.add.overlap(this.sword, this.platforms);
+    this.physics.add.collider(sword, this.character, () => {
+      this.applyDamage({ target: this.character, amount: 100 });
+      this.destroySprite({
+        sprite: sword,
+        animationKey: 'anims_attack_sword_trail',
+      });
+    });
+    this.physics.add.collider(sword, this.platforms);
   }
 
   createBullet() {
@@ -465,8 +467,16 @@ export class TestScene extends Phaser.Scene {
       this.destroyBullet({ id: bullet.bulletId });
     });
     this.physics.add.collider(bullet, this.platforms, () => {
-      this.destroyBullet({ id: bullet.bulletId });
-    });
+
+  createShinigamiSword() {
+    this.shinigamiSword = this.physics.add.sprite(
+      this.character.x + 21,
+      this.character.y,
+      'spr_sword_0'
+    );
+    this.shinigamiSword.setFlipX(true);
+
+    this.createSwordCollision({ sword: this.shinigamiSword });
   }
 
   updateCharacterMovement() {
@@ -627,6 +637,10 @@ export class TestScene extends Phaser.Scene {
       }
     } else {
       if (this.sword) this.sword.setVisible(false);
+      if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.sepukku_attack)) {
+        this.createShinigamiSword();
+        this.shinigamiSword.anims.play('anims_attack_sword_trail');
+      }
     }
   }
 
