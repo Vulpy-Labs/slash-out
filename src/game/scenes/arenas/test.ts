@@ -382,16 +382,7 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  getBulletById({ objId }: { objId: string | undefined }) {
-    if (!objId) throw new Error(`Not possible to get bullet. Id not informed: ${objId}`);
-
-    const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
-
-    if (!bullet) throw new Error(`Bullet not found for id: ${objId}`);
-    return bullet;
-  }
-
-  setWeaponState({ newState, objId }: WeaponStateProps) {
+  setWeaponState({ newState, weapon }: WeaponStateProps) {
     this.weaponState = newState;
 
     switch (newState) {
@@ -408,9 +399,7 @@ export class TestScene extends Phaser.Scene {
       case 'SHOOTING_FORWARD':
       case 'SHOOTING_UP':
       case 'SHOOTING_DOWN':
-        const bullet = this.getBulletById({ objId });
-
-        bullet.anims.play(
+        weapon.anims.play(
           newState === 'BULLET_DESTROYED' ? 'anims_attack_bullet_destroy' : 'anims_attack_bullet',
           true
         );
