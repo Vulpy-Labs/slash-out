@@ -715,7 +715,13 @@ export class TestScene extends Phaser.Scene {
     });
   }
 
-  applyDamage(target: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody, amount: number) {
+  applyDamage({
+    target,
+    amount,
+  }: {
+    target: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+    amount: number;
+  }) {
     if (target === this.character) {
       this.character.health -= amount;
       if (this.character.health <= 0) {
