@@ -698,6 +698,8 @@ export class TestScene extends Phaser.Scene {
     if (bullet.isBeingDestroyed) return;
 
     bullet.isBeingDestroyed = true;
+    bullet.body.enable = false;
+
     this.setWeaponState({
       newState: 'BULLET_DESTROYED',
       objId: bullet.bulletId,
