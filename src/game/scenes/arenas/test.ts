@@ -463,10 +463,41 @@ export class TestScene extends Phaser.Scene {
     (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
 
     this.physics.add.collider(bullet, this.character, () => {
-      this.applyDamage(this.character, 100);
-      this.destroyBullet({ id: bullet.bulletId });
+      this.applyDamage({ target: this.character, amount: 100 });
+      this.destroySprite({
+        sprite: bullet,
+        animationKey: 'anims_attack_bullet_destroy',
+        state: 'BULLET_DESTROYED',
+        callback: () => {
+          const index = this.bullets.indexOf(bullet);
+
+          if (index === -1)
+            throw new Error(
+              `Not possible to destroy the bullet. It wasn't found for index: ${index}`
+            );
+
+          this.bullets.splice(index, 1);
+        },
+      });
     });
     this.physics.add.collider(bullet, this.platforms, () => {
+      this.destroySprite({
+        sprite: bullet,
+        animationKey: 'anims_attack_bullet_destroy',
+        state: 'BULLET_DESTROYED',
+        callback: () => {
+          const index = this.bullets.indexOf(bullet);
+
+          if (index === -1)
+            throw new Error(
+              `Not possible to destroy the bullet. It wasn't found for index: ${index}`
+            );
+
+          this.bullets.splice(index, 1);
+        },
+      });
+    });
+  }
 
   createShinigamiSword() {
     this.shinigamiSword = this.physics.add.sprite(
@@ -684,33 +715,29 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  destroyBullet({ id }: { id: string }) {
-    const bullet = this.bullets.find(({ bulletId }) => bulletId === id);
+  destroySprite({
+    sprite,
+    animationKey,
+    state,
+    callback,
+  }: {
+    sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+    animationKey: String;
+    state?: WeaponState;
+    callback?: Function;
+  }) {
+    sprite.body.enable = false;
 
-    if (!bullet)
-      throw new Error(`Not possible to destroy the bullet. It wasn't found for id: ${id}`);
+    state &&
+      this.setWeaponState({
+        newState: state,
+        weapon: sprite,
+      });
 
-    if (bullet.isBeingDestroyed) return;
-
-    bullet.isBeingDestroyed = true;
-    bullet.body.enable = false;
-
-    this.setWeaponState({
-      newState: 'BULLET_DESTROYED',
-      objId: bullet.bulletId,
-    });
-
-    bullet.once('animationcomplete', (animation: Phaser.Animations.Animation) => {
-      if (animation.key === 'anims_attack_bullet_destroy') {
-        const index = this.bullets.indexOf(bullet);
-
-        if (index === -1)
-          throw new Error(
-            `Not possible to destroy the bullet. It wasn't found for index: ${index}`
-          );
-
-        this.bullets.splice(index, 1);
-        bullet.destroy();
+    sprite.once('animationcomplete', (animation: Phaser.Animations.Animation) => {
+      if (animation.key === animationKey) {
+        callback && callback();
+        sprite.destroy();
       }
     });
   }
