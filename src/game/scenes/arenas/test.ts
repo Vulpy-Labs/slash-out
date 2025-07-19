@@ -476,6 +476,7 @@ export class TestScene extends Phaser.Scene {
     (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
 
     this.physics.add.collider(bullet, this.character, () => {
+      this.applyDamage(this.character, 100);
       this.destroyBullet({ id: bullet.bulletId });
     });
     this.physics.add.collider(bullet, this.platforms, () => {
@@ -715,5 +716,18 @@ export class TestScene extends Phaser.Scene {
         bullet.destroy();
       }
     });
+  }
+
+  applyDamage(target: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody, amount: number) {
+    if (target === this.character) {
+      this.character.health -= amount;
+      if (this.character.health <= 0) {
+        this.handleCharacterDeath();
+      }
+    }
+  }
+
+  handleCharacterDeath() {
+    this.character.setActive(false).setVisible(false);
   }
 }
