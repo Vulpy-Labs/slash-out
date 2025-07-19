@@ -39,6 +39,10 @@ type BulletType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
   isBeingDestroyed: boolean;
 };
 
+type CharacterType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
+  health: number;
+};
+
 export class TestScene extends Phaser.Scene {
   // Map
   gameWidth = VIRTUAL_WIDTH;
@@ -48,7 +52,7 @@ export class TestScene extends Phaser.Scene {
   map: Phaser.Tilemaps.Tilemap;
 
   // Character / player
-  character: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  character: CharacterType;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   playerState: PlayerState = 'IDLE';
   isPlayerMovingHorizontally: boolean;
@@ -229,7 +233,8 @@ export class TestScene extends Phaser.Scene {
   }
 
   createCharacter() {
-    this.character = this.physics.add.sprite(150, 100, 'spr_idle');
+    this.character = this.physics.add.sprite(150, 100, 'spr_idle') as CharacterType;
+    this.character.health = 100;
 
     this.createCharacterCollisions();
     this.createCharacterAnimations();
