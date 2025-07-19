@@ -455,7 +455,7 @@ export class TestScene extends Phaser.Scene {
     this.createBulletCollision({ bullet });
     this.updateBulletAttachmentToCharacter({ bullet });
 
-    return bulletId;
+    return bullet;
   }
 
   createBulletCollision({ bullet }: { bullet: BulletType }) {
