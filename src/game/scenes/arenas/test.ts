@@ -143,12 +143,15 @@ export class TestScene extends Phaser.Scene {
     this.createCharacter();
     this.createKeyboardInputs();
     this.createWeapons();
+    this.createLivesContainer();
+    this.updateLivesDisplay();
   }
 
   update() {
     this.updateCharacterMovement();
     this.updateWeaponsPosition();
     this.updateCharacterAttack();
+    this.updateLivesDisplay();
   }
 
   loadMapImages() {
@@ -302,6 +305,10 @@ export class TestScene extends Phaser.Scene {
     // Create a sprite using the first frame
     const sprite = this.add.sprite(400, 300, 'spr_sword_0');
     sprite.play('anims_attack_sword_trail');
+  }
+
+  createLivesContainer() {
+    this.playerLives = this.add.container(0, 0);
   }
 
   setPlayerState(newState: PlayerState) {
@@ -516,5 +523,23 @@ export class TestScene extends Phaser.Scene {
         this.setWeaponState('SWORD_FORWARD');
       }
     }
+  }
+
+  updateLivesDisplay() {
+    if (this.playerLives.length === this.playerCurrentLives) return;
+
+    const spriteDistance = 15;
+
+    this.playerLives.removeAll(true);
+
+    for (let i = 0; i < this.playerCurrentLives; i++) {
+      const lifeSprite = this.add.sprite(i * spriteDistance, 0, 'spr_playerlives');
+      this.playerLives.add(lifeSprite);
+    }
+
+    this.playerLives.setPosition(
+      this.cameras.main.centerX - (this.playerCurrentLives * spriteDistance) / 2,
+      0.95 * VIRTUAL_HEIGHT
+    );
   }
 }
