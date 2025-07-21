@@ -31,6 +31,8 @@ export class TestScene extends Phaser.Scene {
   character: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   playerState: PlayerState = 'IDLE';
+  playerCurrentLives: number = 10;
+  playerLives: Phaser.GameObjects.Container;
   isPlayerMovingHorizontally: boolean;
   isPlayerTouchingGround: boolean;
   keyboardInputs: {
@@ -60,6 +62,7 @@ export class TestScene extends Phaser.Scene {
     this.loadCharacterMovementAssets();
     this.loadCharacterAttackAssets();
     this.loadWeaponsAssets();
+    this.loadIcons();
   }
 
   loadMapAssets() {
@@ -128,6 +131,10 @@ export class TestScene extends Phaser.Scene {
         frameHeight: 16,
       }
     );
+  }
+
+  loadIcons() {
+    this.load.image('spr_playerlives', 'assets/sprites/icons/spr_icons_6.png');
   }
 
   create() {
