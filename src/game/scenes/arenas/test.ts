@@ -621,26 +621,27 @@ export class TestScene extends Phaser.Scene {
     let angle = 0;
     let width = SWORD_CONFIG.WIDTH;
     let height = SWORD_CONFIG.HEIGHT;
+    let offset = 10;
 
     if (this.playerState === 'LOOKING_UP') {
       angle = -90;
       width = SWORD_CONFIG.HEIGHT;
       height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
-      y = this.character.y - this.character.height / 2 - height / 2;
+      y = this.character.y - this.character.height / 2 - height / 2 - offset;
     } else if (this.playerState === 'LOOKING_DOWN') {
       angle = 90;
       width = SWORD_CONFIG.HEIGHT;
       height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
-      y = this.character.y + this.character.height / 2 + height / 2;
+      y = this.character.y + this.character.height / 2 + height / 2 + offset;
     } else {
       if (this.character.flipX) {
         angle = 180;
-        x = this.character.x - this.character.width / 2 - width / 2;
+        x = this.character.x - this.character.width / 2 - width / 2 - offset;
       } else {
         angle = 0;
-        x = this.character.x + this.character.width / 2 + width / 2;
+        x = this.character.x + this.character.width / 2 + width / 2 + offset;
       }
       y = this.character.y;
     }
