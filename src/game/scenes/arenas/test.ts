@@ -18,7 +18,8 @@ type PlayerState =
   | 'LOOKING_DOWN'
   | 'ATTACKING_FORWARD'
   | 'ATTACKING_UP'
-  | 'ATTACKING_DOWN';
+  | 'ATTACKING_DOWN'
+  | 'DEAD';
 
 type WeaponState =
   | 'SWORD_FORWARD'
@@ -89,6 +90,7 @@ export class TestScene extends Phaser.Scene {
     this.loadMapAssets();
     this.loadCharacterMovementAssets();
     this.loadCharacterAttackAssets();
+    this.loadCharacterDeathAssets();
     this.loadWeaponsAssets();
   }
 
@@ -142,6 +144,13 @@ export class TestScene extends Phaser.Scene {
         frameHeight: 16,
       }
     );
+  }
+
+  loadCharacterDeathAssets() {
+    this.load.spritesheet('spr_dead', 'assets/characters/otomo/v1/spr_dead.png', {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
   }
 
   loadWeaponsAssets() {
@@ -251,6 +260,7 @@ export class TestScene extends Phaser.Scene {
   createCharacterAnimations() {
     this.createCharacterMovementAnimations();
     this.createCharacterAttackAnimations();
+    this.createCharacterDeathAnimations();
   }
 
   createCharacterMovementAnimations() {
@@ -318,6 +328,15 @@ export class TestScene extends Phaser.Scene {
     });
   }
 
+  createCharacterDeathAnimations() {
+    this.anims.create({
+      key: 'anim_dead',
+      frames: this.anims.generateFrameNumbers('spr_dead', { start: 0, end: 1 }),
+      frameRate: 6,
+      repeat: 0,
+    });
+  }
+
   createWeaponsAnimations() {
     this.anims.create({
       key: 'anims_attack_sword_trail',
@@ -381,6 +400,9 @@ export class TestScene extends Phaser.Scene {
         break;
       case 'ATTACKING_DOWN':
         this.character.anims.play('anim_attack_sword_down', true);
+        break;
+      case 'DEAD':
+        this.character.anims.play('anim_dead', true);
         break;
     }
   }
