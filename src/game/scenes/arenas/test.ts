@@ -66,6 +66,7 @@ export class TestScene extends Phaser.Scene {
     attack: Phaser.Input.Keyboard.Key;
     shoot: Phaser.Input.Keyboard.Key;
     dash: Phaser.Input.Keyboard.Key;
+    sepukku_attack: Phaser.Input.Keyboard.Key;
   };
 
   // Weapons
@@ -73,6 +74,7 @@ export class TestScene extends Phaser.Scene {
   sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   bullets: BulletType[] = [];
   bulletsLeft = BULLET_CONFIG.CLIP_SIZE;
+  shinigamiSword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
   constructor() {
     super('TestScene');
@@ -412,10 +414,7 @@ export class TestScene extends Phaser.Scene {
       right: keyboard.addKey('D'),
       up: keyboard.addKey('W'),
       down: keyboard.addKey('S'),
-      jump: keyboard.addKey('SPACE'),
-      attack: keyboard.addKey('F'),
-      shoot: keyboard.addKey('G'),
-      dash: keyboard.addKey('SHIFT'),
+      sepukku_attack: keyboard.addKey('Z'),
     };
   }
 
