@@ -456,7 +456,7 @@ export class TestScene extends Phaser.Scene {
     (sword.body as Phaser.Physics.Arcade.Body).allowGravity = false;
 
     this.physics.add.collider(sword, this.character, () => {
-      this.applyDamage({ target: this.character, amount: 100 });
+      this.applyDamage({ target: this.character, amount: SWORD_CONFIG.DAMAGE });
       this.destroySprite({
         sprite: sword,
         animationKey: 'anims_attack_sword_trail',
@@ -487,7 +487,7 @@ export class TestScene extends Phaser.Scene {
     (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
 
     this.physics.add.collider(bullet, this.character, () => {
-      this.applyDamage({ target: this.character, amount: 100 });
+      this.applyDamage({ target: this.character, amount: BULLET_CONFIG.DAMAGE });
       this.destroySprite({
         sprite: bullet,
         animationKey: 'anims_attack_bullet_destroy',

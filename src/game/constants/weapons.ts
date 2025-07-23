@@ -3,6 +3,7 @@ export const SWORD_CONFIG = {
   HEIGHT: 24,
   ORIGIN_X: 0.5,
   ORIGIN_Y: 0.5,
+  DAMAGE: 100,
 };
 export const BULLET_CONFIG = {
   WIDTH: 16,
@@ -11,4 +12,5 @@ export const BULLET_CONFIG = {
   CLIP_SIZE: 3,
   ORIGIN_X: 0.5,
   ORIGIN_Y: 0.5,
+  DAMAGE: 100,
 };
