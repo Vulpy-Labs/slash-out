@@ -7,6 +7,7 @@ import {
   VIRTUAL_WIDTH,
   SWORD_CONFIG,
   BULLET_CONFIG,
+  CHARACTER_HEALTH,
 } from '../../constants';
 
 type PlayerState =
@@ -246,7 +247,7 @@ export class TestScene extends Phaser.Scene {
 
   createCharacter() {
     this.character = this.physics.add.sprite(150, 100, 'spr_idle') as CharacterType;
-    this.character.health = 100;
+    this.character.health = CHARACTER_HEALTH;
 
     this.createCharacterCollisions();
     this.createCharacterAnimations();
