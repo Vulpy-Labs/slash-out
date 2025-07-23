@@ -67,6 +67,7 @@ export class TestScene extends Phaser.Scene {
     shoot: Phaser.Input.Keyboard.Key;
     dash: Phaser.Input.Keyboard.Key;
     sepukku_attack: Phaser.Input.Keyboard.Key;
+    sepukku_shot: Phaser.Input.Keyboard.Key;
   };
 
   // Weapons
@@ -415,6 +416,7 @@ export class TestScene extends Phaser.Scene {
       up: keyboard.addKey('W'),
       down: keyboard.addKey('S'),
       sepukku_attack: keyboard.addKey('Z'),
+      sepukku_shot: keyboard.addKey('X'),
     };
   }
 
@@ -507,6 +509,16 @@ export class TestScene extends Phaser.Scene {
     this.shinigamiSword.setFlipX(true);
 
     this.createSwordCollision({ sword: this.shinigamiSword });
+  }
+
+  createBackfireBullet() {
+    const bullet = this.createBullet();
+
+    bullet.setOrigin(BULLET_CONFIG.ORIGIN_X, BULLET_CONFIG.ORIGIN_Y);
+    bullet.setAngle(180);
+    bullet.body.setSize(BULLET_CONFIG.WIDTH, BULLET_CONFIG.HEIGHT);
+    bullet.setPosition(this.character.x + 50, this.character.y);
+    bullet.setVelocityX(-BULLET_CONFIG.VELOCITY);
   }
 
   updateCharacterMovement() {
@@ -693,6 +705,8 @@ export class TestScene extends Phaser.Scene {
         this.bulletsLeft--;
         this.updateBulletMovement({ bullet });
       }
+    } else if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.sepukku_shot)) {
+      this.createBackfireBullet();
     }
   }
 
