@@ -793,7 +793,7 @@ export class TestScene extends Phaser.Scene {
     amount: number;
   }) {
     if (target === this.character) {
-      this.character.health -= amount;
+      this.character.health = Math.max(0, this.character.health - amount);
       if (this.character.health <= 0) {
         this.handleCharacterDeath();
       }
