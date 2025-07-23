@@ -811,6 +811,7 @@ export class TestScene extends Phaser.Scene {
 
         this.time.delayedCall(500, () => {
           this.character.setActive(true).setVisible(true);
+          this.character.health = CHARACTER_HEALTH;
           this.enableKeyboard({ value: true });
           this.setPlayerState('IDLE');
         });
