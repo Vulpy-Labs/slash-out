@@ -555,8 +555,10 @@ export class TestScene extends Phaser.Scene {
 
     this.isPlayerTouchingGround = this.character.body.blocked.down;
 
-    this.updateHorizontalMovement();
-    this.updateVerticalMovement();
+    if (this.playerState !== 'DEAD') {
+      this.updateHorizontalMovement();
+      this.updateVerticalMovement();
+    }
   }
 
   updateHorizontalMovement() {
@@ -794,6 +796,25 @@ export class TestScene extends Phaser.Scene {
   }
 
   handleCharacterDeath() {
-    this.character.setActive(false).setVisible(false);
+    this.setPlayerState('DEAD');
+    this.character.setVelocity(0);
+
+    this.character.once('animationcomplete', (animation: Phaser.Animations.Animation) => {
+      if (animation.key === 'anim_dead') {
+        this.character.setActive(false).setVisible(false);
+        this.enableKeyboard({ value: false });
+
+        setTimeout(() => {
+          this.character.setActive(true).setVisible(true);
+          this.enableKeyboard({ value: true });
+          this.setPlayerState('IDLE');
+        }, 500);
+      }
+    });
+  }
+
+  enableKeyboard({ value }: { value: boolean }) {
+    Object.values(this.keyboardInputs).forEach(key => (key.enabled = value));
+    Object.values(this.cursors).forEach(key => (key.enabled = value));
   }
 }
