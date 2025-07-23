@@ -809,11 +809,11 @@ export class TestScene extends Phaser.Scene {
         this.character.setActive(false).setVisible(false);
         this.enableKeyboard({ value: false });
 
-        setTimeout(() => {
+        this.time.delayedCall(500, () => {
           this.character.setActive(true).setVisible(true);
           this.enableKeyboard({ value: true });
           this.setPlayerState('IDLE');
-        }, 500);
+        });
       }
     });
   }
