@@ -767,7 +767,7 @@ export class TestScene extends Phaser.Scene {
     sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     animationKey: string;
     state?: WeaponState;
-    callback?: Function;
+    callback?: () => void;
   }) {
     sprite.body.enable = false;
 
