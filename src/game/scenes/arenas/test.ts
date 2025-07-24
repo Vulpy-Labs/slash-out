@@ -7,6 +7,7 @@ import {
   VIRTUAL_WIDTH,
   SWORD_CONFIG,
   BULLET_CONFIG,
+  DEFAULT_CHARACTER_LIVES,
 } from '../../constants';
 
 type PlayerState =
@@ -51,7 +52,7 @@ export class TestScene extends Phaser.Scene {
   character: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   playerState: PlayerState = 'IDLE';
-  playerCurrentLives: number = 10;
+  playerCurrentLives: number = DEFAULT_CHARACTER_LIVES;
   playerLives: Phaser.GameObjects.Container;
   isPlayerMovingHorizontally: boolean;
   isPlayerTouchingGround: boolean;
@@ -724,24 +725,6 @@ export class TestScene extends Phaser.Scene {
         bullet.destroy();
       }
     });
-  }
-
-  updateLivesDisplay() {
-    if (this.playerLives.length === this.playerCurrentLives) return;
-
-    const spriteDistance = 15;
-
-    this.playerLives.removeAll(true);
-
-    for (let i = 0; i < this.playerCurrentLives; i++) {
-      const lifeSprite = this.add.sprite(i * spriteDistance, 0, 'spr_playerlives');
-      this.playerLives.add(lifeSprite);
-    }
-
-    this.playerLives.setPosition(
-      this.cameras.main.centerX - (this.playerCurrentLives * spriteDistance) / 2,
-      0.95 * VIRTUAL_HEIGHT
-    );
   }
 
   updateLivesDisplay() {
