@@ -1,4 +1,14 @@
 export const SWORD_CONFIG = {
-  width: 48,
-  height: 24,
+  WIDTH: 48,
+  HEIGHT: 24,
+  ORIGIN_X: 0.5,
+  ORIGIN_Y: 0.5,
+};
+export const BULLET_CONFIG = {
+  WIDTH: 16,
+  HEIGHT: 16,
+  VELOCITY: 210,
+  CLIP_SIZE: 3,
+  ORIGIN_X: 0.5,
+  ORIGIN_Y: 0.5,
 };

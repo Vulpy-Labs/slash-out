@@ -19,6 +19,7 @@ esac
 # Define tipos válidos de commit e seus emojis equivalentes
 # Site com a lista de emojis: https://gitmoji.dev/
 declare -A types_emojis=(
+  [anim]="💫"
   [asset]="🍱"
   [build]="🏗"
   [chore]="🧹"

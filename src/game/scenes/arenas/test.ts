@@ -1,9 +1,12 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import {
   CHARACTER_SPEED_X,
   CHARACTER_SPEED_Y,
   VIRTUAL_HEIGHT,
   VIRTUAL_WIDTH,
   SWORD_CONFIG,
+  BULLET_CONFIG,
 } from '../../constants';
 
 type PlayerState =
@@ -13,11 +16,28 @@ type PlayerState =
   | 'IN_AIR'
   | 'LOOKING_UP'
   | 'LOOKING_DOWN'
-  | 'ATTACKING'
+  | 'ATTACKING_FORWARD'
   | 'ATTACKING_UP'
   | 'ATTACKING_DOWN';
 
-type WeaponState = 'SWORD_FORWARD' | 'SWORD_UP' | 'SWORD_DOWN';
+type WeaponState =
+  | 'SWORD_FORWARD'
+  | 'SWORD_UP'
+  | 'SWORD_DOWN'
+  | 'SHOOTING_FORWARD'
+  | 'SHOOTING_UP'
+  | 'SHOOTING_DOWN'
+  | 'BULLET_DESTROYED';
+
+type WeaponStateProps = {
+  newState: WeaponState;
+  objId?: string;
+};
+
+type BulletType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
+  bulletId: string;
+  isBeingDestroyed: boolean;
+};
 
 export class TestScene extends Phaser.Scene {
   // Map
@@ -42,12 +62,15 @@ export class TestScene extends Phaser.Scene {
     down: Phaser.Input.Keyboard.Key;
     jump: Phaser.Input.Keyboard.Key;
     attack: Phaser.Input.Keyboard.Key;
+    shoot: Phaser.Input.Keyboard.Key;
     dash: Phaser.Input.Keyboard.Key;
   };
 
   // Weapons
   weaponState: WeaponState;
   sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  bullets: BulletType[] = [];
+  bulletsLeft = BULLET_CONFIG.CLIP_SIZE;
 
   constructor() {
     super('TestScene');
@@ -118,7 +141,6 @@ export class TestScene extends Phaser.Scene {
   }
 
   loadWeaponsAssets() {
-    // Sword slash trail
     for (let i = 0; i < 5; i++) {
       this.load.image(`spr_sword_${i}`, `assets/sprites/combat/melee/spr_sword/spr_sword_${i}.png`);
     }
@@ -131,6 +153,16 @@ export class TestScene extends Phaser.Scene {
         frameHeight: 16,
       }
     );
+
+    for (let i = 0; i < 2; i++) {
+      this.load.image(
+        `spr_bullet_${i}`,
+        `assets/sprites/combat/range/spr_bullet/spr_bullet_${i}.png`
+      );
+    }
+    for (let i = 0; i < 16; i++) {
+      this.load.image(`spr_blast_${i}`, `assets/sprites/combat/range/spr_blast/spr_blast_${i}.png`);
+    }
   }
 
   loadIcons() {
@@ -149,7 +181,7 @@ export class TestScene extends Phaser.Scene {
 
   update() {
     this.updateCharacterMovement();
-    this.updateWeaponsPosition();
+    this.updateWeaponsAttachmentToCharacter();
     this.updateCharacterAttack();
     this.updateLivesDisplay();
   }
@@ -298,13 +330,25 @@ export class TestScene extends Phaser.Scene {
         { key: 'spr_sword_3' },
         { key: 'spr_sword_4' },
       ],
-      frameRate: 2,
+      frameRate: 24,
       repeat: -1,
     });
 
-    // Create a sprite using the first frame
-    const sprite = this.add.sprite(400, 300, 'spr_sword_0');
-    sprite.play('anims_attack_sword_trail');
+    this.anims.create({
+      key: 'anims_attack_bullet',
+      frames: [{ key: 'spr_bullet_0' }, { key: 'spr_bullet_1' }],
+      frameRate: 12,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: 'anims_attack_bullet_destroy',
+      frames: new Array(15).fill('').map((_, index) => ({
+        key: `spr_blast_${index}`,
+      })),
+      frameRate: 30,
+      repeat: 0,
+    });
   }
 
   createLivesContainer() {
@@ -335,7 +379,7 @@ export class TestScene extends Phaser.Scene {
       case 'LOOKING_DOWN':
         this.character.anims.play('anim_look_down', true);
         break;
-      case 'ATTACKING':
+      case 'ATTACKING_FORWARD':
         this.character.anims.play('anim_attack_sword', true);
         break;
       case 'ATTACKING_UP':
@@ -347,9 +391,16 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  setWeaponState(newState: WeaponState) {
-    if (this.weaponState === newState) return;
+  getBulletById({ objId }: { objId: string | undefined }) {
+    if (!objId) throw new Error(`Not possible to get bullet. Id not informed: ${objId}`);
 
+    const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
+
+    if (!bullet) throw new Error(`Bullet not found for id: ${objId}`);
+    return bullet;
+  }
+
+  setWeaponState({ newState, objId }: WeaponStateProps) {
     this.weaponState = newState;
 
     switch (newState) {
@@ -361,6 +412,17 @@ export class TestScene extends Phaser.Scene {
         break;
       case 'SWORD_DOWN':
         this.sword.anims.play('anims_attack_sword_trail', true);
+        break;
+      case 'BULLET_DESTROYED':
+      case 'SHOOTING_FORWARD':
+      case 'SHOOTING_UP':
+      case 'SHOOTING_DOWN':
+        const bullet = this.getBulletById({ objId });
+
+        bullet.anims.play(
+          newState === 'BULLET_DESTROYED' ? 'anims_attack_bullet_destroy' : 'anims_attack_bullet',
+          true
+        );
         break;
     }
   }
@@ -376,22 +438,58 @@ export class TestScene extends Phaser.Scene {
       down: keyboard.addKey('S'),
       jump: keyboard.addKey('SPACE'),
       attack: keyboard.addKey('F'),
+      shoot: keyboard.addKey('G'),
       dash: keyboard.addKey('SHIFT'),
     };
   }
 
   createWeapons() {
     this.sword = this.physics.add.sprite(this.character.x, this.character.y, 'spr_sword_0');
-    this.sword.setVisible(false);
+
     this.createWeaponsAnimations();
     this.createWeaponCollisions();
   }
 
   createWeaponCollisions() {
+    this.createSwordCollision();
+  }
+
+  createSwordCollision() {
     this.sword.setCollideWorldBounds(true);
+
     (this.sword.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+
     this.physics.add.overlap(this.sword, this.character);
     this.physics.add.overlap(this.sword, this.platforms);
+  }
+
+  createBullet() {
+    const bulletId = uuidv4();
+    const bullet = this.physics.add.sprite(
+      this.character.x,
+      this.character.y,
+      'spr_bullet_0'
+    ) as BulletType;
+    bullet.bulletId = bulletId;
+    bullet.isBeingDestroyed = false;
+
+    this.bullets.push(bullet);
+    this.createBulletCollision({ bullet });
+    this.updateBulletAttachmentToCharacter({ bullet });
+
+    return bulletId;
+  }
+
+  createBulletCollision({ bullet }: { bullet: BulletType }) {
+    bullet.setCollideWorldBounds(false);
+    (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+
+    this.physics.add.collider(bullet, this.character, () => {
+      this.destroyBullet({ id: bullet.bulletId });
+    });
+    this.physics.add.collider(bullet, this.platforms, () => {
+      this.destroyBullet({ id: bullet.bulletId });
+    });
   }
 
   updateCharacterMovement() {
@@ -431,7 +529,7 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateVerticalMovement() {
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.isPlayerTouchingGround) {
+    if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
       this.character.setVelocityY(-CHARACTER_SPEED_Y);
       this.setPlayerState('JUMPING');
     }
@@ -455,30 +553,27 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  updateWeaponsPosition() {
-    this.updateSwordPosition();
+  updateWeaponsAttachmentToCharacter() {
+    this.updateSwordAttachmentToCharacter();
   }
 
-  updateSwordPosition() {
-    const originX = 0.5;
-    const originY = 0.5;
-
+  updateSwordAttachmentToCharacter() {
     let x = this.character.x;
     let y = this.character.y;
     let angle = 0;
-    let width = SWORD_CONFIG.width;
-    let height = SWORD_CONFIG.height;
+    let width = SWORD_CONFIG.WIDTH;
+    let height = SWORD_CONFIG.HEIGHT;
 
     if (this.playerState === 'LOOKING_UP') {
       angle = -90;
-      width = SWORD_CONFIG.height;
-      height = SWORD_CONFIG.width;
+      width = SWORD_CONFIG.HEIGHT;
+      height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y - this.character.height / 2 - height / 2;
     } else if (this.playerState === 'LOOKING_DOWN') {
       angle = 90;
-      width = SWORD_CONFIG.height;
-      height = SWORD_CONFIG.width;
+      width = SWORD_CONFIG.HEIGHT;
+      height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y + this.character.height / 2 + height / 2;
     } else {
@@ -492,37 +587,161 @@ export class TestScene extends Phaser.Scene {
       y = this.character.y;
     }
 
-    this.sword.setOrigin(originX, originY);
+    this.sword.setOrigin(SWORD_CONFIG.ORIGIN_X, SWORD_CONFIG.ORIGIN_Y);
     this.sword.setAngle(angle);
     this.sword.body.setSize(width, height);
     this.sword.setPosition(x, y);
   }
 
+  updateBulletAttachmentToCharacter({ bullet }: { bullet: BulletType }) {
+    let x = this.character.x;
+    let y = this.character.y;
+    let angle = 0;
+    let width = BULLET_CONFIG.WIDTH;
+    let height = BULLET_CONFIG.HEIGHT;
+
+    if (this.playerState === 'LOOKING_UP') {
+      angle = -90;
+      width = BULLET_CONFIG.HEIGHT;
+      height = BULLET_CONFIG.WIDTH;
+      x = this.character.x;
+      y = this.character.y - this.character.height / 2 - height / 2;
+    } else if (this.playerState === 'LOOKING_DOWN') {
+      angle = 90;
+      width = BULLET_CONFIG.HEIGHT;
+      height = BULLET_CONFIG.WIDTH;
+      x = this.character.x;
+      y = this.character.y + this.character.height / 2 + height / 2;
+    } else {
+      if (this.character.flipX) {
+        angle = 180;
+        x = this.character.x - this.character.width / 2 - width / 2;
+      } else {
+        angle = 0;
+        x = this.character.x + this.character.width / 2 + width / 2;
+      }
+      y = this.character.y;
+    }
+
+    bullet.setOrigin(BULLET_CONFIG.ORIGIN_X, BULLET_CONFIG.ORIGIN_Y);
+    bullet.setAngle(angle);
+    bullet.body.setSize(width, height);
+    bullet.setPosition(x, y);
+  }
+
   updateCharacterAttack() {
+    this.updateSwordAttack();
+    this.updateBulletAttack();
+  }
+
+  updateSwordAttack() {
     if (this.keyboardInputs.attack.isDown) {
       this.sword.setVisible(true);
+
       if (this.playerState === 'LOOKING_UP') {
         this.setPlayerState('ATTACKING_UP');
+        this.setWeaponState({ newState: 'SWORD_UP' });
       } else if (this.playerState === 'LOOKING_DOWN') {
         this.setPlayerState('ATTACKING_DOWN');
+        this.setWeaponState({ newState: 'SWORD_DOWN' });
       } else {
-        this.setPlayerState('ATTACKING');
+        this.setPlayerState('ATTACKING_FORWARD');
+        this.setWeaponState({ newState: 'SWORD_FORWARD' });
       }
     } else {
       if (this.sword) this.sword.setVisible(false);
     }
   }
 
-  updateSwordAttack() {
-    if (this.keyboardInputs.attack.isDown) {
-      if (this.playerState === 'LOOKING_UP') {
-        this.setWeaponState('SWORD_UP');
-      } else if (this.playerState === 'LOOKING_DOWN') {
-        this.setWeaponState('SWORD_DOWN');
-      } else {
-        this.setWeaponState('SWORD_FORWARD');
+  updateBulletAttack() {
+    if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.shoot)) {
+      if (this.bulletsLeft) {
+        const id = this.createBullet();
+
+        if (this.playerState === 'LOOKING_UP') {
+          this.setPlayerState('ATTACKING_UP');
+          this.setWeaponState({ newState: 'SHOOTING_UP', objId: id });
+        } else if (this.playerState === 'LOOKING_DOWN') {
+          this.setPlayerState('ATTACKING_DOWN');
+          this.setWeaponState({ newState: 'SHOOTING_DOWN', objId: id });
+        } else {
+          this.setPlayerState('ATTACKING_FORWARD');
+          this.setWeaponState({ newState: 'SHOOTING_FORWARD', objId: id });
+        }
+
+        this.bulletsLeft--;
+        this.updateBulletMovement({ id });
       }
     }
+  }
+
+  updateBulletMovement({ id }: { id: string }) {
+    const bullet = this.bullets.find(({ bulletId }) => bulletId === id);
+
+    if (!bullet) throw new Error(`Not possible to move projectile. Bullet not found for id: ${id}`);
+
+    switch (this.weaponState) {
+      case 'SHOOTING_FORWARD':
+        if (this.character.flipX) {
+          bullet.setVelocityX(-BULLET_CONFIG.VELOCITY);
+        } else {
+          bullet.setVelocityX(BULLET_CONFIG.VELOCITY);
+        }
+        break;
+      case 'SHOOTING_UP':
+        bullet.setVelocityY(-BULLET_CONFIG.VELOCITY);
+        break;
+      case 'SHOOTING_DOWN':
+        bullet.setVelocityY(BULLET_CONFIG.VELOCITY);
+        break;
+    }
+  }
+
+  destroyBullet({ id }: { id: string }) {
+    const bullet = this.bullets.find(({ bulletId }) => bulletId === id);
+
+    if (!bullet)
+      throw new Error(`Not possible to destroy the bullet. It wasn't found for id: ${id}`);
+
+    if (bullet.isBeingDestroyed) return;
+
+    bullet.isBeingDestroyed = true;
+    this.setWeaponState({
+      newState: 'BULLET_DESTROYED',
+      objId: bullet.bulletId,
+    });
+
+    bullet.once('animationcomplete', (animation: Phaser.Animations.Animation) => {
+      if (animation.key === 'anims_attack_bullet_destroy') {
+        const index = this.bullets.indexOf(bullet);
+
+        if (index === -1)
+          throw new Error(
+            `Not possible to destroy the bullet. It wasn't found for index: ${index}`
+          );
+
+        this.bullets.splice(index, 1);
+        bullet.destroy();
+      }
+    });
+  }
+
+  updateLivesDisplay() {
+    if (this.playerLives.length === this.playerCurrentLives) return;
+
+    const spriteDistance = 15;
+
+    this.playerLives.removeAll(true);
+
+    for (let i = 0; i < this.playerCurrentLives; i++) {
+      const lifeSprite = this.add.sprite(i * spriteDistance, 0, 'spr_playerlives');
+      this.playerLives.add(lifeSprite);
+    }
+
+    this.playerLives.setPosition(
+      this.cameras.main.centerX - (this.playerCurrentLives * spriteDistance) / 2,
+      0.95 * VIRTUAL_HEIGHT
+    );
   }
 
   updateLivesDisplay() {
