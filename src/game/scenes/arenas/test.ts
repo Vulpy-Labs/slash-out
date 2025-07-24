@@ -184,12 +184,11 @@ export class TestScene extends Phaser.Scene {
     this.createTitle();
     this.createCharacter();
     this.createKeyboardInputs();
-    this.createWeapons();
+    this.createWeaponsAnimations();
   }
 
   update() {
     this.updateCharacterMovement();
-    this.updateWeaponsAttachmentToCharacter();
     this.updateCharacterAttack();
   }
 
@@ -339,6 +338,11 @@ export class TestScene extends Phaser.Scene {
   }
 
   createWeaponsAnimations() {
+    this.createSwordAnimations();
+    this.createBulletAnimations();
+  }
+
+  createSwordAnimations() {
     this.anims.create({
       key: 'anims_attack_sword_trail',
       frames: [
@@ -351,7 +355,9 @@ export class TestScene extends Phaser.Scene {
       frameRate: 24,
       repeat: 0,
     });
+  }
 
+  createBulletAnimations() {
     this.anims.create({
       key: 'anims_attack_bullet',
       frames: [{ key: 'spr_bullet_0' }, { key: 'spr_bullet_1' }],
@@ -447,11 +453,11 @@ export class TestScene extends Phaser.Scene {
     };
   }
 
-  createWeapons() {
+  createSword() {
     this.sword = this.physics.add.sprite(this.character.x, this.character.y, 'spr_sword_0');
 
-    this.createWeaponsAnimations();
     this.createSwordCollision({ sword: this.sword });
+    this.updateSwordAttachmentToCharacter();
   }
 
   createSwordCollision({ sword }: { sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody }) {
@@ -611,10 +617,6 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  updateWeaponsAttachmentToCharacter() {
-    this.updateSwordAttachmentToCharacter();
-  }
-
   updateSwordAttachmentToCharacter() {
     let x = this.character.x;
     let y = this.character.y;
@@ -628,20 +630,20 @@ export class TestScene extends Phaser.Scene {
       width = SWORD_CONFIG.HEIGHT;
       height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
-      y = this.character.y - this.character.height / 2 - height / 2 - offset;
+      y = this.character.y - this.character.height * 2 - offset;
     } else if (this.playerState === 'LOOKING_DOWN') {
       angle = 90;
       width = SWORD_CONFIG.HEIGHT;
       height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
-      y = this.character.y + this.character.height / 2 + height / 2 + offset;
+      y = this.character.y + this.character.height * 2 + offset;
     } else {
       if (this.character.flipX) {
         angle = 180;
-        x = this.character.x - this.character.width / 2 - width / 2 - offset;
+        x = this.character.x - this.character.width * 2 - offset;
       } else {
         angle = 0;
-        x = this.character.x + this.character.width / 2 + width / 2 + offset;
+        x = this.character.x + this.character.width * 2 + offset;
       }
       y = this.character.y;
     }
@@ -694,8 +696,8 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateSwordAttack() {
-    if (this.keyboardInputs.attack.isDown) {
-      this.sword.setVisible(true);
+    if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.attack)) {
+      this.createSword();
 
       if (this.playerState === 'LOOKING_UP') {
         this.setPlayerState('ATTACKING_UP');
@@ -708,7 +710,10 @@ export class TestScene extends Phaser.Scene {
         this.setWeaponState({ newState: 'SWORD_FORWARD', weapon: this.sword });
       }
     } else {
-      if (this.sword) this.sword.setVisible(false);
+      if (this.sword) {
+        this.destroySprite({ sprite: this.sword, animationKey: 'anims_attack_sword_trail' });
+      }
+
       if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.sepukku_attack)) {
         this.createShinigamiSword();
         this.shinigamiSword.anims.play('anims_attack_sword_trail');
@@ -769,7 +774,7 @@ export class TestScene extends Phaser.Scene {
     state?: WeaponState;
     callback?: () => void;
   }) {
-    sprite.body.enable = false;
+    if (sprite.body) sprite.body.enable = false;
 
     state &&
       this.setWeaponState({
