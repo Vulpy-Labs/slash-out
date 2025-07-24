@@ -68,8 +68,8 @@ export class TestScene extends Phaser.Scene {
     attack: Phaser.Input.Keyboard.Key;
     shoot: Phaser.Input.Keyboard.Key;
     dash: Phaser.Input.Keyboard.Key;
-    sepukku_attack: Phaser.Input.Keyboard.Key;
-    sepukku_shot: Phaser.Input.Keyboard.Key;
+    seppuku_attack: Phaser.Input.Keyboard.Key;
+    seppuku_shot: Phaser.Input.Keyboard.Key;
   };
 
   // Weapons
@@ -448,8 +448,8 @@ export class TestScene extends Phaser.Scene {
       attack: keyboard.addKey('F'),
       shoot: keyboard.addKey('G'),
       dash: keyboard.addKey('SHIFT'),
-      sepukku_attack: keyboard.addKey('Z'),
-      sepukku_shot: keyboard.addKey('X'),
+      seppuku_attack: keyboard.addKey('Z'),
+      seppuku_shot: keyboard.addKey('X'),
     };
   }
 
@@ -714,7 +714,7 @@ export class TestScene extends Phaser.Scene {
         this.destroySprite({ sprite: this.sword, animationKey: 'anims_attack_sword_trail' });
       }
 
-      if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.sepukku_attack)) {
+      if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.seppuku_attack)) {
         this.createShinigamiSword();
         this.shinigamiSword.anims.play('anims_attack_sword_trail');
       }
@@ -740,7 +740,7 @@ export class TestScene extends Phaser.Scene {
         this.bulletsLeft--;
         this.updateBulletMovement({ bullet });
       }
-    } else if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.sepukku_shot)) {
+    } else if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.seppuku_shot)) {
       this.createBackfireBullet();
     }
   }
