@@ -623,7 +623,7 @@ export class TestScene extends Phaser.Scene {
     let angle = 0;
     let width = SWORD_CONFIG.WIDTH;
     let height = SWORD_CONFIG.HEIGHT;
-    let offset = 10;
+    let offset = SWORD_CONFIG.OFFSET;
 
     if (this.playerState === 'LOOKING_UP') {
       angle = -90;

@@ -4,6 +4,7 @@ export const SWORD_CONFIG = {
   ORIGIN_X: 0.5,
   ORIGIN_Y: 0.5,
   DAMAGE: 100,
+  OFFSET: 10,
 };
 export const BULLET_CONFIG = {
   WIDTH: 16,
