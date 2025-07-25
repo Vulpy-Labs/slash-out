@@ -7,6 +7,7 @@ import {
   VIRTUAL_WIDTH,
   SWORD_CONFIG,
   BULLET_CONFIG,
+  CHARACTER_HEALTH,
 } from '../../constants';
 
 type PlayerState =
@@ -18,7 +19,8 @@ type PlayerState =
   | 'LOOKING_DOWN'
   | 'ATTACKING_FORWARD'
   | 'ATTACKING_UP'
-  | 'ATTACKING_DOWN';
+  | 'ATTACKING_DOWN'
+  | 'DEAD';
 
 type WeaponState =
   | 'SWORD_FORWARD'
@@ -31,12 +33,16 @@ type WeaponState =
 
 type WeaponStateProps = {
   newState: WeaponState;
-  objId?: string;
+  weapon: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 };
 
 type BulletType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
   bulletId: string;
   isBeingDestroyed: boolean;
+};
+
+type CharacterType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
+  health: number;
 };
 
 export class TestScene extends Phaser.Scene {
@@ -48,7 +54,7 @@ export class TestScene extends Phaser.Scene {
   map: Phaser.Tilemaps.Tilemap;
 
   // Character / player
-  character: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  character: CharacterType;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   playerState: PlayerState = 'IDLE';
   isPlayerMovingHorizontally: boolean;
@@ -62,6 +68,8 @@ export class TestScene extends Phaser.Scene {
     attack: Phaser.Input.Keyboard.Key;
     shoot: Phaser.Input.Keyboard.Key;
     dash: Phaser.Input.Keyboard.Key;
+    seppuku_attack: Phaser.Input.Keyboard.Key;
+    seppuku_shot: Phaser.Input.Keyboard.Key;
   };
 
   // Weapons
@@ -69,6 +77,7 @@ export class TestScene extends Phaser.Scene {
   sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   bullets: BulletType[] = [];
   bulletsLeft = BULLET_CONFIG.CLIP_SIZE;
+  shinigamiSword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
   constructor() {
     super('TestScene');
@@ -82,6 +91,7 @@ export class TestScene extends Phaser.Scene {
     this.loadMapAssets();
     this.loadCharacterMovementAssets();
     this.loadCharacterAttackAssets();
+    this.loadCharacterDeathAssets();
     this.loadWeaponsAssets();
   }
 
@@ -135,6 +145,13 @@ export class TestScene extends Phaser.Scene {
         frameHeight: 16,
       }
     );
+  }
+
+  loadCharacterDeathAssets() {
+    this.load.spritesheet('spr_dead', 'assets/characters/otomo/v1/spr_dead.png', {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
   }
 
   loadWeaponsAssets() {
@@ -229,7 +246,8 @@ export class TestScene extends Phaser.Scene {
   }
 
   createCharacter() {
-    this.character = this.physics.add.sprite(150, 100, 'spr_idle');
+    this.character = this.physics.add.sprite(150, 100, 'spr_idle') as CharacterType;
+    this.character.health = CHARACTER_HEALTH;
 
     this.createCharacterCollisions();
     this.createCharacterAnimations();
@@ -243,6 +261,7 @@ export class TestScene extends Phaser.Scene {
   createCharacterAnimations() {
     this.createCharacterMovementAnimations();
     this.createCharacterAttackAnimations();
+    this.createCharacterDeathAnimations();
   }
 
   createCharacterMovementAnimations() {
@@ -310,6 +329,15 @@ export class TestScene extends Phaser.Scene {
     });
   }
 
+  createCharacterDeathAnimations() {
+    this.anims.create({
+      key: 'anim_dead',
+      frames: this.anims.generateFrameNumbers('spr_dead', { start: 0, end: 1 }),
+      frameRate: 6,
+      repeat: 0,
+    });
+  }
+
   createWeaponsAnimations() {
     this.anims.create({
       key: 'anims_attack_sword_trail',
@@ -321,7 +349,7 @@ export class TestScene extends Phaser.Scene {
         { key: 'spr_sword_4' },
       ],
       frameRate: 24,
-      repeat: -1,
+      repeat: 0,
     });
 
     this.anims.create({
@@ -374,38 +402,26 @@ export class TestScene extends Phaser.Scene {
       case 'ATTACKING_DOWN':
         this.character.anims.play('anim_attack_sword_down', true);
         break;
+      case 'DEAD':
+        this.character.anims.play('anim_dead', true);
+        break;
     }
   }
 
-  getBulletById({ objId }: { objId: string | undefined }) {
-    if (!objId) throw new Error(`Not possible to get bullet. Id not informed: ${objId}`);
-
-    const bullet = this.bullets.find(({ bulletId }) => bulletId === objId);
-
-    if (!bullet) throw new Error(`Bullet not found for id: ${objId}`);
-    return bullet;
-  }
-
-  setWeaponState({ newState, objId }: WeaponStateProps) {
+  setWeaponState({ newState, weapon }: WeaponStateProps) {
     this.weaponState = newState;
 
     switch (newState) {
       case 'SWORD_FORWARD':
-        this.sword.anims.play('anims_attack_sword_trail', true);
-        break;
       case 'SWORD_UP':
-        this.sword.anims.play('anims_attack_sword_trail', true);
-        break;
       case 'SWORD_DOWN':
-        this.sword.anims.play('anims_attack_sword_trail', true);
+        weapon.anims.play('anims_attack_sword_trail', true);
         break;
       case 'BULLET_DESTROYED':
       case 'SHOOTING_FORWARD':
       case 'SHOOTING_UP':
       case 'SHOOTING_DOWN':
-        const bullet = this.getBulletById({ objId });
-
-        bullet.anims.play(
+        weapon.anims.play(
           newState === 'BULLET_DESTROYED' ? 'anims_attack_bullet_destroy' : 'anims_attack_bullet',
           true
         );
@@ -426,6 +442,8 @@ export class TestScene extends Phaser.Scene {
       attack: keyboard.addKey('F'),
       shoot: keyboard.addKey('G'),
       dash: keyboard.addKey('SHIFT'),
+      seppuku_attack: keyboard.addKey('Z'),
+      seppuku_shot: keyboard.addKey('X'),
     };
   }
 
@@ -433,20 +451,22 @@ export class TestScene extends Phaser.Scene {
     this.sword = this.physics.add.sprite(this.character.x, this.character.y, 'spr_sword_0');
 
     this.createWeaponsAnimations();
-    this.createWeaponCollisions();
+    this.createSwordCollision({ sword: this.sword });
   }
 
-  createWeaponCollisions() {
-    this.createSwordCollision();
-  }
+  createSwordCollision({ sword }: { sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody }) {
+    sword.setCollideWorldBounds(true);
 
-  createSwordCollision() {
-    this.sword.setCollideWorldBounds(true);
+    (sword.body as Phaser.Physics.Arcade.Body).allowGravity = false;
 
-    (this.sword.body as Phaser.Physics.Arcade.Body).allowGravity = false;
-
-    this.physics.add.overlap(this.sword, this.character);
-    this.physics.add.overlap(this.sword, this.platforms);
+    this.physics.add.collider(sword, this.character, () => {
+      this.applyDamage({ target: this.character, amount: SWORD_CONFIG.DAMAGE });
+      this.destroySprite({
+        sprite: sword,
+        animationKey: 'anims_attack_sword_trail',
+      });
+    });
+    this.physics.add.collider(sword, this.platforms);
   }
 
   createBullet() {
@@ -463,7 +483,7 @@ export class TestScene extends Phaser.Scene {
     this.createBulletCollision({ bullet });
     this.updateBulletAttachmentToCharacter({ bullet });
 
-    return bulletId;
+    return bullet;
   }
 
   createBulletCollision({ bullet }: { bullet: BulletType }) {
@@ -471,11 +491,61 @@ export class TestScene extends Phaser.Scene {
     (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
 
     this.physics.add.collider(bullet, this.character, () => {
-      this.destroyBullet({ id: bullet.bulletId });
+      this.applyDamage({ target: this.character, amount: BULLET_CONFIG.DAMAGE });
+      this.destroySprite({
+        sprite: bullet,
+        animationKey: 'anims_attack_bullet_destroy',
+        state: 'BULLET_DESTROYED',
+        callback: () => {
+          const index = this.bullets.indexOf(bullet);
+
+          if (index === -1)
+            throw new Error(
+              `Not possible to destroy the bullet. It wasn't found for index: ${index}`
+            );
+
+          this.bullets.splice(index, 1);
+        },
+      });
     });
     this.physics.add.collider(bullet, this.platforms, () => {
-      this.destroyBullet({ id: bullet.bulletId });
+      this.destroySprite({
+        sprite: bullet,
+        animationKey: 'anims_attack_bullet_destroy',
+        state: 'BULLET_DESTROYED',
+        callback: () => {
+          const index = this.bullets.indexOf(bullet);
+
+          if (index === -1)
+            throw new Error(
+              `Not possible to destroy the bullet. It wasn't found for index: ${index}`
+            );
+
+          this.bullets.splice(index, 1);
+        },
+      });
     });
+  }
+
+  createShinigamiSword() {
+    this.shinigamiSword = this.physics.add.sprite(
+      this.character.x + 21,
+      this.character.y,
+      'spr_sword_0'
+    );
+    this.shinigamiSword.setFlipX(true);
+
+    this.createSwordCollision({ sword: this.shinigamiSword });
+  }
+
+  createBackfireBullet() {
+    const bullet = this.createBullet();
+
+    bullet.setOrigin(BULLET_CONFIG.ORIGIN_X, BULLET_CONFIG.ORIGIN_Y);
+    bullet.setAngle(180);
+    bullet.body.setSize(BULLET_CONFIG.WIDTH, BULLET_CONFIG.HEIGHT);
+    bullet.setPosition(this.character.x + 50, this.character.y);
+    bullet.setVelocityX(-BULLET_CONFIG.VELOCITY);
   }
 
   updateCharacterMovement() {
@@ -489,8 +559,10 @@ export class TestScene extends Phaser.Scene {
 
     this.isPlayerTouchingGround = this.character.body.blocked.down;
 
-    this.updateHorizontalMovement();
-    this.updateVerticalMovement();
+    if (this.playerState !== 'DEAD') {
+      this.updateHorizontalMovement();
+      this.updateVerticalMovement();
+    }
   }
 
   updateHorizontalMovement() {
@@ -549,26 +621,27 @@ export class TestScene extends Phaser.Scene {
     let angle = 0;
     let width = SWORD_CONFIG.WIDTH;
     let height = SWORD_CONFIG.HEIGHT;
+    let offset = 10;
 
     if (this.playerState === 'LOOKING_UP') {
       angle = -90;
       width = SWORD_CONFIG.HEIGHT;
       height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
-      y = this.character.y - this.character.height / 2 - height / 2;
+      y = this.character.y - this.character.height / 2 - height / 2 - offset;
     } else if (this.playerState === 'LOOKING_DOWN') {
       angle = 90;
       width = SWORD_CONFIG.HEIGHT;
       height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
-      y = this.character.y + this.character.height / 2 + height / 2;
+      y = this.character.y + this.character.height / 2 + height / 2 + offset;
     } else {
       if (this.character.flipX) {
         angle = 180;
-        x = this.character.x - this.character.width / 2 - width / 2;
+        x = this.character.x - this.character.width / 2 - width / 2 - offset;
       } else {
         angle = 0;
-        x = this.character.x + this.character.width / 2 + width / 2;
+        x = this.character.x + this.character.width / 2 + width / 2 + offset;
       }
       y = this.character.y;
     }
@@ -626,46 +699,48 @@ export class TestScene extends Phaser.Scene {
 
       if (this.playerState === 'LOOKING_UP') {
         this.setPlayerState('ATTACKING_UP');
-        this.setWeaponState({ newState: 'SWORD_UP' });
+        this.setWeaponState({ newState: 'SWORD_UP', weapon: this.sword });
       } else if (this.playerState === 'LOOKING_DOWN') {
         this.setPlayerState('ATTACKING_DOWN');
-        this.setWeaponState({ newState: 'SWORD_DOWN' });
+        this.setWeaponState({ newState: 'SWORD_DOWN', weapon: this.sword });
       } else {
         this.setPlayerState('ATTACKING_FORWARD');
-        this.setWeaponState({ newState: 'SWORD_FORWARD' });
+        this.setWeaponState({ newState: 'SWORD_FORWARD', weapon: this.sword });
       }
     } else {
       if (this.sword) this.sword.setVisible(false);
+      if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.seppuku_attack)) {
+        this.createShinigamiSword();
+        this.shinigamiSword.anims.play('anims_attack_sword_trail');
+      }
     }
   }
 
   updateBulletAttack() {
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.shoot)) {
       if (this.bulletsLeft) {
-        const id = this.createBullet();
+        const bullet = this.createBullet();
 
         if (this.playerState === 'LOOKING_UP') {
           this.setPlayerState('ATTACKING_UP');
-          this.setWeaponState({ newState: 'SHOOTING_UP', objId: id });
+          this.setWeaponState({ newState: 'SHOOTING_UP', weapon: bullet });
         } else if (this.playerState === 'LOOKING_DOWN') {
           this.setPlayerState('ATTACKING_DOWN');
-          this.setWeaponState({ newState: 'SHOOTING_DOWN', objId: id });
+          this.setWeaponState({ newState: 'SHOOTING_DOWN', weapon: bullet });
         } else {
           this.setPlayerState('ATTACKING_FORWARD');
-          this.setWeaponState({ newState: 'SHOOTING_FORWARD', objId: id });
+          this.setWeaponState({ newState: 'SHOOTING_FORWARD', weapon: bullet });
         }
 
         this.bulletsLeft--;
-        this.updateBulletMovement({ id });
+        this.updateBulletMovement({ bullet });
       }
+    } else if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.seppuku_shot)) {
+      this.createBackfireBullet();
     }
   }
 
-  updateBulletMovement({ id }: { id: string }) {
-    const bullet = this.bullets.find(({ bulletId }) => bulletId === id);
-
-    if (!bullet) throw new Error(`Not possible to move projectile. Bullet not found for id: ${id}`);
-
+  updateBulletMovement({ bullet }: { bullet: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody }) {
     switch (this.weaponState) {
       case 'SHOOTING_FORWARD':
         if (this.character.flipX) {
@@ -683,32 +758,69 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  destroyBullet({ id }: { id: string }) {
-    const bullet = this.bullets.find(({ bulletId }) => bulletId === id);
+  destroySprite({
+    sprite,
+    animationKey,
+    state,
+    callback,
+  }: {
+    sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+    animationKey: string;
+    state?: WeaponState;
+    callback?: () => void;
+  }) {
+    sprite.body.enable = false;
 
-    if (!bullet)
-      throw new Error(`Not possible to destroy the bullet. It wasn't found for id: ${id}`);
+    state &&
+      this.setWeaponState({
+        newState: state,
+        weapon: sprite,
+      });
 
-    if (bullet.isBeingDestroyed) return;
-
-    bullet.isBeingDestroyed = true;
-    this.setWeaponState({
-      newState: 'BULLET_DESTROYED',
-      objId: bullet.bulletId,
-    });
-
-    bullet.once('animationcomplete', (animation: Phaser.Animations.Animation) => {
-      if (animation.key === 'anims_attack_bullet_destroy') {
-        const index = this.bullets.indexOf(bullet);
-
-        if (index === -1)
-          throw new Error(
-            `Not possible to destroy the bullet. It wasn't found for index: ${index}`
-          );
-
-        this.bullets.splice(index, 1);
-        bullet.destroy();
+    sprite.once('animationcomplete', (animation: Phaser.Animations.Animation) => {
+      if (animation.key === animationKey) {
+        callback && callback();
+        sprite.destroy();
       }
     });
+  }
+
+  applyDamage({
+    target,
+    amount,
+  }: {
+    target: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+    amount: number;
+  }) {
+    if (target === this.character) {
+      this.character.health = Math.max(0, this.character.health - amount);
+      if (this.character.health <= 0) {
+        this.handleCharacterDeath();
+      }
+    }
+  }
+
+  handleCharacterDeath() {
+    this.setPlayerState('DEAD');
+    this.character.setVelocity(0);
+
+    this.character.once('animationcomplete', (animation: Phaser.Animations.Animation) => {
+      if (animation.key === 'anim_dead') {
+        this.character.setActive(false).setVisible(false);
+        this.enableKeyboard({ value: false });
+
+        this.time.delayedCall(500, () => {
+          this.character.setActive(true).setVisible(true);
+          this.character.health = CHARACTER_HEALTH;
+          this.enableKeyboard({ value: true });
+          this.setPlayerState('IDLE');
+        });
+      }
+    });
+  }
+
+  enableKeyboard({ value }: { value: boolean }) {
+    Object.values(this.keyboardInputs).forEach(key => (key.enabled = value));
+    Object.values(this.cursors).forEach(key => (key.enabled = value));
   }
 }
