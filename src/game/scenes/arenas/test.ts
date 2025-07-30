@@ -8,6 +8,7 @@ import {
   SWORD_CONFIG,
   BULLET_CONFIG,
   CHARACTER_HEALTH,
+  DEFAULT_CHARACTER_LIVES,
 } from '../../constants';
 
 type PlayerState =
@@ -57,6 +58,8 @@ export class TestScene extends Phaser.Scene {
   character: CharacterType;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   playerState: PlayerState = 'IDLE';
+  playerCurrentLives: number = DEFAULT_CHARACTER_LIVES;
+  playerLives: Phaser.GameObjects.Container;
   isPlayerMovingHorizontally: boolean;
   isPlayerTouchingGround: boolean;
   keyboardInputs: {
@@ -93,6 +96,7 @@ export class TestScene extends Phaser.Scene {
     this.loadCharacterAttackAssets();
     this.loadCharacterDeathAssets();
     this.loadWeaponsAssets();
+    this.loadIcons();
   }
 
   loadMapAssets() {
@@ -179,17 +183,24 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
+  loadIcons() {
+    this.load.image('spr_playerlives', 'assets/sprites/icons/spr_icons_6.png');
+  }
+
   create() {
     this.createMap();
     this.createTitle();
     this.createCharacter();
     this.createKeyboardInputs();
     this.createWeaponsAnimations();
+    this.createLivesContainer();
+    this.updateLivesDisplay();
   }
 
   update() {
     this.updateCharacterMovement();
     this.updateCharacterAttack();
+    this.updateLivesDisplay();
   }
 
   loadMapImages() {
@@ -373,6 +384,10 @@ export class TestScene extends Phaser.Scene {
       frameRate: 30,
       repeat: 0,
     });
+  }
+
+  createLivesContainer() {
+    this.playerLives = this.add.container(0, 0);
   }
 
   setPlayerState(newState: PlayerState) {
@@ -822,6 +837,24 @@ export class TestScene extends Phaser.Scene {
         });
       }
     });
+  }
+
+  updateLivesDisplay() {
+    if (this.playerLives.length === this.playerCurrentLives) return;
+
+    const spriteDistance = 15;
+
+    this.playerLives.removeAll(true);
+
+    for (let i = 0; i < this.playerCurrentLives; i++) {
+      const lifeSprite = this.add.sprite(i * spriteDistance, 0, 'spr_playerlives');
+      this.playerLives.add(lifeSprite);
+    }
+
+    this.playerLives.setPosition(
+      this.cameras.main.centerX - (this.playerCurrentLives * spriteDistance) / 2,
+      0.95 * VIRTUAL_HEIGHT
+    );
   }
 
   enableKeyboard({ value }: { value: boolean }) {
