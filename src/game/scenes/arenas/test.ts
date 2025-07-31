@@ -46,6 +46,8 @@ type CharacterType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
   health: number;
 };
 
+type SpawnPointType = { x: number; y: number };
+
 export class TestScene extends Phaser.Scene {
   // Map
   gameWidth = VIRTUAL_WIDTH;
@@ -53,6 +55,7 @@ export class TestScene extends Phaser.Scene {
   mapImages: string[];
   platforms: Phaser.Tilemaps.TilemapLayer;
   map: Phaser.Tilemaps.Tilemap;
+  spawnPoints: SpawnPointType[];
 
   // Character / player
   character: CharacterType;
@@ -189,6 +192,7 @@ export class TestScene extends Phaser.Scene {
 
   create() {
     this.createMap();
+    this.createSpawnPoints();
     this.createTitle();
     this.createCharacter();
     this.createKeyboardInputs();
@@ -561,6 +565,21 @@ export class TestScene extends Phaser.Scene {
     bullet.body.setSize(BULLET_CONFIG.WIDTH, BULLET_CONFIG.HEIGHT);
     bullet.setPosition(this.character.x + 50, this.character.y);
     bullet.setVelocityX(-BULLET_CONFIG.VELOCITY);
+  }
+
+  createSpawnPoints() {
+    const spawnholesLayer = this.map.getObjectLayer('objects/spawhole');
+
+    if (!spawnholesLayer?.objects) {
+      console.warn('Camada "spawhole" inexistente ou sem objetos. Usando ponto de respawn padrão.');
+      this.spawnPoints = [{ x: 150, y: 100 }];
+      return;
+    }
+
+    this.spawnPoints = spawnholesLayer.objects.map(spawnhole => {
+      const { x = 0, y = 0, width = 0 } = spawnhole;
+      return { x: x + width / 2, y };
+    });
   }
 
   updateCharacterMovement() {
