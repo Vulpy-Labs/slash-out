@@ -65,6 +65,8 @@ export class TestScene extends Phaser.Scene {
   playerLives: Phaser.GameObjects.Container;
   isPlayerMovingHorizontally: boolean;
   isPlayerTouchingGround: boolean;
+  isInvincible: boolean = false;
+  canAttack: boolean = true;
   keyboardInputs: {
     left: Phaser.Input.Keyboard.Key;
     right: Phaser.Input.Keyboard.Key;
@@ -723,6 +725,7 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateCharacterAttack() {
+    if (!this.canAttack) return;
     this.updateSwordAttack();
     this.updateBulletAttack();
   }
@@ -826,7 +829,7 @@ export class TestScene extends Phaser.Scene {
     target: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     amount: number;
   }) {
-    if (target === this.character) {
+    if (target === this.character && !this.isInvincible) {
       this.character.health = Math.max(0, this.character.health - amount);
       if (this.character.health <= 0) {
         this.handleCharacterDeath();
@@ -838,6 +841,25 @@ export class TestScene extends Phaser.Scene {
     this.playerCurrentLives -= quantity;
   }
 
+  activateInvincibility(duration: number) {
+    this.isInvincible = true;
+    this.canAttack = false;
+
+    this.tweens.add({
+      targets: this.character,
+      alpha: { from: 1, to: 0.5 },
+      ease: 'Linear',
+      duration: 100,
+      repeat: duration / 100 - 1,
+      yoyo: true,
+      onComplete: () => {
+        this.character.setAlpha(1);
+        this.isInvincible = false;
+        this.canAttack = true;
+      },
+    });
+  }
+
   handleCharacterDeath() {
     this.setPlayerState('DEAD');
     this.character.setVelocity(0);
@@ -847,8 +869,7 @@ export class TestScene extends Phaser.Scene {
       if (animation.key !== 'anim_dead') return;
 
       this.removePlayerLife();
-        this.character.setActive(false).setVisible(false);
-        this.enableKeyboard({ value: false });
+      this.character.setActive(false).setVisible(false);
 
       if (this.playerCurrentLives > 0) {
         this.time.delayedCall(500, () => {
@@ -871,6 +892,8 @@ export class TestScene extends Phaser.Scene {
 
     this.character.setFlipX(flip);
     this.character.setPosition(spawnPoint.x, spawnPoint.y);
+
+    this.activateInvincibility(1000);
   }
 
   updateLivesDisplay() {
