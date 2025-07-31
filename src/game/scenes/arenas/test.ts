@@ -834,23 +834,43 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
+  removePlayerLife(quantity = 1) {
+    this.playerCurrentLives -= quantity;
+  }
+
   handleCharacterDeath() {
     this.setPlayerState('DEAD');
     this.character.setVelocity(0);
+    this.enableKeyboard({ value: false });
 
     this.character.once('animationcomplete', (animation: Phaser.Animations.Animation) => {
-      if (animation.key === 'anim_dead') {
+      if (animation.key !== 'anim_dead') return;
+
+      this.removePlayerLife();
         this.character.setActive(false).setVisible(false);
         this.enableKeyboard({ value: false });
 
+      if (this.playerCurrentLives > 0) {
         this.time.delayedCall(500, () => {
           this.character.setActive(true).setVisible(true);
           this.character.health = CHARACTER_HEALTH;
           this.enableKeyboard({ value: true });
           this.setPlayerState('IDLE');
+          this.handleRespawnCharacter();
         });
       }
     });
+  }
+
+  handleRespawnCharacter() {
+    if (this.playerCurrentLives <= 0) return;
+
+    const randomIndex = Phaser.Math.Between(0, this.spawnPoints.length - 1);
+    const spawnPoint = this.spawnPoints[randomIndex];
+    const flip = spawnPoint.x > VIRTUAL_HEIGHT / 2;
+
+    this.character.setFlipX(flip);
+    this.character.setPosition(spawnPoint.x, spawnPoint.y);
   }
 
   updateLivesDisplay() {
