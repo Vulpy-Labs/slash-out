@@ -46,6 +46,8 @@ type CharacterType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
   health: number;
 };
 
+type SpawnPointType = { x: number; y: number };
+
 export class TestScene extends Phaser.Scene {
   // Map
   gameWidth = VIRTUAL_WIDTH;
@@ -53,6 +55,7 @@ export class TestScene extends Phaser.Scene {
   mapImages: string[];
   platforms: Phaser.Tilemaps.TilemapLayer;
   map: Phaser.Tilemaps.Tilemap;
+  spawnPoints: SpawnPointType[];
 
   // Character / player
   character: CharacterType;
@@ -62,6 +65,8 @@ export class TestScene extends Phaser.Scene {
   playerLives: Phaser.GameObjects.Container;
   isPlayerMovingHorizontally: boolean;
   isPlayerTouchingGround: boolean;
+  isInvincible: boolean = false;
+  canAttack: boolean = true;
   keyboardInputs: {
     left: Phaser.Input.Keyboard.Key;
     right: Phaser.Input.Keyboard.Key;
@@ -189,6 +194,7 @@ export class TestScene extends Phaser.Scene {
 
   create() {
     this.createMap();
+    this.createSpawnPoints();
     this.createTitle();
     this.createCharacter();
     this.createKeyboardInputs();
@@ -569,6 +575,21 @@ export class TestScene extends Phaser.Scene {
     bullet.setVelocityX(-BULLET_CONFIG.VELOCITY);
   }
 
+  createSpawnPoints() {
+    const spawnholesLayer = this.map.getObjectLayer('objects/spawhole');
+
+    if (!spawnholesLayer?.objects) {
+      console.warn('Camada "spawhole" inexistente ou sem objetos. Usando ponto de respawn padrão.');
+      this.spawnPoints = [{ x: 150, y: 100 }];
+      return;
+    }
+
+    this.spawnPoints = spawnholesLayer.objects.map(spawnhole => {
+      const { x = 0, y = 0, width = 0 } = spawnhole;
+      return { x: x + width / 2, y };
+    });
+  }
+
   updateCharacterMovement() {
     if (!this.character || !this.cursors) return;
 
@@ -706,6 +727,7 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateCharacterAttack() {
+    if (!this.canAttack) return;
     this.updateSwordAttack();
     this.updateBulletAttack();
   }
@@ -812,7 +834,7 @@ export class TestScene extends Phaser.Scene {
     target: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     amount: number;
   }) {
-    if (target === this.character) {
+    if (target === this.character && !this.isInvincible) {
       this.character.health = Math.max(0, this.character.health - amount);
       if (this.character.health <= 0) {
         this.handleCharacterDeath();
@@ -820,23 +842,63 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
+  removePlayerLife(quantity = 1) {
+    this.playerCurrentLives -= quantity;
+  }
+
+  activateInvincibility(duration: number) {
+    this.isInvincible = true;
+    this.canAttack = false;
+
+    this.tweens.add({
+      targets: this.character,
+      alpha: { from: 1, to: 0.5 },
+      ease: 'Linear',
+      duration: 100,
+      repeat: duration / 100 - 1,
+      yoyo: true,
+      onComplete: () => {
+        this.character.setAlpha(1);
+        this.isInvincible = false;
+        this.canAttack = true;
+      },
+    });
+  }
+
   handleCharacterDeath() {
     this.setPlayerState('DEAD');
     this.character.setVelocity(0);
+    this.enableKeyboard({ value: false });
 
     this.character.once('animationcomplete', (animation: Phaser.Animations.Animation) => {
-      if (animation.key === 'anim_dead') {
-        this.character.setActive(false).setVisible(false);
-        this.enableKeyboard({ value: false });
+      if (animation.key !== 'anim_dead') return;
 
+      this.removePlayerLife();
+      this.character.setActive(false).setVisible(false);
+
+      if (this.playerCurrentLives > 0) {
         this.time.delayedCall(500, () => {
           this.character.setActive(true).setVisible(true);
           this.character.health = CHARACTER_HEALTH;
           this.enableKeyboard({ value: true });
           this.setPlayerState('IDLE');
+          this.handleRespawnCharacter();
         });
       }
     });
+  }
+
+  handleRespawnCharacter() {
+    if (this.playerCurrentLives <= 0) return;
+
+    const randomIndex = Phaser.Math.Between(0, this.spawnPoints.length - 1);
+    const spawnPoint = this.spawnPoints[randomIndex];
+    const flip = spawnPoint.x > VIRTUAL_HEIGHT / 2;
+
+    this.character.setFlipX(flip);
+    this.character.setPosition(spawnPoint.x, spawnPoint.y);
+
+    this.activateInvincibility(1000);
   }
 
   updateLivesDisplay() {
