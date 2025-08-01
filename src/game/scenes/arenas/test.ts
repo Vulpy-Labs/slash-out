@@ -858,7 +858,11 @@ export class TestScene extends Phaser.Scene {
   }
 
   enableKeyboard({ value }: { value: boolean }) {
-    Object.values({ ...this.keyboardInputs, ...this.cursors }).forEach(key => {
+    Object.values(this.keyboardInputs).forEach(key => {
+      if (!value) key.reset();
+      key.enabled = value;
+    });
+    Object.values(this.cursors).forEach(key => {
       if (!value) key.reset();
       key.enabled = value;
     });
