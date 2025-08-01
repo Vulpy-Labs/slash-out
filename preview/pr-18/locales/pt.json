@@ -1,0 +1,15 @@
+{
+  "main_menu": {
+    "title": "Menu Principal",
+    "options": {
+      "languages": {
+        "en": "Inglês",
+        "pt": "Português"
+      }
+    }
+  },
+  "start": "Iniciar Jogo",
+  "pause": "Pausar",
+  "resume": "Continuar",
+  "make_something_fun": "Faça algo divertido!\ne compartilhe com a gente:\nsupport@phaser.io"
+}
