@@ -843,7 +843,7 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  removePlayerLife(quantity = 1) {
+  removePlayerLife({ quantity }: { quantity: number } = { quantity: 1 }) {
     this.playerCurrentLives -= quantity;
   }
 
@@ -898,12 +898,12 @@ export class TestScene extends Phaser.Scene {
 
     const randomIndex = Phaser.Math.Between(0, this.spawnPoints.length - 1);
     const spawnPoint = this.spawnPoints[randomIndex];
-    const flip = spawnPoint.x > VIRTUAL_HEIGHT / 2;
+    const flip = spawnPoint.x > VIRTUAL_WIDTH / 2;
 
     this.character.setFlipX(flip);
     this.character.setPosition(spawnPoint.x, spawnPoint.y);
 
-    this.activateInvincibility(1000);
+    this.activateInvincibility();
   }
 
   updateLivesDisplay() {
