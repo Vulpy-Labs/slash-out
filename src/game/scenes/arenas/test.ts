@@ -9,6 +9,7 @@ import {
   BULLET_CONFIG,
   CHARACTER_HEALTH,
   DEFAULT_CHARACTER_LIVES,
+  DEFAULT_CHARACTER_INVENCIBILITY_TIME,
 } from '../../constants';
 
 type PlayerState =
@@ -846,7 +847,11 @@ export class TestScene extends Phaser.Scene {
     this.playerCurrentLives -= quantity;
   }
 
-  activateInvincibility(duration: number) {
+  activateInvincibility(
+    { duration }: { duration: number } = {
+      duration: DEFAULT_CHARACTER_INVENCIBILITY_TIME,
+    }
+  ) {
     this.isInvincible = true;
     this.canAttack = false;
 
