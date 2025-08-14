@@ -1,4 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
+import { Room } from 'colyseus.js';
+import { NetworkManager } from '../../network/NetworkManager';
 
 import {
   CHARACTER_SPEED_X,
@@ -50,6 +52,12 @@ type CharacterType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
 type SpawnPointType = { x: number; y: number };
 
 export class TestScene extends Phaser.Scene {
+  // Network
+  private networkManager: NetworkManager;
+  private room: Room;
+  private playerId: string;
+  private networkPlayers: Map<string, CharacterType> = new Map();
+
   // Map
   gameWidth = VIRTUAL_WIDTH;
   gameHeight = VIRTUAL_HEIGHT;
@@ -90,6 +98,189 @@ export class TestScene extends Phaser.Scene {
 
   constructor() {
     super('TestScene');
+  }
+
+  init(data: { networkManager: NetworkManager; room: Room; playerId: string; playerData: any }) {
+    // Store network references
+    this.networkManager = data.networkManager;
+    this.room = data.room;
+    this.playerId = data.playerId;
+
+    console.log('TestScene initialized with network data:', {
+      playerId: this.playerId,
+      playerData: data.playerData,
+    });
+
+    // Set up network event listeners
+    this.setupNetworkListeners();
+  }
+
+  private setupNetworkListeners() {
+    if (!this.room) return;
+
+    console.log('Setting up network listeners for player:', this.playerId);
+    console.log('Room state:', this.room.state);
+
+    // Wait for the room state to be available
+    this.room.onStateChange.once(state => {
+      console.log('Initial room state received:', state);
+      console.log('Players in state:', state.players);
+      console.log(
+        'Number of players:',
+        state.players ? state.players.size : 'No players collection'
+      );
+
+      // Now set up the event listeners after state is available
+      if (state.players) {
+        console.log('Setting up player event listeners...');
+
+        // Listen for player additions
+        state.players.onAdd = (player: any, sessionId: string) => {
+          console.log('Player added:', sessionId, player);
+          console.log('Current player ID:', this.playerId);
+          console.log('Is different player?', sessionId !== this.playerId);
+          console.log('Already has network player?', this.networkPlayers.has(sessionId));
+
+          if (sessionId !== this.playerId && !this.networkPlayers.has(sessionId)) {
+            // Create a network player sprite for other players
+            console.log('Creating network player for:', sessionId);
+            this.createNetworkPlayer(sessionId, player.x, player.y);
+          }
+        };
+
+        // Listen for player updates
+        state.players.onChange = (player: any, sessionId: string) => {
+          // Reduced logging for less spam
+          if (sessionId !== this.playerId) {
+            console.log('🔄 Position update for player:', sessionId, `(${player.x}, ${player.y})`);
+            // Update network player position
+            this.updateNetworkPlayer(sessionId, player.x, player.y);
+          }
+        };
+
+        // Listen for player removals
+        state.players.onRemove = (_player: any, sessionId: string) => {
+          console.log('Player removed:', sessionId);
+          this.removeNetworkPlayer(sessionId);
+        };
+
+        // Handle existing players that are already in the room
+        console.log('Checking for existing players...');
+        state.players.forEach((player: any, sessionId: string) => {
+          console.log('Found existing player:', sessionId, player);
+          if (sessionId !== this.playerId && !this.networkPlayers.has(sessionId)) {
+            console.log('Creating network player for existing player:', sessionId);
+            this.createNetworkPlayer(sessionId, player.x, player.y);
+          }
+        });
+      } else {
+        console.warn('No players collection in state!');
+      }
+    });
+
+    // Listen for ongoing state changes (reduced logging)
+    this.room.onStateChange(state => {
+      // Log all player positions for debugging (less verbose)
+      if (state.players) {
+        state.players.forEach((player: any, sessionId: string) => {
+          // Manual position sync as fallback if onChange doesn't work
+          if (sessionId !== this.playerId && this.networkPlayers.has(sessionId)) {
+            this.updateNetworkPlayer(sessionId, player.x, player.y);
+          }
+        });
+      }
+    });
+
+    // Set up position sync after a brief delay to ensure everything is initialized
+    console.log('before - setupPositionSync');
+    this.time.delayedCall(100, () => {
+      console.log('delayedCall - setupPositionSync');
+      this.setupPositionSync();
+    });
+
+    // Add a periodic debug check (less frequent)
+    this.time.addEvent({
+      delay: 5000, // Every 5 seconds instead of 2
+      callback: () => {
+        console.log(
+          '🕰️ Status - Network players:',
+          this.networkPlayers.size,
+          'Room players:',
+          this.room.state?.players?.size || 0
+        );
+      },
+      loop: true,
+    });
+  }
+
+  private createNetworkPlayer(sessionId: string, x: number, y: number) {
+    if (this.networkPlayers.has(sessionId)) {
+      console.log('Network player already exists for:', sessionId);
+      return;
+    }
+
+    console.log('Creating network player sprite at:', { x, y });
+    const networkPlayer = this.physics.add.sprite(x, y, 'spr_idle') as CharacterType;
+    networkPlayer.health = CHARACTER_HEALTH;
+    networkPlayer.setTint(0x00ff00); // Different color for network players
+    networkPlayer.setCollideWorldBounds(true);
+    this.physics.add.collider(networkPlayer, this.platforms);
+
+    console.log('Network player sprite created:', networkPlayer);
+
+    this.networkPlayers.set(sessionId, networkPlayer);
+    console.log('Created network player for session:', sessionId);
+    console.log('Total network players:', this.networkPlayers.size);
+  }
+
+  private updateNetworkPlayer(sessionId: string, x: number, y: number) {
+    const networkPlayer = this.networkPlayers.get(sessionId);
+    if (networkPlayer) {
+      // INSTANT POSITION UPDATE - NO DELAYS WHATSOEVER
+      // Kill any existing tweens for instant responsiveness
+      this.tweens.killTweensOf(networkPlayer);
+
+      // Set position immediately - zero animation delay
+      networkPlayer.setPosition(x, y);
+
+      // Optional: Log only significant position changes to reduce spam
+      const distance = Phaser.Math.Distance.Between(networkPlayer.x, networkPlayer.y, x, y);
+      if (distance > 10) {
+        console.log('⚡ INSTANT position update for player:', sessionId, `(${x}, ${y})`);
+      }
+    } else {
+      console.warn('Network player not found for sessionId:', sessionId);
+    }
+  }
+
+  private removeNetworkPlayer(sessionId: string) {
+    const networkPlayer = this.networkPlayers.get(sessionId);
+    if (networkPlayer) {
+      networkPlayer.destroy();
+      this.networkPlayers.delete(sessionId);
+    }
+  }
+
+  private setupPositionSync() {
+    console.log('Setting up INSTANT position sync for real-time combat...');
+
+    let lastSentPosition = { x: 0, y: 0 };
+
+    // INSTANT SYNC: Send position updates every frame when moving (60fps max)
+    this.events.on('postupdate', () => {
+      if (this.character && this.room) {
+        const currentPosition = {
+          x: Math.round(this.character.x),
+          y: Math.round(this.character.y),
+        };
+
+        // Send IMMEDIATELY when position changes (no threshold delay)
+        if (currentPosition.x !== lastSentPosition.x || currentPosition.y !== lastSentPosition.y) {
+          this.room.send('updatePosition', currentPosition);
+          lastSentPosition = { ...currentPosition };
+        }
+      }
+    });
   }
 
   preload() {
@@ -263,7 +454,30 @@ export class TestScene extends Phaser.Scene {
   }
 
   createCharacter() {
-    this.character = this.physics.add.sprite(150, 100, 'spr_idle') as CharacterType;
+    // Get player position from server state
+    let x = 150,
+      y = 100; // Default position
+
+    // Try to get position from server if available
+    try {
+      if (
+        this.room &&
+        this.room.state &&
+        this.room.state.players &&
+        this.room.state.players.has(this.playerId)
+      ) {
+        const serverPlayer = this.room.state.players.get(this.playerId);
+        if (serverPlayer) {
+          x = serverPlayer.x;
+          y = serverPlayer.y;
+          console.log('Using server position:', { x, y });
+        }
+      }
+    } catch (error) {
+      console.log('Using default position, server state not ready:', error);
+    }
+
+    this.character = this.physics.add.sprite(x, y, 'spr_idle') as CharacterType;
     this.character.health = CHARACTER_HEALTH;
 
     this.createCharacterCollisions();
