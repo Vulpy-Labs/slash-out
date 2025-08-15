@@ -236,20 +236,25 @@ export class TestScene extends Phaser.Scene {
   private updateNetworkPlayer(sessionId: string, x: number, y: number) {
     const networkPlayer = this.networkPlayers.get(sessionId);
     if (networkPlayer) {
-      // INSTANT POSITION UPDATE - NO DELAYS WHATSOEVER
-      // Kill any existing tweens for instant responsiveness
+      // ABSOLUTE ZERO DELAY - No distance checks, no animations
       this.tweens.killTweensOf(networkPlayer);
 
-      // Set position immediately - zero animation delay
-      networkPlayer.setPosition(x, y);
+      // Set position with sub-pixel precision
+      networkPlayer.x = x;
+      networkPlayer.y = y;
 
-      // Optional: Log only significant position changes to reduce spam
+      // Force immediate physics body update
+      if (networkPlayer.body) {
+        (networkPlayer.body as Phaser.Physics.Arcade.Body).updateFromGameObject();
+      }
+
+      // Optional: Only log significant movements to reduce console spam
       const distance = Phaser.Math.Distance.Between(networkPlayer.x, networkPlayer.y, x, y);
-      if (distance > 10) {
-        console.log('⚡ INSTANT position update for player:', sessionId, `(${x}, ${y})`);
+      if (distance > 5) {
+        console.log('⚡ INSTANT update:', sessionId, `(${x}, ${y})`);
       }
     } else {
-      console.warn('Network player not found for sessionId:', sessionId);
+      console.warn('Network player not found:', sessionId);
     }
   }
 
@@ -262,11 +267,12 @@ export class TestScene extends Phaser.Scene {
   }
 
   private setupPositionSync() {
-    console.log('Setting up INSTANT position sync for real-time combat...');
+    console.log('Setting up ULTRA-FAST position sync (120fps max)...');
 
-    let lastSentPosition = { x: 0, y: 0 };
+    let lastSentPosition = { x: -999, y: -999 };
+    let framesSinceLastSend = 0;
 
-    // INSTANT SYNC: Send position updates every frame when moving (60fps max)
+    // MAXIMUM RESPONSIVENESS: Send on every single frame change
     this.events.on('postupdate', () => {
       if (this.character && this.room) {
         const currentPosition = {
@@ -274,7 +280,26 @@ export class TestScene extends Phaser.Scene {
           y: Math.round(this.character.y),
         };
 
-        // Send IMMEDIATELY when position changes (no threshold delay)
+        // Send EVERY position change with zero threshold
+        if (currentPosition.x !== lastSentPosition.x || currentPosition.y !== lastSentPosition.y) {
+          // Immediate send with no buffering
+          this.room.send('updatePosition', currentPosition);
+          lastSentPosition = { ...currentPosition };
+          framesSinceLastSend = 0;
+        } else {
+          framesSinceLastSend++;
+        }
+      }
+    });
+
+    // AGGRESSIVE: Also send on preupdate for even faster response
+    this.events.on('preupdate', () => {
+      if (this.character && this.room && framesSinceLastSend === 0) {
+        const currentPosition = {
+          x: Math.round(this.character.x),
+          y: Math.round(this.character.y),
+        };
+
         if (currentPosition.x !== lastSentPosition.x || currentPosition.y !== lastSentPosition.y) {
           this.room.send('updatePosition', currentPosition);
           lastSentPosition = { ...currentPosition };
@@ -823,29 +848,31 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateHorizontalMovement() {
+    // INSTANT MOVEMENT - Direct velocity assignment for zero delay
     if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
-      this.character.setVelocityX(-CHARACTER_SPEED_X);
+      this.character.body.velocity.x = -CHARACTER_SPEED_X; // Direct velocity assignment
       this.character.setFlipX(true);
 
       if (this.isPlayerTouchingGround) {
         this.setPlayerState('RUNNING');
       }
     } else if (this.cursors.right.isDown || this.keyboardInputs.right.isDown) {
-      this.character.setVelocityX(CHARACTER_SPEED_X);
+      this.character.body.velocity.x = CHARACTER_SPEED_X; // Direct velocity assignment
       this.character.setFlipX(false);
 
       if (this.isPlayerTouchingGround) {
         this.setPlayerState('RUNNING');
       }
     } else if (this.isPlayerTouchingGround && !this.isPlayerMovingHorizontally) {
-      this.character.setVelocityX(0);
+      this.character.body.velocity.x = 0; // Direct velocity assignment
       this.setPlayerState('IDLE');
     }
   }
 
   updateVerticalMovement() {
+    // INSTANT JUMPING - Direct velocity assignment
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
-      this.character.setVelocityY(-CHARACTER_SPEED_Y);
+      this.character.body.velocity.y = -CHARACTER_SPEED_Y; // Direct velocity assignment
       this.setPlayerState('JUMPING');
     }
 
