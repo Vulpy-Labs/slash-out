@@ -24,7 +24,7 @@ export class NetworkManager {
   public async joinRoom(roomName: string = 'my_room'): Promise<Room> {
     try {
       this.room = await this.client.joinOrCreate(roomName);
-      console.log('Successfully joined room:', this.room.id);
+      console.log('Successfully joined room:', this.room.roomId);
       return this.room;
     } catch (error) {
       console.error('Error joining room:', error);
