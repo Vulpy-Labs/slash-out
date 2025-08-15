@@ -6,12 +6,13 @@ export class NetworkManager {
   private room: Room | null = null;
 
   private constructor() {
-    // Connect to Colyseus server (adjust URL as needed)
-    this.client = new Client(
-      process.env.NODE_ENV === 'development'
-        ? 'ws://localhost:2567'
-        : 'wss://your-production-server.com'
-    );
+    // this.client = new Client(
+    //   import.meta.env.DEV ? 'ws://localhost:2567' : 'wss://slash-out-production.up.railway.app'
+    // );
+
+    // Quick fix for testing
+    this.client = new Client('wss://slash-out-production.up.railway.app');
+    console.log('Using server URL:', 'wss://slash-out-production.up.railway.app');
   }
 
   public static getInstance(): NetworkManager {
