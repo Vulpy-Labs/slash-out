@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 const sourceHookPath = path.join(__dirname, 'commit-msg');
-const gitDir = path.join(__dirname, '..', '..', '.git');
-const gitHooksDir = path.join(__dirname, '..', '..', '.git', 'hooks');
+const gitDir = path.join(__dirname, '..', '..', '..', '.git');
+const gitHooksDir = path.join(__dirname, '..', '..', '..', '.git', 'hooks');
 const targetHookPath = path.join(gitHooksDir, 'commit-msg');
 
 if (!fs.existsSync(gitDir)) {
