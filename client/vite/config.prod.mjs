@@ -43,5 +43,10 @@ export default defineConfig({
     },
     plugins: [
         phasermsg()
-    ]
+    ],
+    resolve: {
+      alias: {
+        '@': '/src',
+      }
+    }
 });
