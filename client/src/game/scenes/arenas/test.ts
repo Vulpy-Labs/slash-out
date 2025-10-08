@@ -11,7 +11,7 @@ import {
   DEFAULT_CHARACTER_LIVES,
   DEFAULT_CHARACTER_INVENCIBILITY_TIME,
 } from '../../constants';
-import { PlayerRoom } from '@/server/room';
+import { PlayerRoom } from '@/services/server/room';
 
 type PlayerState =
   | 'IDLE'
