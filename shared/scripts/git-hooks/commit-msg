@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# Obtêm o nome da brach
+full_branch_name=$(git rev-parse --abbrev-ref HEAD)
+
+# Obtêm a parte do nome da branch que vem depois do primeiro "/"
+branch_name=$(echo "$full_branch_name" | sed 's:.*/::')
+
+# Obtêm a mensagem de commit que é recebida através do argumento
+commit_message=$(cat "$1")
+
+# Ignora a formatação de commit nos casos de merge
+case "$commit_message" in
+  Merge*)
+    exit 0
+    ;;
+esac
+
+# Define tipos válidos de commit e seus emojis equivalentes
+# Site com a lista de emojis: https://gitmoji.dev/
+declare -A types_emojis=(
+  [anim]="💫"
+  [asset]="🍱"
+  [build]="🏗"
+  [chore]="🧹"
+  [ci]="👷"
+  [config]="🔧"
+  [comment]="💡"
+  [db]="🗃️"
+  [del]="🔥"
+  [dep_new]="➕"
+  [dep_del]="➖"
+  [dep_down]="📉"
+  [dep_up]="📈"
+  [deploy]="🚀"
+  [dev]="👨‍💻"
+  [doc]="📝"
+  [feat]="✨"
+  [fix]="🐛"
+  [hotfix]="🚑️"
+  [intl]="🌐"
+  [lint]="🚨"
+  [log]="🔊"
+  [move]="🚚"
+  [perf]="⚡️"
+  [refac]="♻️"
+  [responsive]="📱"
+  [revert]="⏪"
+  [role]="🛂"
+  [snap]="📸"
+  [style]="🎨"
+  [tada]="🎉"
+  [test]="🧪"
+  [type]="🏷️"
+  [typo]="✏️"
+  [wip]="🚧"
+)
+
+# Obtêm o tipo de commit (deve aparecer antes do primeiro ':')
+commit_type=$(echo "$commit_message" | cut -d':' -f1)
+
+# Verifica se o tipo obtido é válido
+if [[ -n "${types_emojis[$commit_type]}" ]]; then
+  emoji="${types_emojis[$commit_type]}"
+else
+  valid_types=$(printf "%s, " "${!types_emojis[@]}" | sed 's/, $//')
+  echo "Invalid commit type '$commit_type'. Please use one of the following types: $valid_types"
+  exit 1
+fi
+
+# retorna mensagem de commit formatada
+new_message="$emoji | ${commit_type}($branch_name):${commit_message#*:}"
+echo "$new_message" > "$1"
