@@ -1,6 +1,15 @@
+/**
+ * Runs only once and exists throught the life of the game
+ * 
+ * Handles the logic between different scenes
+ * Injects code into scenes that need it
+ * Connects to colyseus server  
+ */
+
 import { Scene } from 'phaser';
 
 export class Boot extends Scene {
+
   constructor() {
     super('Boot');
   }

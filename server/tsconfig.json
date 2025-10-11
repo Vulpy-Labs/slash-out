@@ -23,6 +23,15 @@
         "sourceMap": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "src/*"
+            ],
+            "shared/*": [
+                "../shared/*"
+            ]
+        }
     },
     "include": [
         "src",
