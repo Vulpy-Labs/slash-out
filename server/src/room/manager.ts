@@ -5,27 +5,9 @@ import { ACTIONS } from 'shared/types/player/events';
 
 export class RoomManager extends Room {
   onCreate() {
-    this.setState(new State());
-    this.setPatchRate(50);
-
-    this.onMessage(ACTIONS.PLAYER_MOVED, (client, data) => {
-      console.log('🚀 Server - Received movement from', client.sessionId, data);
-
-      const player = this.state.players.get(client.sessionId);
-      if (player) {
-        const oldX = player.x;
-        const oldY = player.y;
-
-        if (data.left) player.x -= 5;
-        if (data.right) player.x += 5;
-
-        console.log(
-          `🚀 Server - Player ${client.sessionId} moved from (${oldX}, ${oldY}) to (${player.x}, ${player.y})`
-        );
-      } else {
-        console.error('🚀 Server - Player not found:', client.sessionId);
-      }
-    });
+    const state = new State();
+    this.setState(state);
+    this.setPatchRate(8);
   }
 
   onJoin(client: Client) {
@@ -35,37 +17,23 @@ export class RoomManager extends Room {
       // Todo: () => extrair valores para shared.
       const mapWidth = 352;
       const mapHeight = 240;
+      const playerId = client.sessionId;
 
       const player = new Player();
       player.x = Math.random() * mapWidth;
-      player.y = Math.random() * mapHeight;
+      player.y = mapHeight - 25;
 
-      console.log('🚀 Server - Created player:', player);
-      console.log('🚀 Server - Adding to state.players...');
+      this.state.players.set(playerId, player);
 
-      this.state.players.set(client.sessionId, player);
+      logger.info(`Player ${playerId} added successfully!`);
 
-      console.log('🚀 Server - Player added:', player);
-      console.log('🚀 Server - Players count after add:', this.state.players.size);
-      console.log('🚀 Server - All players:', Array.from(this.state.players.keys()));
-
-      const message = {
-        sessionId: client.sessionId,
-        player: {
-          x: player.x,
-          y: player.y,
-        },
-      };
-
-      console.log('🚀 ~ RoomManager ~ onJoin ~ message:', message);
-
-      this.broadcast(CREATION.PLAYER_JOINED, message);
+      this.setupClientMessagesListeners();
     } catch (error) {
       console.error('🚀 Server - Error in onJoin:', error);
     }
   }
 
-  onLeave(client: Client, consented: boolean) {
+  onLeave(client: Client) {
     logger.warn(client.sessionId, 'left!');
     this.state.players.delete(client.sessionId);
   }
