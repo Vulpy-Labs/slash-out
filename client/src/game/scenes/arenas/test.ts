@@ -623,6 +623,7 @@ export class TestScene extends Phaser.Scene {
       right: false,
       up: false,
       down: false,
+      jump: false,
     };
 
     // this.roomConnection.room.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
@@ -658,9 +659,21 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateVerticalMovement() {
+    const playerMovementPayload = {
+      left: false,
+      right: false,
+      up: false,
+      down: false,
+      jump: false,
+    };
+
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
-      this.character.setVelocityY(-CHARACTER_SPEED_Y);
+      // this.character.setVelocityY(-CHARACTER_SPEE D_Y);
       this.setPlayerState('JUMPING');
+
+      playerMovementPayload.jump = true;
+
+      this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
     }
 
     if (!this.isPlayerTouchingGround) {
@@ -971,12 +984,21 @@ export class TestScene extends Phaser.Scene {
 
   async createServerRoom() {
     this.roomConnection = new RoomConnection();
-
     await this.roomConnection.create();
 
-    this.roomConnection.events.on('local-player-ready', (player: Player) => {
-      // console.log('🚀 ~ TestScene ~ createServerRoom ~ player:', player);
+    this.roomConnection.events.on(CREATION.PLAYER_JOINED, (player: Player) => {
       this.createPlayer({ player });
+    });
+
+    this.roomConnection.events.on(ACTIONS.PLAYER_MOVED, (player: Player) => {
+      console.log('🚀 ~ TestScene ~ createServerRoom ~ player MOVED!:', player);
+
+      // this.character.setVelocityX(-CHARACTER_SPEED_X);
+      // this.character.setFlipX(true);
+      this.setPlayerState('RUNNING');
+      this.character.setPosition(player.x, player.y);
+
+      // this.handleCharacterDeath();
     });
   }
 
@@ -996,7 +1018,7 @@ export class TestScene extends Phaser.Scene {
     this.createCharacter({ x: player.x, y: player.y });
 
     // Todo: Abstrair lógica para sempre renderizar o personagem em um dos pontos de spawn disponíveis
-    this.handleRespawnCharacter();
+    // this.handleRespawnCharacter();
 
     this.createKeyboardInputs();
     this.createWeaponsAnimations();
