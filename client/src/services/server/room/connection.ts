@@ -55,7 +55,7 @@ export class RoomConnection {
   }
 
   send(type: string | number, message: any) {
-    if (this.room?.connection?.isOpen) {
+    if (this.isConnected()) {
       this.room.send(type, message);
     } else {
       console.warn('PlayerRoom - Cannot send message, connection not ready');
