@@ -1,8 +1,7 @@
 import { Client, logger, Room } from 'colyseus';
-import { State } from '@/types/room/state';
-import { CREATION } from '@/types/room/events';
-import { Player } from '@/types/player/schema';
-import { ACTIONS } from '@/types/player/events';
+import { State } from 'shared/types/room/state';
+import { Player } from 'shared/types/player/schema';
+import { ACTIONS } from 'shared/types/player/events';
 
 export class RoomManager extends Room {
   onCreate() {
