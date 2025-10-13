@@ -20,83 +20,38 @@ export class RoomConnection {
   }
 
   async create() {
-    // console.log(`Client - Connected to server via ${import.meta.env.VITE_SERVER_URL}`);
-    // console.log(`Client - Joining room: ${this.roomName}...`);
+    console.log(
+      `Client - Connected to "${this.roomName}" server via ${import.meta.env.VITE_SERVER_URL}`
+    );
 
     try {
       this.room = await this.client.joinOrCreate<State>(this.roomName);
       this.playerId = this.room.sessionId;
       this.setupStateListeners();
 
-      // console.log(`Client - Joined successfully with ID ${this.playerId}!`);
-
-      // Now log what happens
-      // console.log('Client - Listeners set up, waiting for state updates...');
+      return this.room;
     } catch (e: any) {
       console.error('Client - PlayerRoom ~ create ~ e:', e);
     }
   }
 
   setupStateListeners() {
-    console.log('Client - Setting up state listeners...');
-    // console.log('Client - Current players in state:', this.room.state.players.size);
+    console.log('Client - Attempting to attach onAdd listener...');
+    try {
+      this.room.state.players.onAdd((player: Player, sessionId: string) => {
+        console.log('🎉🎉🎉 CLIENT - onAdd FIRED!!!', sessionId, player);
 
-    this.room.onMessage(
-      CREATION.PLAYER_JOINED,
-      ({ sessionId, player }: { sessionId: string; player: Player }) => {
-        console.log('Client - Received player_joined message:', { sessionId, ...player });
+        player.onChange(() => {
+          console.log('🎉🎉🎉 CLIENT - onChange FIRED!!!', sessionId, player);
 
-        // Now check the state
-        // const player = this.room.state.players.get(sessionId);
-        // console.log('Client - Player in state:', player);
+          this.events.emit(ACTIONS.PLAYER_MOVED, player);
+        });
 
-        // console.log(
-        //   `Client - sessionId [${sessionId}] !== this.playerId [${this.playerId}]:`,
-        //   sessionId !== this.playerId
-        // );
-
-        if (sessionId === this.playerId) {
-          // Todo: () => transformar em enum
-          this.events.emit('local-player-ready', player);
-        } else {
-          this.events.emit('remote-player-ready', player);
-        }
-      }
-    );
-
-    // 2. Process existing players in state RIGHT NOW
-    this.room.state.players.forEach((player: Player, sessionId: string) => {
-      console.log(`🔍 Client - Processing existing player in state: ${sessionId}`);
-
-      // Set up onChange listener for this existing player
-      player.onChange(() => {
-        console.log(`🔄 Player ${sessionId} moved:`, player.x, player.y);
-        this.events.emit('player-moved', sessionId, player.x, player.y);
+        this.events.emit(CREATION.PLAYER_JOINED, player);
       });
-    });
-
-    // 3. Handle FUTURE players (who join AFTER you)
-    this.room.state.players.onAdd((player: Player, sessionId: string) => {
-      console.log(`✅ Client - onAdd fired for NEW player: ${sessionId}`);
-
-      // Set up onChange listener for this new player
-      player.onChange(() => {
-        console.log(`🔄 Player ${sessionId} moved:`, player.x, player.y);
-        this.events.emit('player-moved', sessionId, player.x, player.y);
-      });
-    });
-  }
-
-  createRemotePlayer(sessionId: string, player: Player) {
-    console.log(`Client - createRemotePlayer:`, sessionId, player);
-  }
-
-  getRoomState() {
-    return this.room.state;
-  }
-
-  getPlayerId() {
-    return this.playerId;
+    } catch (e) {
+      console.error('Client - Error attaching onAdd:', e);
+    }
   }
 
   send(type: string | number, message: any) {
