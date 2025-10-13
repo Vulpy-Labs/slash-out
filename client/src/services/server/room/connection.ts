@@ -2,9 +2,10 @@ import 'reflect-metadata';
 import Phaser from 'phaser';
 
 import { Client, Room } from 'colyseus.js';
-import { Player } from '@/types/player/schema';
-import { State } from '@/types/room/state';
-import { CREATION } from '@/types/room/events';
+import { Player } from 'shared/types/player/schema';
+import { State } from 'shared/types/room/state';
+import { CREATION } from 'shared/types/room/events';
+import { ACTIONS } from 'shared/types/player/events';
 
 export class RoomConnection {
   client: Client;
