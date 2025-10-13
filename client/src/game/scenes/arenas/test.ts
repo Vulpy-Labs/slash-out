@@ -12,8 +12,9 @@ import {
   DEFAULT_CHARACTER_INVENCIBILITY_TIME,
 } from '../../constants';
 import { RoomConnection } from '@/services/server/room/connection';
-import { Player } from '@/types/player/schema';
-import { ACTIONS } from '@/types/player/events';
+import { Player } from 'shared/types/player/schema';
+import { ACTIONS } from 'shared/types/player/events';
+import { CREATION } from 'shared/types/room/events';
 
 type PlayerState =
   | 'IDLE'
