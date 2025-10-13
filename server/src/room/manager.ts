@@ -37,4 +37,18 @@ export class RoomManager extends Room {
     logger.warn(client.sessionId, 'left!');
     this.state.players.delete(client.sessionId);
   }
+
+  setupClientMessagesListeners() {
+    this.onMessage(ACTIONS.PLAYER_MOVED, (client, payload) => {
+      logger.info('Player Moved!');
+
+      const player = this.state.players.get(client.sessionId);
+      logger.info('player:', player.x);
+      logger.info('player:', player.y);
+
+      if (payload.left) player.x -= 1;
+      if (payload.right) player.x += 1;
+      if (payload.jump) player.y -= 5;
+    });
+  }
 }
