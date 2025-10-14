@@ -41,14 +41,12 @@ export class RoomConnection {
     try {
       this.room.state.players.onAdd((player: Player, sessionId: string) => {
         console.log('🎉🎉🎉 CLIENT - onAdd FIRED!!!', sessionId, player);
+        this.events.emit(CREATION.PLAYER_JOINED, player);
 
         player.onChange(() => {
-          console.log('🎉🎉🎉 CLIENT - onChange FIRED!!!', sessionId, player);
-
+          // console.log('🎉🎉🎉 CLIENT - onChange FIRED!!!', sessionId, player.velocityX);
           this.events.emit(ACTIONS.PLAYER_MOVED, player);
         });
-
-        this.events.emit(CREATION.PLAYER_JOINED, player);
       });
     } catch (e) {
       console.error('Client - Error attaching onAdd:', e);

@@ -1,0 +1,38 @@
+Client presses RIGHT → Sends message → Server sets velocityX = 3
+↓
+Physics loop runs 60 times per second:
+- Frame 1: x = 100, apply velocity → x = 103
+- Frame 2: x = 103, apply velocity → x = 106  
+- Frame 3: x = 106, apply velocity → x = 109
+... continues until client releases key
+
+For jumping:
+Client presses JUMP → Server sets velocityY = -8
+↓
+Physics loop:
+- Frame 1: y = 220, velocityY = -8 → y = 212 (going up)
+- Frame 2: y = 212, velocityY = -7.5 (gravity!) → y = 204.5
+- Frame 3: y = 204.5, velocityY = -7 → y = 197.5
+- Frame 4: y = 197.5, velocityY = -6.5 → y = 191
+... (arc continues)
+- Frame 20: y = 180, velocityY = +5 (falling now)
+- Frame 30: y = 210, velocityY = +10
+- Frame 35: y = 220 (hit ground), velocityY = 0, isGrounded = true
+
+1. Client presses RIGHT
+   ↓
+2. Client sends message { right: true }
+   ↓
+3. setupClientMessagesListeners receives it
+   ↓
+4. Sets body.velocityX = 3
+   ↓
+5. fixedUpdate runs (60 times per second)
+   ↓
+6. Applies velocity: x += velocityX (moves 3 pixels)
+   ↓
+7. Applies gravity: velocityY += 0.5
+   ↓
+8. Updates position: y += velocityY
+   ↓
+9. Repeats step 5-8 continuously

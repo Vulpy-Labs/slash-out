@@ -84,6 +84,13 @@ export class TestScene extends Phaser.Scene {
     seppuku_attack: Phaser.Input.Keyboard.Key;
     seppuku_shot: Phaser.Input.Keyboard.Key;
   };
+  lastInputState = {
+    left: false,
+    right: false,
+    up: false,
+    down: false,
+    jump: false,
+  };
 
   // Weapons
   weaponState: WeaponState;
@@ -618,24 +625,22 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateHorizontalMovement() {
-    const playerMovementPayload = {
-      left: false,
-      right: false,
+    const currentInputState = {
+      left: this.cursors.left.isDown || this.keyboardInputs.left.isDown,
+      right: this.cursors.right.isDown || this.keyboardInputs.right.isDown,
       up: false,
       down: false,
       jump: false,
     };
 
-    // this.roomConnection.room.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
+    if (
+      this.lastInputState.left !== currentInputState.left ||
+      this.lastInputState.right !== currentInputState.right
+    ) {
+      console.log('📤 Client sending input - left:', currentInputState.left);
+      this.roomConnection.send(ACTIONS.PLAYER_MOVED, currentInputState);
 
-    if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
-      playerMovementPayload.left = this.cursors.left.isDown || this.keyboardInputs.left.isDown;
-
-      this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
-    } else if (this.cursors.right.isDown || this.keyboardInputs.right.isDown) {
-      playerMovementPayload.right = this.cursors.right.isDown || this.keyboardInputs.right.isDown;
-
-      this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
+      this.lastInputState = currentInputState;
     }
 
     // if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
@@ -991,7 +996,7 @@ export class TestScene extends Phaser.Scene {
     });
 
     this.roomConnection.events.on(ACTIONS.PLAYER_MOVED, (player: Player) => {
-      console.log('🚀 ~ TestScene ~ createServerRoom ~ player MOVED!:', player);
+      // console.log('🚀 ~ TestScene ~ createServerRoom ~ player MOVED!:', player.velocityX);
 
       // this.character.setVelocityX(-CHARACTER_SPEED_X);
       // this.character.setFlipX(true);
