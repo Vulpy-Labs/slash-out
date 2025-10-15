@@ -4,7 +4,7 @@ export const PhysicsConfig = {
   jumpForce: -8,
 
   // Gravity
-  gravity: 0.5,
+  gravity: 0.01,
   maxFallSpeed: 10,
 
   // Player size

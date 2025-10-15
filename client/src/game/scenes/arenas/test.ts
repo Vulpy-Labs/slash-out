@@ -15,6 +15,7 @@ import { RoomConnection } from '@/services/server/room/connection';
 import { Player } from 'shared/types/player/schema';
 import { ACTIONS } from 'shared/types/player/events';
 import { CREATION } from 'shared/types/room/events';
+import { SERVER_PATCH_RATE } from 'shared/config/constants/connection';
 
 type PlayerState =
   | 'IDLE'
@@ -279,10 +280,11 @@ export class TestScene extends Phaser.Scene {
   }
 
   createCharacter({ x = 150, y = 100 }: { x?: number; y?: number } = {}) {
-    this.character = this.physics.add.sprite(x, y, 'spr_idle') as CharacterType;
+    // this.character = this.physics.add.sprite(x, y, 'spr_idle') as CharacterType;
+    this.character = this.add.sprite(x, y, 'spr_idle') as CharacterType;
     this.character.health = CHARACTER_HEALTH;
 
-    this.createCharacterCollisions();
+    // this.createCharacterCollisions();
     this.createCharacterAnimations();
   }
 
@@ -616,7 +618,7 @@ export class TestScene extends Phaser.Scene {
       this.cursors.right.isDown ||
       this.keyboardInputs.right.isDown;
 
-    this.isPlayerTouchingGround = this.character.body.blocked.down;
+    // this.isPlayerTouchingGround = this.character.body.blocked.down;
 
     if (this.playerState !== 'DEAD') {
       this.updateHorizontalMovement();
@@ -630,30 +632,30 @@ export class TestScene extends Phaser.Scene {
       right: this.cursors.right.isDown || this.keyboardInputs.right.isDown,
       up: false,
       down: false,
-      jump: false,
+      jump: Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround,
     };
-
     if (
       this.lastInputState.left !== currentInputState.left ||
       this.lastInputState.right !== currentInputState.right
     ) {
       console.log('📤 Client sending input - left:', currentInputState.left);
+      // if (this.isPlayerTouchingGround) this.setPlayerState('RUNNING');
+      // if (currentInputState.left) this.character.setFlipX(true);
+      // else this.character.setFlipX(false);
       this.roomConnection.send(ACTIONS.PLAYER_MOVED, currentInputState);
-
       this.lastInputState = currentInputState;
+    } else if (this.isPlayerTouchingGround && !this.isPlayerMovingHorizontally) {
+      this.setPlayerState('IDLE');
     }
-
     // if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
     //   this.character.setVelocityX(-CHARACTER_SPEED_X);
     //   this.character.setFlipX(true);
-
     //   if (this.isPlayerTouchingGround) {
     //     this.setPlayerState('RUNNING');
     //   }
     // } else if (this.cursors.right.isDown || this.keyboardInputs.right.isDown) {
     //   this.character.setVelocityX(CHARACTER_SPEED_X);
     //   this.character.setFlipX(false);
-
     //   if (this.isPlayerTouchingGround) {
     //     this.setPlayerState('RUNNING');
     //   }
@@ -664,40 +666,35 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateVerticalMovement() {
-    const playerMovementPayload = {
-      left: false,
-      right: false,
-      up: false,
-      down: false,
-      jump: false,
-    };
-
-    if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
-      // this.character.setVelocityY(-CHARACTER_SPEE D_Y);
-      this.setPlayerState('JUMPING');
-
-      playerMovementPayload.jump = true;
-
-      this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
-    }
-
-    if (!this.isPlayerTouchingGround) {
-      this.setPlayerState('IN_AIR');
-    }
-
-    if (
-      (this.cursors.up.isDown || this.keyboardInputs.up.isDown) &&
-      !this.isPlayerMovingHorizontally &&
-      this.isPlayerTouchingGround
-    ) {
-      this.setPlayerState('LOOKING_UP');
-    } else if (
-      (this.cursors.down.isDown || this.keyboardInputs.down.isDown) &&
-      !this.isPlayerMovingHorizontally &&
-      this.isPlayerTouchingGround
-    ) {
-      this.setPlayerState('LOOKING_DOWN');
-    }
+    // const currentInputState = {
+    //   up: false,
+    //   down: false,
+    //   jump: Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround,
+    // };
+    // if (this.lastInputState.jump !== currentInputState.jump) {
+    //   this.roomConnection.send(ACTIONS.PLAYER_MOVED, currentInputState);
+    //   this.lastInputState.jump = currentInputState.jump;
+    // }
+    //   // if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
+    //   //   // this.character.setVelocityY(-CHARACTER_SPEED_Y);
+    //   //   this.setPlayerState('JUMPING');
+    //   // }
+    //   // if (!this.isPlayerTouchingGround) {
+    //   //   this.setPlayerState('IN_AIR');
+    //   // }
+    //   // if (
+    //   //   (this.cursors.up.isDown || this.keyboardInputs.up.isDown) &&
+    //   //   !this.isPlayerMovingHorizontally &&
+    //   //   this.isPlayerTouchingGround
+    //   // ) {
+    //   //   this.setPlayerState('LOOKING_UP');
+    //   // } else if (
+    //   //   (this.cursors.down.isDown || this.keyboardInputs.down.isDown) &&
+    //   //   !this.isPlayerMovingHorizontally &&
+    //   //   this.isPlayerTouchingGround
+    //   // ) {
+    //   //   this.setPlayerState('LOOKING_DOWN');
+    //   // }
   }
 
   updateSwordAttachmentToCharacter() {
@@ -996,27 +993,21 @@ export class TestScene extends Phaser.Scene {
     });
 
     this.roomConnection.events.on(ACTIONS.PLAYER_MOVED, (player: Player) => {
-      // console.log('🚀 ~ TestScene ~ createServerRoom ~ player MOVED!:', player.velocityX);
-
-      // this.character.setVelocityX(-CHARACTER_SPEED_X);
-      // this.character.setFlipX(true);
       this.setPlayerState('RUNNING');
-      this.character.setPosition(player.x, player.y);
 
-      // this.handleCharacterDeath();
+      this.isPlayerTouchingGround = player.isGrounded;
+
+      this.tweens.add({
+        targets: this.character,
+        x: player.x,
+        y: player.y,
+        duration: SERVER_PATCH_RATE,
+        ease: 'Linear',
+      });
     });
   }
 
   createPlayer({ player }: { player: Player }) {
-    // const state = this.roomConnection.getRoomState();
-    // console.log('🚀 ~ TestScene ~ createPlayers ~ state:', state);
-    // const playerId = this.roomConnection.getPlayerId();
-    // console.log('🚀 ~ TestScene ~ createPlayers ~ playerId:', playerId);
-
-    // const player = state.players.get(playerId);
-
-    // console.log('🚀 ~ TestScene ~ createPlayers ~ player:', player);
-
     this.createMap();
     this.createSpawnPoints();
     this.createTitle();

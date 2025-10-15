@@ -5,25 +5,46 @@ import { ACTIONS } from 'shared/types/player/events';
 import { PhysicsWorld } from '../physics/PhysicsWorld';
 import { PhysicsBody } from '../physics/PhysicsBody';
 import { PhysicsConfig } from '../physics/PhysicsConfig';
+import { TiledMapLoader } from '../physics/TiledMapLoader';
+import { SERVER_PATCH_RATE } from 'shared/config/constants/connection';
+
+import * as fs from 'fs';
+import * as path from 'path';
 
 export class RoomManager extends Room {
   physicsWorld: PhysicsWorld;
   playerBodies: Map<string, PhysicsBody> = new Map();
-  fixedTimeStep = 1000 / 60; // 60 FPS
+  fixedTimeStep = 1000 / 60;
   accumulator = 0;
 
   onCreate() {
     const state = new State();
     this.setState(state);
-    this.setPatchRate(8); // Send updates every 50ms (20 times per second)
+    this.setPatchRate(SERVER_PATCH_RATE);
 
-    // Initialize physics
-    this.physicsWorld = new PhysicsWorld();
+    // Load Tiled map and extract platforms
+    try {
+      const mapPath = path.join(process.cwd(), '../client/public/assets/maps/canyon.json');
+      const mapData = JSON.parse(fs.readFileSync(mapPath, 'utf-8'));
+      const platforms = TiledMapLoader.extractPlatforms(mapData);
 
-    // Start physics simulation loop
+      logger.info(`✅ Loaded ${platforms.length} platforms from canyon.json`);
+
+      // Initialize physics with map platforms
+      this.physicsWorld = new PhysicsWorld(platforms);
+
+      console.log('Total platforms:', this.physicsWorld.platforms.length);
+      console.log('First 10 platforms:');
+      this.physicsWorld.platforms.slice(0, 10).forEach((p, i) => {
+        console.log(`  [${i}] x=${p.x}, y=${p.y}, w=${p.width}, h=${p.height}`);
+      });
+    } catch (error) {
+      logger.error('❌ Failed to load map:', error);
+      // Fallback: create default ground
+      this.physicsWorld = new PhysicsWorld([{ x: 0, y: 220, width: 352, height: 20 }]);
+    }
+
     this.setSimulationInterval(deltaTime => this.update(deltaTime));
-
-    // Setup input handling
     this.setupClientMessagesListeners();
   }
 
@@ -33,14 +54,14 @@ export class RoomManager extends Room {
     try {
       const playerId = client.sessionId;
 
-      // Create player schema
       const player = new Player();
-      player.x = Math.random() * 300;
-      player.y = 50; // Spawn in air so they fall to ground
+      player.x = 176; // Center of map (352 / 2)
+      player.y = 100; // High up so they fall
+
+      console.log(`Player spawned at: x=${player.x}, y=${player.y}`);
 
       this.state.players.set(playerId, player);
 
-      // Create physics body for this player
       const body = new PhysicsBody(
         player.x,
         player.y,
@@ -61,33 +82,34 @@ export class RoomManager extends Room {
     this.playerBodies.delete(client.sessionId);
   }
 
-  /**
-   * Main update loop - runs physics at fixed timestep
-   */
   update(deltaTime: number) {
     this.accumulator += deltaTime;
+    // console.log(`Δt: ${deltaTime.toFixed(2)}ms`);
 
-    // Run physics at fixed 60 FPS
     while (this.accumulator >= this.fixedTimeStep) {
       this.fixedUpdate();
       this.accumulator -= this.fixedTimeStep;
     }
   }
 
-  /**
-   * Fixed timestep physics update
-   */
   fixedUpdate() {
-    // Update all players
     this.state.players.forEach((player: Player, sessionId: string) => {
       const body = this.playerBodies.get(sessionId);
-      // console.log('🚀 ~ fixedUpdate ~ body:', body);
       if (!body) return;
 
-      // Run physics
+      const beforeY = body.y;
+      const beforeGrounded = body.isGrounded;
+
       this.physicsWorld.updateBody(body);
 
-      // Sync state with physics body
+      if (Math.abs(body.y - beforeY) > 5 && body.isGrounded) {
+        console.log(
+          `⚠️ Big jump while grounded! y: ${beforeY.toFixed(2)} → ${body.y.toFixed(
+            2
+          )}, grounded: ${beforeGrounded} → ${body.isGrounded}`
+        );
+      }
+
       player.x = body.x;
       player.y = body.y;
       player.velocityX = body.velocityX;
@@ -113,15 +135,10 @@ export class RoomManager extends Room {
         body.velocityX = PhysicsConfig.moveSpeed;
         player.facingRight = true;
       } else {
-        // Instant stop when no input
         body.velocityX = 0;
-        console.log(
-          '🚀 ~ RoomManager ~ setupClientMessagesListeners ~ body.velocityX:',
-          body.velocityX
-        );
       }
 
-      // Handle jump (only if on ground)
+      console.log(`${new Date().toLocaleTimeString()} payload.jump:`, payload.jump);
       if (payload.jump && body.isGrounded) {
         body.velocityY = PhysicsConfig.jumpForce;
       }
