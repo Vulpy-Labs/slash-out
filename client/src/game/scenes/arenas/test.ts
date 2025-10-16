@@ -13,9 +13,10 @@ import {
 } from '../../constants';
 import { RoomConnection } from '@/services/server/room/connection';
 import { Player } from 'shared/types/player/schema';
-import { ACTIONS } from 'shared/types/player/events';
+import { PLAYER_ACTIONS } from 'shared/types/player/events';
 import { CREATION } from 'shared/types/room/events';
 import { SERVER_PATCH_RATE } from 'shared/config/constants/connection';
+import { PHYSICS_CONFIG } from 'shared/config/constants/PhysicsConfig';
 
 type PlayerState =
   | 'IDLE'
@@ -102,6 +103,27 @@ export class TestScene extends Phaser.Scene {
 
   // Server Logic
   roomConnection: RoomConnection;
+
+  inputState = {
+    left: false,
+    right: false,
+    jump: false,
+  };
+
+  // Client prediction state (matches server PhysicsBody)
+  predicted = {
+    x: 0,
+    y: 0,
+    velocityX: 0,
+    velocityY: 0,
+    isGrounded: false,
+  };
+
+  predictedBody: Phaser.Physics.Arcade.Sprite;
+
+  // Fixed timestep for prediction (match server)
+  predictionAccumulator = 0;
+  readonly FIXED_TIMESTEP = 1000 / 60; // 60 FPS (16.67ms)
 
   constructor() {
     super('TestScene');
@@ -221,7 +243,30 @@ export class TestScene extends Phaser.Scene {
     // this.updateLivesDisplay();
   }
 
-  update() {
+  update(time: number, delta: number) {
+    if (!this.character || !this.roomConnection?.room) return;
+
+    // 1. Send current input to server
+    this.sendInputToServer();
+
+    this.predictionAccumulator += delta;
+
+    // Run prediction at fixed 60 FPS (same as server)
+    while (this.predictionAccumulator >= this.FIXED_TIMESTEP) {
+      // // 2. Predict movement locally (runs every frame)
+      // this.predictMovement();
+
+      // Apply inputs to Phaser physics body
+      this.applyInputsToPredictedBody();
+      this.predictionAccumulator -= this.FIXED_TIMESTEP;
+    }
+
+    // 3. Reconcile with server (snap if too far off)
+    this.reconcileWithServer();
+
+    // 4. Render character at predicted position
+    this.character.setPosition(this.predictedBody.x, this.predictedBody.y);
+
     this.updateCharacterMovement();
     this.updateCharacterAttack();
     this.updateLivesDisplay();
@@ -283,6 +328,28 @@ export class TestScene extends Phaser.Scene {
     this.character = this.add.sprite(x, y, 'spr_idle') as CharacterType;
     this.character.setOrigin(0, 0);
     this.character.health = CHARACTER_HEALTH;
+
+    // Todo: () => extrar valores default em um type
+    // Physics body for prediction (invisible)
+    this.predictedBody = this.physics.add.sprite(x, y, null);
+    this.predictedBody.setOrigin(0, 0);
+    this.predictedBody.setSize(16, 16);
+    this.predictedBody.setVisible(false); // Don't render it
+
+    // Setup physics to match server
+    this.predictedBody.setGravityY(PHYSICS_CONFIG.GRAVITY); // Adjust to match server feel
+    this.predictedBody.setCollideWorldBounds(false); // Server handles bounds
+    this.predictedBody.setBounce(0);
+    this.predictedBody.setDrag(0);
+
+    // Add collision with platforms
+    this.physics.add.collider(this.predictedBody, this.platforms);
+
+    this.inputState = {
+      left: false,
+      right: false,
+      jump: false,
+    };
 
     // this.createCharacterCollisions();
     this.createCharacterAnimations();
@@ -476,21 +543,57 @@ export class TestScene extends Phaser.Scene {
   }
 
   createKeyboardInputs() {
-    const keyboard = this.input.keyboard!;
+    // const keyboard = this.input.keyboard!;
 
-    this.cursors = this.input.keyboard!.createCursorKeys();
-    this.keyboardInputs = {
-      left: keyboard.addKey('A'),
-      right: keyboard.addKey('D'),
-      up: keyboard.addKey('W'),
-      down: keyboard.addKey('S'),
-      jump: keyboard.addKey('SPACE'),
-      attack: keyboard.addKey('F'),
-      shoot: keyboard.addKey('G'),
-      dash: keyboard.addKey('SHIFT'),
-      seppuku_attack: keyboard.addKey('Z'),
-      seppuku_shot: keyboard.addKey('X'),
-    };
+    // this.cursors = this.input.keyboard!.createCursorKeys();
+    // this.keyboardInputs = {
+    //   left: keyboard.addKey('A'),
+    //   right: keyboard.addKey('D'),
+    //   up: keyboard.addKey('W'),
+    //   down: keyboard.addKey('S'),
+    //   jump: keyboard.addKey('SPACE'),
+    //   attack: keyboard.addKey('F'),
+    //   shoot: keyboard.addKey('G'),
+    //   dash: keyboard.addKey('SHIFT'),
+    //   seppuku_attack: keyboard.addKey('Z'),
+    //   seppuku_shot: keyboard.addKey('X'),
+    // };
+
+    this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
+      switch (event.code) {
+        case 'KeyA':
+        case 'ArrowLeft':
+          this.inputState.left = true;
+          break;
+        case 'KeyD':
+        case 'ArrowRight':
+          this.inputState.right = true;
+          break;
+        case 'Space':
+        case 'KeyW':
+        case 'ArrowUp':
+          this.inputState.jump = true;
+          break;
+      }
+    });
+
+    this.input.keyboard?.on('keyup', (event: KeyboardEvent) => {
+      switch (event.code) {
+        case 'KeyA':
+        case 'ArrowLeft':
+          this.inputState.left = false;
+          break;
+        case 'KeyD':
+        case 'ArrowRight':
+          this.inputState.right = false;
+          break;
+        case 'Space':
+        case 'KeyW':
+        case 'ArrowUp':
+          this.inputState.jump = false;
+          break;
+      }
+    });
   }
 
   createSword() {
@@ -642,11 +745,13 @@ export class TestScene extends Phaser.Scene {
       // if (this.isPlayerTouchingGround) this.setPlayerState('RUNNING');
       // if (currentInputState.left) this.character.setFlipX(true);
       // else this.character.setFlipX(false);
-      this.roomConnection.send(ACTIONS.PLAYER_MOVED, currentInputState);
+
+      this.roomConnection.send(PLAYER_ACTIONS.MOVED, currentInputState);
       this.lastInputState = currentInputState;
     } else if (this.isPlayerTouchingGround && !this.isPlayerMovingHorizontally) {
       this.setPlayerState('IDLE');
     }
+
     // if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
     //   this.character.setVelocityX(-CHARACTER_SPEED_X);
     //   this.character.setFlipX(true);
@@ -672,7 +777,7 @@ export class TestScene extends Phaser.Scene {
     //   jump: Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround,
     // };
     // if (this.lastInputState.jump !== currentInputState.jump) {
-    //   this.roomConnection.send(ACTIONS.PLAYER_MOVED, currentInputState);
+    //   this.roomConnection.send(PLAYER_ACTIONS.MOVED, currentInputState);
     //   this.lastInputState.jump = currentInputState.jump;
     // }
     //   // if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
@@ -992,7 +1097,7 @@ export class TestScene extends Phaser.Scene {
       this.createPlayer({ player });
     });
 
-    this.roomConnection.events.on(ACTIONS.PLAYER_MOVED, (player: Player) => {
+    this.roomConnection.events.on(PLAYER_ACTIONS.MOVED, (player: Player) => {
       this.setPlayerState('RUNNING');
 
       this.isPlayerTouchingGround = player.isGrounded;
@@ -1020,5 +1125,51 @@ export class TestScene extends Phaser.Scene {
     this.createWeaponsAnimations();
     this.createLivesContainer();
     this.updateLivesDisplay();
+  }
+
+  sendInputToServer() {
+    this.roomConnection.send(PLAYER_ACTIONS.MOVED, {
+      left: this.inputState.left,
+      right: this.inputState.right,
+      jump: this.inputState.jump,
+    });
+  }
+
+  applyInputsToPredictedBody() {
+    const moveSpeed = 160; // Adjust to match server feel
+
+    if (this.inputState.left) {
+      this.predictedBody.setVelocityX(-moveSpeed);
+    } else if (this.inputState.right) {
+      this.predictedBody.setVelocityX(moveSpeed);
+    } else {
+      this.predictedBody.setVelocityX(0);
+    }
+
+    // Jump
+    if (this.inputState.jump && this.predictedBody.body && this.predictedBody.body.touching.down) {
+      this.predictedBody.setVelocityY(-330); // Adjust to match server feel
+    }
+  }
+
+  reconcileWithServer() {
+    const serverPlayer = this.roomConnection.room?.state.players.get(this.roomConnection.playerId);
+    if (!serverPlayer) return;
+
+    // Check drift
+    const errorX = Math.abs(this.predictedBody.x - serverPlayer.x);
+    const errorY = Math.abs(this.predictedBody.y - serverPlayer.y);
+
+    const ERROR_THRESHOLD = 5;
+
+    if (errorX > ERROR_THRESHOLD || errorY > ERROR_THRESHOLD) {
+      console.log(
+        `Reconciling: predicted(${this.predictedBody.x.toFixed(1)}, ${this.predictedBody.y.toFixed(1)}) vs server(${serverPlayer.x}, ${serverPlayer.y})`
+      );
+
+      // Snap physics body to server position
+      this.predictedBody.setPosition(serverPlayer.x, serverPlayer.y);
+      this.predictedBody.setVelocity(serverPlayer.velocityX, serverPlayer.velocityY);
+    }
   }
 }

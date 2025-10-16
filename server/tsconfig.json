@@ -35,6 +35,7 @@
     },
     "include": [
         "src",
-        "app.config.ts"
+        "app.config.ts",
+        "../shared/config/constants/PhysicsConfig.ts"
     ]
 }

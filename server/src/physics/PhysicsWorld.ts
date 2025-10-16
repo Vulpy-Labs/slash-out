@@ -1,5 +1,5 @@
 import { PhysicsBody } from './PhysicsBody';
-import { PhysicsConfig } from './PhysicsConfig';
+import { PHYSICS_CONFIG } from 'shared/config/constants/PhysicsConfig';
 import { Platform } from './Platform.type';
 
 export class PhysicsWorld {
@@ -8,8 +8,8 @@ export class PhysicsWorld {
   worldHeight: number;
 
   constructor(platforms: Platform[] = []) {
-    this.worldWidth = PhysicsConfig.world.width;
-    this.worldHeight = PhysicsConfig.world.height;
+    this.worldWidth = PHYSICS_CONFIG.WORLD.WIDTH;
+    this.worldHeight = PHYSICS_CONFIG.WORLD.HEIGHT;
     this.platforms = platforms;
   }
 
@@ -20,10 +20,10 @@ export class PhysicsWorld {
 
     // Apply gravity ONLY if not grounded
     if (!body.isGrounded) {
-      body.velocityY += PhysicsConfig.gravity;
+      body.velocityY += PHYSICS_CONFIG.GRAVITY;
 
-      if (body.velocityY > PhysicsConfig.maxFallSpeed) {
-        body.velocityY = PhysicsConfig.maxFallSpeed;
+      if (body.velocityY > PHYSICS_CONFIG.MAX_FALL_SPEED) {
+        body.velocityY = PHYSICS_CONFIG.MAX_FALL_SPEED;
       }
     }
     console.log(
@@ -64,16 +64,13 @@ export class PhysicsWorld {
   }
 
   private resolvePlatformCollision(body: PhysicsBody, platform: Platform) {
-    // Expand collision check slightly to detect "touching"
-    const TOUCH_THRESHOLD = 0.5;
-
     // Check if bodies overlap OR are touching
     if (
       !(
-        body.x < platform.x + platform.width + TOUCH_THRESHOLD &&
-        body.x + body.width > platform.x - TOUCH_THRESHOLD &&
-        body.y < platform.y + platform.height + TOUCH_THRESHOLD &&
-        body.y + body.height > platform.y - TOUCH_THRESHOLD
+        body.x < platform.x + platform.width + PHYSICS_CONFIG.WORLD.COLLISIONS.TOUCH_THRESHOLD &&
+        body.x + body.width > platform.x - PHYSICS_CONFIG.WORLD.COLLISIONS.TOUCH_THRESHOLD &&
+        body.y < platform.y + platform.height + PHYSICS_CONFIG.WORLD.COLLISIONS.TOUCH_THRESHOLD &&
+        body.y + body.height > platform.y - PHYSICS_CONFIG.WORLD.COLLISIONS.TOUCH_THRESHOLD
       )
     ) {
       return;
@@ -89,7 +86,11 @@ export class PhysicsWorld {
     const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
 
     // If standing on top (overlap between -0.5 and 1.0), stay grounded
-    if (minOverlap === overlapTop && overlapTop >= -TOUCH_THRESHOLD && overlapTop <= 1.0) {
+    if (
+      minOverlap === overlapTop &&
+      overlapTop >= -PHYSICS_CONFIG.WORLD.COLLISIONS.TOUCH_THRESHOLD &&
+      overlapTop <= 1.0
+    ) {
       // Snap to exact position
       body.y = platform.y - body.height;
       body.velocityY = 0;
@@ -97,18 +98,24 @@ export class PhysicsWorld {
       return;
     }
 
-    // Only resolve penetrating collisions
-    const MIN_OVERLAP = 0.1;
-
-    if (minOverlap === overlapBottom && overlapBottom >= MIN_OVERLAP) {
+    if (
+      minOverlap === overlapBottom &&
+      overlapBottom >= PHYSICS_CONFIG.WORLD.COLLISIONS.MIN_OVERLAP
+    ) {
       body.y = platform.y + platform.height;
       if (body.velocityY < 0) {
         body.velocityY = 0;
       }
-    } else if (minOverlap === overlapLeft && overlapLeft >= MIN_OVERLAP) {
+    } else if (
+      minOverlap === overlapLeft &&
+      overlapLeft >= PHYSICS_CONFIG.WORLD.COLLISIONS.MIN_OVERLAP
+    ) {
       body.x = platform.x - body.width;
       body.velocityX = 0;
-    } else if (minOverlap === overlapRight && overlapRight >= MIN_OVERLAP) {
+    } else if (
+      minOverlap === overlapRight &&
+      overlapRight >= PHYSICS_CONFIG.WORLD.COLLISIONS.MIN_OVERLAP
+    ) {
       body.x = platform.x + platform.width;
       body.velocityX = 0;
     }

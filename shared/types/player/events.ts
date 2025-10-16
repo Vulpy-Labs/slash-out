@@ -1,3 +1,3 @@
-export const ACTIONS = {
-  PLAYER_MOVED: "player_moved",
+export const PLAYER_ACTIONS = {
+  MOVED: "player_moved",
 };

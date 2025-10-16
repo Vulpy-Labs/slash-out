@@ -1,12 +1,14 @@
 import { Client, logger, Room } from 'colyseus';
+
+import { SERVER_PATCH_RATE } from 'shared/config/constants/connection';
 import { State } from 'shared/types/room/state';
 import { Player } from 'shared/types/player/schema';
-import { ACTIONS } from 'shared/types/player/events';
+import { PHYSICS_CONFIG } from 'shared/config/constants/PhysicsConfig';
+import { PLAYER_ACTIONS } from 'shared/types/player/events';
+
 import { PhysicsWorld } from '../physics/PhysicsWorld';
 import { PhysicsBody } from '../physics/PhysicsBody';
-import { PhysicsConfig } from '../physics/PhysicsConfig';
 import { TiledMapLoader } from '../physics/TiledMapLoader';
-import { SERVER_PATCH_RATE } from 'shared/config/constants/connection';
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -65,8 +67,8 @@ export class RoomManager extends Room {
       const body = new PhysicsBody(
         player.x,
         player.y,
-        PhysicsConfig.player.width,
-        PhysicsConfig.player.height
+        PHYSICS_CONFIG.PLAYER.WIDTH,
+        PHYSICS_CONFIG.PLAYER.HEIGHT
       );
       this.playerBodies.set(playerId, body);
 
@@ -119,7 +121,7 @@ export class RoomManager extends Room {
   }
 
   setupClientMessagesListeners() {
-    this.onMessage(ACTIONS.PLAYER_MOVED, (client, payload) => {
+    this.onMessage(PLAYER_ACTIONS.MOVED, (client, payload) => {
       const body = this.playerBodies.get(client.sessionId);
       const player = this.state.players.get(client.sessionId);
 
@@ -129,10 +131,10 @@ export class RoomManager extends Room {
       console.log(`${new Date().toLocaleTimeString()} payload.right:`, payload.right);
       // Handle left/right movement (instant like Samurai Gunn)
       if (payload.left) {
-        body.velocityX = -PhysicsConfig.moveSpeed;
+        body.velocityX = -PHYSICS_CONFIG.MOVE_SPEED;
         player.facingRight = false;
       } else if (payload.right) {
-        body.velocityX = PhysicsConfig.moveSpeed;
+        body.velocityX = PHYSICS_CONFIG.MOVE_SPEED;
         player.facingRight = true;
       } else {
         body.velocityX = 0;
@@ -140,7 +142,7 @@ export class RoomManager extends Room {
 
       console.log(`${new Date().toLocaleTimeString()} payload.jump:`, payload.jump);
       if (payload.jump && body.isGrounded) {
-        body.velocityY = PhysicsConfig.jumpForce;
+        body.velocityY = PHYSICS_CONFIG.JUMP_FORCE;
       }
     });
   }

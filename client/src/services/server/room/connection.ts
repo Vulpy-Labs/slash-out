@@ -5,7 +5,7 @@ import { Client, Room } from 'colyseus.js';
 import { Player } from 'shared/types/player/schema';
 import { State } from 'shared/types/room/state';
 import { CREATION } from 'shared/types/room/events';
-import { ACTIONS } from 'shared/types/player/events';
+import { PLAYER_ACTIONS } from 'shared/types/player/events';
 
 export class RoomConnection {
   client: Client;
@@ -45,7 +45,7 @@ export class RoomConnection {
 
         player.onChange(() => {
           // console.log('🎉🎉🎉 CLIENT - onChange FIRED!!!', sessionId, player.velocityX);
-          this.events.emit(ACTIONS.PLAYER_MOVED, player);
+          this.events.emit(PLAYER_ACTIONS.MOVED, player);
         });
       });
     } catch (e) {
