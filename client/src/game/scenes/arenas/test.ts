@@ -280,8 +280,8 @@ export class TestScene extends Phaser.Scene {
   }
 
   createCharacter({ x = 150, y = 100 }: { x?: number; y?: number } = {}) {
-    // this.character = this.physics.add.sprite(x, y, 'spr_idle') as CharacterType;
     this.character = this.add.sprite(x, y, 'spr_idle') as CharacterType;
+    this.character.setOrigin(0, 0);
     this.character.health = CHARACTER_HEALTH;
 
     // this.createCharacterCollisions();
