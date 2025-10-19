@@ -29,20 +29,29 @@ type WeaponState =
 
 type WeaponStateProps = {
   newState: WeaponState;
-  weapon: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  weapon: Phaser.Physics.Matter.Sprite;
 };
 
-type BulletType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
+type SwordType = Phaser.Physics.Matter.Sprite;
+
+type BulletType = Phaser.Physics.Matter.Sprite & {
   bulletId: string;
   isBeingDestroyed: boolean;
 };
 
-type CharacterType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
+type CharacterType = Phaser.Physics.Matter.Sprite & {
   health: number;
 };
 
 type SpawnPointType = { x: number; y: number };
 
+type CreateBulletProps = {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  angle?: number;
+};
 export class TestScene extends Phaser.Scene {
   // Map
   gameWidth = SCENE.WIDTH;
@@ -77,10 +86,10 @@ export class TestScene extends Phaser.Scene {
 
   // Weapons
   weaponState: WeaponState;
-  sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  sword: SwordType;
   bullets: BulletType[] = [];
   bulletsLeft = BULLET.ATTACK.CLIP_SIZE;
-  shinigamiSword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  shinigamiSword: Phaser.Physics.Matter.Sprite;
 
   // Server Logic
   roomConnection: RoomConnection;
@@ -191,16 +200,16 @@ export class TestScene extends Phaser.Scene {
   }
 
   async create() {
-    await this.createServerRoom();
+    // await this.createServerRoom();
 
-    // this.createMap();
-    // this.createSpawnPoints();
-    // this.createTitle();
-    // this.createCharacter();
-    // this.createKeyboardInputs();
-    // this.createWeaponsAnimations();
-    // this.createLivesContainer();
-    // this.updateLivesDisplay();
+    this.createMap();
+    this.createSpawnPoints();
+    this.createTitle();
+    this.createCharacter();
+    this.createKeyboardInputs();
+    this.createWeaponsAnimations();
+    this.createLivesContainer();
+    this.updateLivesDisplay();
   }
 
   update() {
@@ -249,6 +258,7 @@ export class TestScene extends Phaser.Scene {
     this.platforms = ground.find(ground => ground?.layer.name.includes('platform'))!;
 
     this.platforms.setCollisionByProperty({ collider: true });
+    this.matter.world.convertTilemapLayer(this.platforms);
 
     this.createMapLayer('foreground', tilesets);
   }
@@ -262,16 +272,73 @@ export class TestScene extends Phaser.Scene {
   }
 
   createCharacter({ x = 150, y = 100 }: { x?: number; y?: number } = {}) {
-    this.character = this.physics.add.sprite(x, y, 'spr_idle') as CharacterType;
-    this.character.health = CHARACTER_HEALTH;
+    this.character = this.matter.add.sprite(x, y, 'spr_idle') as CharacterType;
+    this.character.setBody({
+      type: 'rectangle',
+      width: 16,
+      height: 16,
+    });
+    this.character.setFixedRotation();
+    this.character.setFriction(CHARACTER.MOVEMENT.GROUND.FRICTION);
+    this.character.setFrictionAir(CHARACTER.MOVEMENT.AIR.FRICTION);
+    this.character.setBounce(0);
+
+    (this.character.body as MatterJS.BodyType).label = 'character';
+    this.character.health = CHARACTER.CONFIG.HEALTH;
 
     this.createCharacterCollisions();
     this.createCharacterAnimations();
   }
 
   createCharacterCollisions() {
-    this.character.setCollideWorldBounds(true);
-    this.physics.add.collider(this.character, this.platforms);
+    this.createCharacterGroundCollisions();
+  }
+
+  createCharacterGroundCollisions() {
+    const maxSurfaceAngle = 0.5;
+    let groundCollisions = new Set<MatterJS.BodyType>();
+
+    this.matter.world.on(
+      'collisionstart',
+      (event: Phaser.Physics.Matter.Events.CollisionStartEvent) => {
+        event.pairs.forEach(({ bodyA, bodyB, collision }) => {
+          const hasCharacter = bodyA.label === 'character' || bodyB.label === 'character';
+          if (!hasCharacter) return;
+
+          const isCharacterA = bodyA.label === 'character';
+          const otherBody = isCharacterA ? bodyB : bodyA;
+          const normalY = collision.normal.y;
+
+          const isGroundCollision = isCharacterA
+            ? normalY <= -maxSurfaceAngle
+            : normalY >= maxSurfaceAngle;
+
+          if (isGroundCollision) {
+            groundCollisions.add(otherBody);
+            this.isPlayerTouchingGround = true;
+          }
+        });
+      }
+    );
+
+    this.matter.world.on(
+      'collisionend',
+      (event: Phaser.Physics.Matter.Events.CollisionEndEvent) => {
+        event.pairs.forEach(({ bodyA, bodyB }) => {
+          const hasCharacter = bodyA.label === 'character' || bodyB.label === 'character';
+          if (!hasCharacter) return;
+
+          const isCharacterA = bodyA.label === 'character';
+          const otherBody = isCharacterA ? bodyB : bodyA;
+
+          const wasGroundContact = groundCollisions.delete(otherBody);
+
+          if (wasGroundContact && groundCollisions.size === 0) {
+            this.isPlayerTouchingGround = false;
+          }
+        });
+      }
+    );
   }
 
   createCharacterAnimations() {
@@ -475,36 +542,81 @@ export class TestScene extends Phaser.Scene {
   }
 
   createSword() {
-    this.sword = this.physics.add.sprite(this.character.x, this.character.y, 'spr_sword_0');
+    this.sword = this.matter.add.sprite(this.character.x, this.character.y, 'spr_sword_0');
+    this.sword.setBody({
+      type: 'rectangle',
+      width: SWORD.CONFIG.WIDTH,
+      height: SWORD.CONFIG.HEIGHT,
+    });
+
+    (this.sword.body as MatterJS.BodyType).label = 'sword';
+
+    this.sword.setFixedRotation();
+    this.sword.setSensor(true);
+    this.sword.setIgnoreGravity(true);
 
     this.createSwordCollision({ sword: this.sword });
     this.updateSwordAttachmentToCharacter();
   }
 
-  createSwordCollision({ sword }: { sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody }) {
-    sword.setCollideWorldBounds(true);
+  createSwordCollision({ sword }: { sword: SwordType }) {
+    this.matter.world.on(
+      'collisionstart',
+      (event: Phaser.Physics.Matter.Events.CollisionStartEvent) => {
+        event.pairs.forEach(pair => {
+          const { bodyA, bodyB } = pair;
 
-    (sword.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+          const isSwordA = bodyA === sword.body;
+          const isSwordB = bodyB === sword.body;
 
-    this.physics.add.collider(sword, this.character, () => {
-      this.applyDamage({ target: this.character, amount: SWORD_CONFIG.DAMAGE });
-      this.destroySprite({
-        sprite: sword,
-        animationKey: 'anims_attack_sword_trail',
-      });
-    });
-    this.physics.add.collider(sword, this.platforms);
+          if (
+            (isSwordA && bodyB === this.character.body) ||
+            (isSwordB && bodyA === this.character.body)
+          ) {
+            this.applyDamage({ target: this.character, amount: SWORD.ATTACK.DAMAGE });
+            this.destroySprite({
+              sprite: sword,
+              animationKey: 'anims_attack_sword_trail',
+            });
+          }
+
+          if (
+            (isSwordA && bodyB.label === 'platform') ||
+            (isSwordB && bodyA.label === 'platform')
+          ) {
+            this.destroySprite({
+              sprite: sword,
+              animationKey: 'anims_attack_sword_trail',
+            });
+          }
+        });
+      }
+    );
   }
 
-  createBullet() {
+  createBullet({
+    x = this.character.x,
+    y = this.character.y,
+    width = BULLET.CONFIG.WIDTH,
+    height = BULLET.CONFIG.HEIGHT,
+    angle = BULLET.CONFIG.ANGLE,
+  }: CreateBulletProps = {}) {
     const bulletId = uuidv4();
-    const bullet = this.physics.add.sprite(
-      this.character.x,
-      this.character.y,
-      'spr_bullet_0'
-    ) as BulletType;
+    const bullet = this.matter.add.sprite(x, y, 'spr_bullet_0') as BulletType;
+    bullet.setBody({
+      type: 'rectangle',
+      width,
+      height,
+    });
+
+    (bullet.body as MatterJS.BodyType).label = 'bullet';
+
     bullet.bulletId = bulletId;
     bullet.isBeingDestroyed = false;
+    bullet.setFixedRotation();
+    bullet.setSensor(true);
+    bullet.setIgnoreGravity(true);
+    bullet.setAngle(angle);
 
     this.bullets.push(bullet);
     this.createBulletCollision({ bullet });
@@ -514,48 +626,72 @@ export class TestScene extends Phaser.Scene {
   }
 
   createBulletCollision({ bullet }: { bullet: BulletType }) {
-    bullet.setCollideWorldBounds(false);
-    (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+    this.matter.world.on(
+      'collisionstart',
+      (event: Phaser.Physics.Matter.Events.CollisionStartEvent) => {
+        event.pairs.forEach(pair => {
+          const { bodyA, bodyB } = pair;
 
-    this.physics.add.collider(bullet, this.character, () => {
-      this.applyDamage({ target: this.character, amount: BULLET_CONFIG.DAMAGE });
-      this.destroySprite({
-        sprite: bullet,
-        animationKey: 'anims_attack_bullet_destroy',
-        state: 'BULLET_DESTROYED',
-        callback: () => {
-          const index = this.bullets.indexOf(bullet);
+          const isBulletA = bodyA === bullet.body;
+          const isBulletB = bodyB === bullet.body;
 
-          if (index === -1)
-            throw new Error(
-              `Not possible to destroy the bullet. It wasn't found for index: ${index}`
-            );
+          if (
+            (isBulletA && bodyB === this.character.body) ||
+            (isBulletB && bodyA === this.character.body)
+          ) {
+            bullet.setVelocity(0);
+            this.applyDamage({ target: this.character, amount: BULLET.ATTACK.DAMAGE });
+            this.destroySprite({
+              sprite: bullet,
+              animationKey: 'anims_attack_bullet_destroy',
+              state: 'BULLET_DESTROYED',
+              callback: () => {
+                const index = this.bullets.indexOf(bullet);
 
-          this.bullets.splice(index, 1);
-        },
-      });
-    });
-    this.physics.add.collider(bullet, this.platforms, () => {
-      this.destroySprite({
-        sprite: bullet,
-        animationKey: 'anims_attack_bullet_destroy',
-        state: 'BULLET_DESTROYED',
-        callback: () => {
-          const index = this.bullets.indexOf(bullet);
+                if (index === -1) {
+                  console.error(
+                    `Not possible to destroy the bullet. It wasn't found for index: ${index}`
+                  );
 
-          if (index === -1)
-            throw new Error(
-              `Not possible to destroy the bullet. It wasn't found for index: ${index}`
-            );
+                  return;
+                } else {
+                  this.bullets.splice(index, 1);
+                }
+              },
+            });
+          }
 
-          this.bullets.splice(index, 1);
-        },
-      });
-    });
+          if (
+            (isBulletA && bodyB.label === 'Rectangle Body') ||
+            (isBulletB && bodyA.label === 'Rectangle Body')
+          ) {
+            bullet.setVelocity(0);
+            this.destroySprite({
+              sprite: bullet,
+              animationKey: 'anims_attack_bullet_destroy',
+              state: 'BULLET_DESTROYED',
+              callback: () => {
+                const index = this.bullets.indexOf(bullet);
+
+                if (index === -1) {
+                  console.error(
+                    `Not possible to destroy the bullet. It wasn't found for index: ${index}`
+                  );
+
+                  return;
+                } else {
+                  this.bullets.splice(index, 1);
+                }
+              },
+            });
+          }
+        });
+      }
+    );
   }
 
   createShinigamiSword() {
-    this.shinigamiSword = this.physics.add.sprite(
+    this.shinigamiSword = this.matter.add.sprite(
       this.character.x + 21,
       this.character.y,
       'spr_sword_0'
@@ -598,8 +734,6 @@ export class TestScene extends Phaser.Scene {
       this.cursors.right.isDown ||
       this.keyboardInputs.right.isDown;
 
-    this.isPlayerTouchingGround = this.character.body.blocked.down;
-
     if (this.playerState !== 'DEAD') {
       this.updateHorizontalMovement();
       this.updateVerticalMovement();
@@ -607,62 +741,48 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateHorizontalMovement() {
-    const playerMovementPayload = {
-      left: false,
-      right: false,
-      up: false,
-      down: false,
-      jump: false,
-    };
-
-    // this.roomConnection.room.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
-
-    if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
-      playerMovementPayload.left = this.cursors.left.isDown || this.keyboardInputs.left.isDown;
-
-      this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
-    } else if (this.cursors.right.isDown || this.keyboardInputs.right.isDown) {
-      playerMovementPayload.right = this.cursors.right.isDown || this.keyboardInputs.right.isDown;
-
-      this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
-    }
+    // const playerMovementPayload = {
+    //   left: false,
+    //   right: false,
+    //   up: false,
+    //   down: false,
+    //   jump: false,
+    // };
 
     // if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
-    //   this.character.setVelocityX(-CHARACTER_SPEED_X);
-    //   this.character.setFlipX(true);
+    //   playerMovementPayload.left = this.cursors.left.isDown || this.keyboardInputs.left.isDown;
 
-    //   if (this.isPlayerTouchingGround) {
-    //     this.setPlayerState('RUNNING');
-    //   }
+    //   this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
     // } else if (this.cursors.right.isDown || this.keyboardInputs.right.isDown) {
-    //   this.character.setVelocityX(CHARACTER_SPEED_X);
-    //   this.character.setFlipX(false);
+    //   playerMovementPayload.right = this.cursors.right.isDown || this.keyboardInputs.right.isDown;
 
-    //   if (this.isPlayerTouchingGround) {
-    //     this.setPlayerState('RUNNING');
-    //   }
-    // } else if (this.isPlayerTouchingGround && !this.isPlayerMovingHorizontally) {
-    //   this.character.setVelocityX(0);
-    //   this.setPlayerState('IDLE');
+    //   this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
     // }
+
+    if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
+      this.character.setVelocityX(-CHARACTER.MOVEMENT.GROUND.SPEED);
+      this.character.setFlipX(true);
+
+      if (this.isPlayerTouchingGround) {
+        this.setPlayerState('RUNNING');
+      }
+    } else if (this.cursors.right.isDown || this.keyboardInputs.right.isDown) {
+      this.character.setVelocityX(CHARACTER.MOVEMENT.GROUND.SPEED);
+      this.character.setFlipX(false);
+
+      if (this.isPlayerTouchingGround) {
+        this.setPlayerState('RUNNING');
+      }
+    } else if (this.isPlayerTouchingGround && !this.isPlayerMovingHorizontally) {
+      this.character.setVelocityX(0);
+      this.setPlayerState('IDLE');
+    }
   }
 
   updateVerticalMovement() {
-    const playerMovementPayload = {
-      left: false,
-      right: false,
-      up: false,
-      down: false,
-      jump: false,
-    };
-
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
-      // this.character.setVelocityY(-CHARACTER_SPEE D_Y);
+      this.character.setVelocityY(-CHARACTER.MOVEMENT.AIR.SPEED);
       this.setPlayerState('JUMPING');
-
-      playerMovementPayload.jump = true;
-
-      this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
     }
 
     if (!this.isPlayerTouchingGround) {
@@ -808,7 +928,7 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  updateBulletMovement({ bullet }: { bullet: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody }) {
+  updateBulletMovement({ bullet }: { bullet: BulletType }) {
     switch (this.weaponState) {
       case 'SHOOTING_FORWARD':
         if (this.character.flipX) {
@@ -832,12 +952,15 @@ export class TestScene extends Phaser.Scene {
     state,
     callback,
   }: {
-    sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+    sprite: Phaser.Physics.Matter.Sprite;
     animationKey: string;
     state?: WeaponState;
     callback?: () => void;
   }) {
-    if (sprite.body) sprite.body.enable = false;
+    if (sprite.body) {
+      sprite.setCollisionCategory(0);
+      sprite.setSensor(true);
+    }
 
     state &&
       this.setWeaponState({
@@ -853,13 +976,7 @@ export class TestScene extends Phaser.Scene {
     });
   }
 
-  applyDamage({
-    target,
-    amount,
-  }: {
-    target: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-    amount: number;
-  }) {
+  applyDamage({ target, amount }: { target: Phaser.Physics.Matter.Sprite; amount: number }) {
     if (target === this.character && !this.isInvincible) {
       this.character.health = Math.max(0, this.character.health - amount);
       if (this.character.health <= 0) {
@@ -971,35 +1088,16 @@ export class TestScene extends Phaser.Scene {
     });
 
     this.roomConnection.events.on(ACTIONS.PLAYER_MOVED, (player: Player) => {
-      console.log('🚀 ~ TestScene ~ createServerRoom ~ player MOVED!:', player);
-
-      // this.character.setVelocityX(-CHARACTER_SPEED_X);
-      // this.character.setFlipX(true);
       this.setPlayerState('RUNNING');
       this.character.setPosition(player.x, player.y);
-
-      // this.handleCharacterDeath();
     });
   }
 
   createPlayer({ player }: { player: Player }) {
-    // const state = this.roomConnection.getRoomState();
-    // console.log('🚀 ~ TestScene ~ createPlayers ~ state:', state);
-    // const playerId = this.roomConnection.getPlayerId();
-    // console.log('🚀 ~ TestScene ~ createPlayers ~ playerId:', playerId);
-
-    // const player = state.players.get(playerId);
-
-    // console.log('🚀 ~ TestScene ~ createPlayers ~ player:', player);
-
     this.createMap();
     this.createSpawnPoints();
     this.createTitle();
     this.createCharacter({ x: player.x, y: player.y });
-
-    // Todo: Abstrair lógica para sempre renderizar o personagem em um dos pontos de spawn disponíveis
-    // this.handleRespawnCharacter();
-
     this.createKeyboardInputs();
     this.createWeaponsAnimations();
     this.createLivesContainer();
