@@ -2,7 +2,7 @@ import { Boot } from './scenes/Boot';
 import { AUTO, Game } from 'phaser';
 import { Preloader } from './scenes/Preloader';
 import { TestScene } from './scenes/arenas/test';
-import { PHYSICS, SCENE } from './constants';
+import { PHYSICS, SCENE } from 'shared/config/constants';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: AUTO,

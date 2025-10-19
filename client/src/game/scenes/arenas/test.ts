@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { CHARACTER, SCENE, SWORD, BULLET } from '../../constants';
+import { CHARACTER, SCENE, SWORD, BULLET } from 'shared/config/constants';
 import { RoomConnection } from '@/services/server/room/connection';
 import { Player } from 'shared/types/player/schema';
 import { ACTIONS } from 'shared/types/player/events';
