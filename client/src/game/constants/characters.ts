@@ -1,6 +1,21 @@
-export const GRAVITY = 1300;
-export const CHARACTER_SPEED_X = 100;
-export const CHARACTER_SPEED_Y = 450;
-export const CHARACTER_HEALTH = 100;
-export const DEFAULT_CHARACTER_LIVES = 10;
-export const DEFAULT_CHARACTER_INVENCIBILITY_TIME = 1000;
+export const CHARACTER = {
+  CONFIG: {
+    HEALTH: 100,
+    LIVES: 10,
+    RESPAWN: {
+      INVENCIBILITY: {
+        TIME: 1000,
+      },
+    },
+  },
+  MOVEMENT: {
+    AIR: {
+      FRICTION: 0.05,
+      SPEED: 10,
+    },
+    GROUND: {
+      FRICTION: 0.21,
+      SPEED: 2,
+    },
+  },
+};

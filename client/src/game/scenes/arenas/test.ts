@@ -1,16 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  CHARACTER_SPEED_X,
-  CHARACTER_SPEED_Y,
-  VIRTUAL_HEIGHT,
-  VIRTUAL_WIDTH,
-  SWORD_CONFIG,
-  BULLET_CONFIG,
-  CHARACTER_HEALTH,
-  DEFAULT_CHARACTER_LIVES,
-  DEFAULT_CHARACTER_INVENCIBILITY_TIME,
-} from '../../constants';
+import { CHARACTER, SCENE, SWORD, BULLET } from '../../constants';
 import { RoomConnection } from '@/services/server/room/connection';
 import { Player } from 'shared/types/player/schema';
 import { ACTIONS } from 'shared/types/player/events';
@@ -55,8 +45,8 @@ type SpawnPointType = { x: number; y: number };
 
 export class TestScene extends Phaser.Scene {
   // Map
-  gameWidth = VIRTUAL_WIDTH;
-  gameHeight = VIRTUAL_HEIGHT;
+  gameWidth = SCENE.WIDTH;
+  gameHeight = SCENE.HEIGHT;
   mapImages: string[];
   platforms: Phaser.Tilemaps.TilemapLayer;
   map: Phaser.Tilemaps.Tilemap;
@@ -66,7 +56,7 @@ export class TestScene extends Phaser.Scene {
   character: CharacterType;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   playerState: PlayerState = 'IDLE';
-  playerCurrentLives: number = DEFAULT_CHARACTER_LIVES;
+  playerCurrentLives: number = CHARACTER.CONFIG.LIVES;
   playerLives: Phaser.GameObjects.Container;
   isPlayerMovingHorizontally: boolean;
   isPlayerTouchingGround: boolean;
@@ -89,7 +79,7 @@ export class TestScene extends Phaser.Scene {
   weaponState: WeaponState;
   sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   bullets: BulletType[] = [];
-  bulletsLeft = BULLET_CONFIG.CLIP_SIZE;
+  bulletsLeft = BULLET.ATTACK.CLIP_SIZE;
   shinigamiSword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
   // Server Logic
@@ -578,11 +568,10 @@ export class TestScene extends Phaser.Scene {
   createBackfireBullet() {
     const bullet = this.createBullet();
 
-    bullet.setOrigin(BULLET_CONFIG.ORIGIN_X, BULLET_CONFIG.ORIGIN_Y);
+    bullet.setOrigin(BULLET.CONFIG.ORIGIN_X, BULLET.CONFIG.ORIGIN_Y);
     bullet.setAngle(180);
-    bullet.body.setSize(BULLET_CONFIG.WIDTH, BULLET_CONFIG.HEIGHT);
     bullet.setPosition(this.character.x + 50, this.character.y);
-    bullet.setVelocityX(-BULLET_CONFIG.VELOCITY);
+    bullet.setVelocityX(-BULLET.ATTACK.VELOCITY);
   }
 
   createSpawnPoints() {
@@ -699,20 +688,14 @@ export class TestScene extends Phaser.Scene {
     let x = this.character.x;
     let y = this.character.y;
     let angle = 0;
-    let width = SWORD_CONFIG.WIDTH;
-    let height = SWORD_CONFIG.HEIGHT;
-    let offset = SWORD_CONFIG.OFFSET;
+    let offset = SWORD.CONFIG.OFFSET;
 
     if (this.playerState === 'LOOKING_UP') {
       angle = -90;
-      width = SWORD_CONFIG.HEIGHT;
-      height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y - this.character.height * 2 - offset;
     } else if (this.playerState === 'LOOKING_DOWN') {
       angle = 90;
-      width = SWORD_CONFIG.HEIGHT;
-      height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y + this.character.height * 2 + offset;
     } else {
@@ -726,9 +709,8 @@ export class TestScene extends Phaser.Scene {
       y = this.character.y;
     }
 
-    this.sword.setOrigin(SWORD_CONFIG.ORIGIN_X, SWORD_CONFIG.ORIGIN_Y);
+    this.sword.setOrigin(SWORD.CONFIG.ORIGIN_X, SWORD.CONFIG.ORIGIN_Y);
     this.sword.setAngle(angle);
-    this.sword.body.setSize(width, height);
     this.sword.setPosition(x, y);
   }
 
@@ -736,19 +718,19 @@ export class TestScene extends Phaser.Scene {
     let x = this.character.x;
     let y = this.character.y;
     let angle = 0;
-    let width = BULLET_CONFIG.WIDTH;
-    let height = BULLET_CONFIG.HEIGHT;
+    let width = BULLET.CONFIG.WIDTH;
+    let height = BULLET.CONFIG.HEIGHT;
 
     if (this.playerState === 'LOOKING_UP') {
       angle = -90;
-      width = BULLET_CONFIG.HEIGHT;
-      height = BULLET_CONFIG.WIDTH;
+      width = BULLET.CONFIG.HEIGHT;
+      height = BULLET.CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y - this.character.height / 2 - height / 2;
     } else if (this.playerState === 'LOOKING_DOWN') {
       angle = 90;
-      width = BULLET_CONFIG.HEIGHT;
-      height = BULLET_CONFIG.WIDTH;
+      width = BULLET.CONFIG.HEIGHT;
+      height = BULLET.CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y + this.character.height / 2 + height / 2;
     } else {
@@ -762,9 +744,7 @@ export class TestScene extends Phaser.Scene {
       y = this.character.y;
     }
 
-    bullet.setOrigin(BULLET_CONFIG.ORIGIN_X, BULLET_CONFIG.ORIGIN_Y);
-    bullet.setAngle(angle);
-    bullet.body.setSize(width, height);
+    bullet.setOrigin(BULLET.CONFIG.ORIGIN_X, BULLET.CONFIG.ORIGIN_Y);
     bullet.setPosition(x, y);
   }
 
@@ -832,16 +812,16 @@ export class TestScene extends Phaser.Scene {
     switch (this.weaponState) {
       case 'SHOOTING_FORWARD':
         if (this.character.flipX) {
-          bullet.setVelocityX(-BULLET_CONFIG.VELOCITY);
+          bullet.setVelocityX(-BULLET.ATTACK.VELOCITY);
         } else {
-          bullet.setVelocityX(BULLET_CONFIG.VELOCITY);
+          bullet.setVelocityX(BULLET.ATTACK.VELOCITY);
         }
         break;
       case 'SHOOTING_UP':
-        bullet.setVelocityY(-BULLET_CONFIG.VELOCITY);
+        bullet.setVelocityY(-BULLET.ATTACK.VELOCITY);
         break;
       case 'SHOOTING_DOWN':
-        bullet.setVelocityY(BULLET_CONFIG.VELOCITY);
+        bullet.setVelocityY(BULLET.ATTACK.VELOCITY);
         break;
     }
   }
@@ -894,7 +874,7 @@ export class TestScene extends Phaser.Scene {
 
   activateInvincibility(
     { duration }: { duration: number } = {
-      duration: DEFAULT_CHARACTER_INVENCIBILITY_TIME,
+      duration: CHARACTER.CONFIG.RESPAWN.INVENCIBILITY.TIME,
     }
   ) {
     this.isInvincible = true;
@@ -929,7 +909,7 @@ export class TestScene extends Phaser.Scene {
       if (this.playerCurrentLives > 0) {
         this.time.delayedCall(500, () => {
           this.character.setActive(true).setVisible(true);
-          this.character.health = CHARACTER_HEALTH;
+          this.character.health = CHARACTER.CONFIG.HEALTH;
           this.enableKeyboard({ value: true });
           this.setPlayerState('IDLE');
           this.handleRespawnCharacter();
@@ -943,7 +923,7 @@ export class TestScene extends Phaser.Scene {
 
     const randomIndex = Phaser.Math.Between(0, this.spawnPoints.length - 1);
     const spawnPoint = this.spawnPoints[randomIndex];
-    const flip = spawnPoint.x > VIRTUAL_WIDTH / 2;
+    const flip = spawnPoint.x > SCENE.WIDTH / 2;
 
     this.character.setFlipX(flip);
     this.character.setPosition(spawnPoint.x, spawnPoint.y);
@@ -967,7 +947,7 @@ export class TestScene extends Phaser.Scene {
 
     this.playerLives.setPosition(
       this.cameras.main.centerX - (this.playerCurrentLives * spriteDistance) / 2,
-      0.95 * VIRTUAL_HEIGHT
+      0.95 * SCENE.HEIGHT
     );
   }
 
