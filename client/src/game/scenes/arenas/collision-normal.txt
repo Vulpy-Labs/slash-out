@@ -1,0 +1,61 @@
+SCREEN COORDINATES (Phaser/Matter.js):
+
+        UP ⬆️
+       y = -1
+         │
+         │
+LEFT ←───┼───→ RIGHT
+x = -1   │   x = +1
+         │
+         │
+       y = +1
+      DOWN ⬇️
+
+
+NORMAL VECTORS:
+
+Ground collision:    normalY = +1 (points down toward ground)
+Ceiling collision:   normalY = -1 (points up toward ceiling)
+Right wall:          normalX = +1 (points right toward wall)
+Left wall:           normalX = -1 (points left toward wall)
+
+If normalY > 0 → Collision is pushing downward → There's something below you → Ground! ✅
+If normalY < 0 → Collision is pushing upward → There's something above you → Ceiling! ❌
+If normalX > 0 → Collision is pushing right → There's something to your right → Wall! ❌
+If normalX < 0 → Collision is pushing left → There's something to your left → Wall! ❌
+
+
+Question: Why is the normal not reliable on collisionend?
+
+Answer: Because:
+
+Bodies have separated - no more overlap to measure
+Separation forces have altered the geometry
+Character movement influences the final normal direction
+Multi-contact interference from adjacent collisions
+
+Frame 1: Character lands
+├─ collisionstart fires
+├─ normalY = -1 (reliable)
+├─ Check: -1 <= -0.5 ✅
+├─ Add to groundCollisions
+└─ groundCollisions.size = 3
+
+Frame 50: Character jumps
+├─ Separation forces applied
+├─ Bodies moving apart
+└─ Normal degrades: -1 → -0.7 → -0.4 → -0.1
+
+Frame 51: collisionend fires
+├─ normalY = -0.2 (unreliable!)
+├─ If we check: -0.2 <= -0.5 ❌ FAILS
+├─ But we don't check!
+├─ Just remove from Set
+└─ groundCollisions.size = 2
+
+Frame 52: Another collisionend
+└─ groundCollisions.size = 1
+
+Frame 53: Last collisionend
+├─ groundCollisions.size = 0
+└─ isPlayerTouchingGround = false ✅
