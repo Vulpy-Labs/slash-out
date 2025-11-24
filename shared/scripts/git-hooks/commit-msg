@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Obtêm o nome da brach
+# Obtêm o nome da branch
 full_branch_name=$(git rev-parse --abbrev-ref HEAD)
 
 # Obtêm a parte do nome da branch que vem depois do primeiro "/"
