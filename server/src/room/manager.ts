@@ -1,28 +1,35 @@
 import { Client, logger, Room } from 'colyseus';
-import { Player, State } from './state';
+import { State } from 'shared/types/room/state';
+import { Player } from 'shared/types/player/schema';
 
 export class RoomManager extends Room {
-  onCreate(options: any) {
-    this.setState(new State());
+  onCreate() {
+    const state = new State();
+    this.setState(state);
+    this.setPatchRate(8);
   }
 
-  onJoin(client: Client, options: any) {
-    logger.info(client.sessionId, 'joined!');
+  onJoin(client: Client) {
+    console.log('🚀 Server - onJoin called for:', client.sessionId);
 
-    const mapWidth = 800;
-    const mapHeight = 600;
+    try {
+      const mapWidth = 352;
+      const mapHeight = 240;
+      const playerId = client.sessionId;
 
-    const player = new Player();
-    player.x = Math.random() * mapWidth;
-    player.y = Math.random() * mapHeight;
+      const player = new Player();
+      player.x = Math.random() * mapWidth;
+      player.y = mapHeight - 25;
 
-    console.log('🚀 ~ RoomManager ~ onJoin ~ player:', player);
-    console.log('🚀 ~ RoomManager ~ onJoin ~ client.sessionId:', client.sessionId);
+      this.state.players.set(playerId, player);
 
-    this.state.players.set(client.sessionId, player);
+      logger.info(`Player ${playerId} added successfully!`);
+    } catch (error) {
+      console.error('🚀 Server - Error in onJoin:', error);
+    }
   }
 
-  onLeave(client: Client, consented: boolean) {
+  onLeave(client: Client) {
     logger.warn(client.sessionId, 'left!');
     this.state.players.delete(client.sessionId);
   }

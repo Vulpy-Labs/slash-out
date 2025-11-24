@@ -11,7 +11,7 @@ import {
   DEFAULT_CHARACTER_LIVES,
   DEFAULT_CHARACTER_INVENCIBILITY_TIME,
 } from '../../constants';
-import { PlayerRoom } from '@/services/server/room';
+import { RoomConnection } from '@/services/server/connection/RoomConnection';
 
 type PlayerState =
   | 'IDLE'
@@ -90,7 +90,7 @@ export class TestScene extends Phaser.Scene {
   shinigamiSword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
   // Server Logic
-  room: PlayerRoom;
+  roomConnection: RoomConnection;
 
   constructor() {
     super('TestScene');
@@ -941,8 +941,7 @@ export class TestScene extends Phaser.Scene {
   }
 
   async createServerRoom() {
-    this.room = new PlayerRoom();
-
-    await this.room.create();
+    this.roomConnection = new RoomConnection();
+    await this.roomConnection.create();
   }
 }
