@@ -1,4 +1,5 @@
 import { defineConfig, loadEnv } from 'vite';
+import path from 'path';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -21,9 +22,10 @@ export default defineConfig(({ mode }) => {
       port: 8080,
     },
     resolve: {
-      alias: {
-        '@': '/src',
-      }
-    }
+        alias: {
+            '@': path.resolve(__dirname, '../src'),
+            'shared': path.resolve(__dirname, '../../shared'),  // ← Add this
+        }
+    },
   };
 });

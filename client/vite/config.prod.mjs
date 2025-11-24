@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import path from 'path'
 
 const phasermsg = () => {
     return {
@@ -45,8 +46,9 @@ export default defineConfig({
         phasermsg()
     ],
     resolve: {
-      alias: {
-        '@': '/src',
-      }
+        alias: {
+            '@': path.resolve(__dirname, '../src'),
+            'shared': path.resolve(__dirname, '../../shared'),  
+        }
     }
 });

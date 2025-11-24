@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "ES2020",
-        "useDefineForClassFields": true,
+        "useDefineForClassFields": false,
         "module": "ESNext",
         "lib": [
             "ES2020",
@@ -22,10 +22,15 @@
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "baseUrl": ".",
         "paths": {
             "@/*": [
                 "src/*"
+            ],
+            "shared/*": [
+                "../shared/*"
             ]
         }
     },
