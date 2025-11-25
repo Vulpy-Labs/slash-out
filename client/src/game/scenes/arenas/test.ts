@@ -843,6 +843,7 @@ export class TestScene extends Phaser.Scene {
 
     bullet.setOrigin(BULLET.CONFIG.ORIGIN_X, BULLET.CONFIG.ORIGIN_Y);
     bullet.setPosition(x, y);
+    bullet.setAngle(angle);
   }
 
   updateCharacterAttack() {
