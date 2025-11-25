@@ -822,13 +822,11 @@ export class TestScene extends Phaser.Scene {
 
     if (this.playerState === 'LOOKING_UP') {
       angle = -90;
-      width = BULLET.CONFIG.HEIGHT;
       height = BULLET.CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y - this.character.height / 2 - height / 2;
     } else if (this.playerState === 'LOOKING_DOWN') {
       angle = 90;
-      width = BULLET.CONFIG.HEIGHT;
       height = BULLET.CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y + this.character.height / 2 + height / 2;
