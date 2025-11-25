@@ -1,16 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  CHARACTER_SPEED_X,
-  CHARACTER_SPEED_Y,
-  VIRTUAL_HEIGHT,
-  VIRTUAL_WIDTH,
-  SWORD_CONFIG,
-  BULLET_CONFIG,
-  CHARACTER_HEALTH,
-  DEFAULT_CHARACTER_LIVES,
-  DEFAULT_CHARACTER_INVENCIBILITY_TIME,
-} from '../../constants';
+import { CHARACTER, SCENE, SWORD, BULLET } from 'shared/config/constants';
+
 import { RoomConnection } from '@/services/server/connection/RoomConnection';
 
 type PlayerState =
@@ -36,24 +27,33 @@ type WeaponState =
 
 type WeaponStateProps = {
   newState: WeaponState;
-  weapon: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  weapon: Phaser.Physics.Matter.Sprite;
 };
 
-type BulletType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
+type SwordType = Phaser.Physics.Matter.Sprite;
+
+type BulletType = Phaser.Physics.Matter.Sprite & {
   bulletId: string;
   isBeingDestroyed: boolean;
 };
 
-type CharacterType = Phaser.Types.Physics.Arcade.SpriteWithDynamicBody & {
+type CharacterType = Phaser.Physics.Matter.Sprite & {
   health: number;
 };
 
 type SpawnPointType = { x: number; y: number };
 
+type CreateBulletProps = {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  angle?: number;
+};
 export class TestScene extends Phaser.Scene {
   // Map
-  gameWidth = VIRTUAL_WIDTH;
-  gameHeight = VIRTUAL_HEIGHT;
+  gameWidth = SCENE.WIDTH;
+  gameHeight = SCENE.HEIGHT;
   mapImages: string[];
   platforms: Phaser.Tilemaps.TilemapLayer;
   map: Phaser.Tilemaps.Tilemap;
@@ -63,7 +63,7 @@ export class TestScene extends Phaser.Scene {
   character: CharacterType;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   playerState: PlayerState = 'IDLE';
-  playerCurrentLives: number = DEFAULT_CHARACTER_LIVES;
+  playerCurrentLives: number = CHARACTER.CONFIG.LIVES;
   playerLives: Phaser.GameObjects.Container;
   isPlayerMovingHorizontally: boolean;
   isPlayerTouchingGround: boolean;
@@ -84,10 +84,10 @@ export class TestScene extends Phaser.Scene {
 
   // Weapons
   weaponState: WeaponState;
-  sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  sword: SwordType;
   bullets: BulletType[] = [];
-  bulletsLeft = BULLET_CONFIG.CLIP_SIZE;
-  shinigamiSword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  bulletsLeft = BULLET.ATTACK.CLIP_SIZE;
+  shinigamiSword: Phaser.Physics.Matter.Sprite;
 
   // Server Logic
   roomConnection: RoomConnection;
@@ -255,6 +255,7 @@ export class TestScene extends Phaser.Scene {
     this.platforms = ground.find(ground => ground?.layer.name.includes('platform'))!;
 
     this.platforms.setCollisionByProperty({ collider: true });
+    this.matter.world.convertTilemapLayer(this.platforms);
 
     this.createMapLayer('foreground', tilesets);
   }
@@ -267,17 +268,74 @@ export class TestScene extends Phaser.Scene {
       });
   }
 
-  createCharacter() {
-    this.character = this.physics.add.sprite(150, 100, 'spr_idle') as CharacterType;
-    this.character.health = CHARACTER_HEALTH;
+  createCharacter({ x = 150, y = 100 }: { x?: number; y?: number } = {}) {
+    this.character = this.matter.add.sprite(x, y, 'spr_idle') as CharacterType;
+    this.character.setBody({
+      type: 'rectangle',
+      width: 16,
+      height: 16,
+    });
+    this.character.setFixedRotation();
+    this.character.setFriction(CHARACTER.MOVEMENT.GROUND.FRICTION);
+    this.character.setFrictionAir(CHARACTER.MOVEMENT.AIR.FRICTION);
+    this.character.setBounce(0);
+
+    (this.character.body as MatterJS.BodyType).label = 'character';
+    this.character.health = CHARACTER.CONFIG.HEALTH;
 
     this.createCharacterCollisions();
     this.createCharacterAnimations();
   }
 
   createCharacterCollisions() {
-    this.character.setCollideWorldBounds(true);
-    this.physics.add.collider(this.character, this.platforms);
+    this.createCharacterGroundCollisions();
+  }
+
+  createCharacterGroundCollisions() {
+    const maxSurfaceAngle = 0.5;
+    let groundCollisions = new Set<MatterJS.BodyType>();
+
+    this.matter.world.on(
+      'collisionstart',
+      (event: Phaser.Physics.Matter.Events.CollisionStartEvent) => {
+        event.pairs.forEach(({ bodyA, bodyB, collision }) => {
+          const hasCharacter = bodyA.label === 'character' || bodyB.label === 'character';
+          if (!hasCharacter) return;
+
+          const isCharacterA = bodyA.label === 'character';
+          const otherBody = isCharacterA ? bodyB : bodyA;
+          const normalY = collision.normal.y;
+
+          const isGroundCollision = isCharacterA
+            ? normalY <= -maxSurfaceAngle
+            : normalY >= maxSurfaceAngle;
+
+          if (isGroundCollision) {
+            groundCollisions.add(otherBody);
+            this.isPlayerTouchingGround = true;
+          }
+        });
+      }
+    );
+
+    this.matter.world.on(
+      'collisionend',
+      (event: Phaser.Physics.Matter.Events.CollisionEndEvent) => {
+        event.pairs.forEach(({ bodyA, bodyB }) => {
+          const hasCharacter = bodyA.label === 'character' || bodyB.label === 'character';
+          if (!hasCharacter) return;
+
+          const isCharacterA = bodyA.label === 'character';
+          const otherBody = isCharacterA ? bodyB : bodyA;
+
+          const wasGroundContact = groundCollisions.delete(otherBody);
+
+          if (wasGroundContact && groundCollisions.size === 0) {
+            this.isPlayerTouchingGround = false;
+          }
+        });
+      }
+    );
   }
 
   createCharacterAnimations() {
@@ -481,36 +539,81 @@ export class TestScene extends Phaser.Scene {
   }
 
   createSword() {
-    this.sword = this.physics.add.sprite(this.character.x, this.character.y, 'spr_sword_0');
+    this.sword = this.matter.add.sprite(this.character.x, this.character.y, 'spr_sword_0');
+    this.sword.setBody({
+      type: 'rectangle',
+      width: SWORD.CONFIG.WIDTH,
+      height: SWORD.CONFIG.HEIGHT,
+    });
+
+    (this.sword.body as MatterJS.BodyType).label = 'sword';
+
+    this.sword.setFixedRotation();
+    this.sword.setSensor(true);
+    this.sword.setIgnoreGravity(true);
 
     this.createSwordCollision({ sword: this.sword });
     this.updateSwordAttachmentToCharacter();
   }
 
-  createSwordCollision({ sword }: { sword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody }) {
-    sword.setCollideWorldBounds(true);
+  createSwordCollision({ sword }: { sword: SwordType }) {
+    this.matter.world.on(
+      'collisionstart',
+      (event: Phaser.Physics.Matter.Events.CollisionStartEvent) => {
+        event.pairs.forEach(pair => {
+          const { bodyA, bodyB } = pair;
 
-    (sword.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+          const isSwordA = bodyA === sword.body;
+          const isSwordB = bodyB === sword.body;
 
-    this.physics.add.collider(sword, this.character, () => {
-      this.applyDamage({ target: this.character, amount: SWORD_CONFIG.DAMAGE });
-      this.destroySprite({
-        sprite: sword,
-        animationKey: 'anims_attack_sword_trail',
-      });
-    });
-    this.physics.add.collider(sword, this.platforms);
+          if (
+            (isSwordA && bodyB === this.character.body) ||
+            (isSwordB && bodyA === this.character.body)
+          ) {
+            this.applyDamage({ target: this.character, amount: SWORD.ATTACK.DAMAGE });
+            this.destroySprite({
+              sprite: sword,
+              animationKey: 'anims_attack_sword_trail',
+            });
+          }
+
+          if (
+            (isSwordA && bodyB.label === 'platform') ||
+            (isSwordB && bodyA.label === 'platform')
+          ) {
+            this.destroySprite({
+              sprite: sword,
+              animationKey: 'anims_attack_sword_trail',
+            });
+          }
+        });
+      }
+    );
   }
 
-  createBullet() {
+  createBullet({
+    x = this.character.x,
+    y = this.character.y,
+    width = BULLET.CONFIG.WIDTH,
+    height = BULLET.CONFIG.HEIGHT,
+    angle = BULLET.CONFIG.ANGLE,
+  }: CreateBulletProps = {}) {
     const bulletId = uuidv4();
-    const bullet = this.physics.add.sprite(
-      this.character.x,
-      this.character.y,
-      'spr_bullet_0'
-    ) as BulletType;
+    const bullet = this.matter.add.sprite(x, y, 'spr_bullet_0') as BulletType;
+    bullet.setBody({
+      type: 'rectangle',
+      width,
+      height,
+    });
+
+    (bullet.body as MatterJS.BodyType).label = 'bullet';
+
     bullet.bulletId = bulletId;
     bullet.isBeingDestroyed = false;
+    bullet.setFixedRotation();
+    bullet.setSensor(true);
+    bullet.setIgnoreGravity(true);
+    bullet.setAngle(angle);
 
     this.bullets.push(bullet);
     this.createBulletCollision({ bullet });
@@ -520,48 +623,72 @@ export class TestScene extends Phaser.Scene {
   }
 
   createBulletCollision({ bullet }: { bullet: BulletType }) {
-    bullet.setCollideWorldBounds(false);
-    (bullet.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+    this.matter.world.on(
+      'collisionstart',
+      (event: Phaser.Physics.Matter.Events.CollisionStartEvent) => {
+        event.pairs.forEach(pair => {
+          const { bodyA, bodyB } = pair;
 
-    this.physics.add.collider(bullet, this.character, () => {
-      this.applyDamage({ target: this.character, amount: BULLET_CONFIG.DAMAGE });
-      this.destroySprite({
-        sprite: bullet,
-        animationKey: 'anims_attack_bullet_destroy',
-        state: 'BULLET_DESTROYED',
-        callback: () => {
-          const index = this.bullets.indexOf(bullet);
+          const isBulletA = bodyA === bullet.body;
+          const isBulletB = bodyB === bullet.body;
 
-          if (index === -1)
-            throw new Error(
-              `Not possible to destroy the bullet. It wasn't found for index: ${index}`
-            );
+          if (
+            (isBulletA && bodyB === this.character.body) ||
+            (isBulletB && bodyA === this.character.body)
+          ) {
+            bullet.setVelocity(0);
+            this.applyDamage({ target: this.character, amount: BULLET.ATTACK.DAMAGE });
+            this.destroySprite({
+              sprite: bullet,
+              animationKey: 'anims_attack_bullet_destroy',
+              state: 'BULLET_DESTROYED',
+              callback: () => {
+                const index = this.bullets.indexOf(bullet);
 
-          this.bullets.splice(index, 1);
-        },
-      });
-    });
-    this.physics.add.collider(bullet, this.platforms, () => {
-      this.destroySprite({
-        sprite: bullet,
-        animationKey: 'anims_attack_bullet_destroy',
-        state: 'BULLET_DESTROYED',
-        callback: () => {
-          const index = this.bullets.indexOf(bullet);
+                if (index === -1) {
+                  console.error(
+                    `Not possible to destroy the bullet. It wasn't found for index: ${index}`
+                  );
 
-          if (index === -1)
-            throw new Error(
-              `Not possible to destroy the bullet. It wasn't found for index: ${index}`
-            );
+                  return;
+                } else {
+                  this.bullets.splice(index, 1);
+                }
+              },
+            });
+          }
 
-          this.bullets.splice(index, 1);
-        },
-      });
-    });
+          if (
+            (isBulletA && bodyB.label === 'Rectangle Body') ||
+            (isBulletB && bodyA.label === 'Rectangle Body')
+          ) {
+            bullet.setVelocity(0);
+            this.destroySprite({
+              sprite: bullet,
+              animationKey: 'anims_attack_bullet_destroy',
+              state: 'BULLET_DESTROYED',
+              callback: () => {
+                const index = this.bullets.indexOf(bullet);
+
+                if (index === -1) {
+                  console.error(
+                    `Not possible to destroy the bullet. It wasn't found for index: ${index}`
+                  );
+
+                  return;
+                } else {
+                  this.bullets.splice(index, 1);
+                }
+              },
+            });
+          }
+        });
+      }
+    );
   }
 
   createShinigamiSword() {
-    this.shinigamiSword = this.physics.add.sprite(
+    this.shinigamiSword = this.matter.add.sprite(
       this.character.x + 21,
       this.character.y,
       'spr_sword_0'
@@ -574,11 +701,10 @@ export class TestScene extends Phaser.Scene {
   createBackfireBullet() {
     const bullet = this.createBullet();
 
-    bullet.setOrigin(BULLET_CONFIG.ORIGIN_X, BULLET_CONFIG.ORIGIN_Y);
+    bullet.setOrigin(BULLET.CONFIG.ORIGIN_X, BULLET.CONFIG.ORIGIN_Y);
     bullet.setAngle(180);
-    bullet.body.setSize(BULLET_CONFIG.WIDTH, BULLET_CONFIG.HEIGHT);
     bullet.setPosition(this.character.x + 50, this.character.y);
-    bullet.setVelocityX(-BULLET_CONFIG.VELOCITY);
+    bullet.setVelocityX(-BULLET.ATTACK.VELOCITY);
   }
 
   createSpawnPoints() {
@@ -605,8 +731,6 @@ export class TestScene extends Phaser.Scene {
       this.cursors.right.isDown ||
       this.keyboardInputs.right.isDown;
 
-    this.isPlayerTouchingGround = this.character.body.blocked.down;
-
     if (this.playerState !== 'DEAD') {
       this.updateHorizontalMovement();
       this.updateVerticalMovement();
@@ -615,14 +739,14 @@ export class TestScene extends Phaser.Scene {
 
   updateHorizontalMovement() {
     if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
-      this.character.setVelocityX(-CHARACTER_SPEED_X);
+      this.character.setVelocityX(-CHARACTER.MOVEMENT.GROUND.SPEED);
       this.character.setFlipX(true);
 
       if (this.isPlayerTouchingGround) {
         this.setPlayerState('RUNNING');
       }
     } else if (this.cursors.right.isDown || this.keyboardInputs.right.isDown) {
-      this.character.setVelocityX(CHARACTER_SPEED_X);
+      this.character.setVelocityX(CHARACTER.MOVEMENT.GROUND.SPEED);
       this.character.setFlipX(false);
 
       if (this.isPlayerTouchingGround) {
@@ -636,7 +760,7 @@ export class TestScene extends Phaser.Scene {
 
   updateVerticalMovement() {
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
-      this.character.setVelocityY(-CHARACTER_SPEED_Y);
+      this.character.setVelocityY(-CHARACTER.MOVEMENT.AIR.SPEED);
       this.setPlayerState('JUMPING');
     }
 
@@ -663,20 +787,14 @@ export class TestScene extends Phaser.Scene {
     let x = this.character.x;
     let y = this.character.y;
     let angle = 0;
-    let width = SWORD_CONFIG.WIDTH;
-    let height = SWORD_CONFIG.HEIGHT;
-    let offset = SWORD_CONFIG.OFFSET;
+    let offset = SWORD.CONFIG.OFFSET;
 
     if (this.playerState === 'LOOKING_UP') {
       angle = -90;
-      width = SWORD_CONFIG.HEIGHT;
-      height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y - this.character.height * 2 - offset;
     } else if (this.playerState === 'LOOKING_DOWN') {
       angle = 90;
-      width = SWORD_CONFIG.HEIGHT;
-      height = SWORD_CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y + this.character.height * 2 + offset;
     } else {
@@ -690,9 +808,8 @@ export class TestScene extends Phaser.Scene {
       y = this.character.y;
     }
 
-    this.sword.setOrigin(SWORD_CONFIG.ORIGIN_X, SWORD_CONFIG.ORIGIN_Y);
+    this.sword.setOrigin(SWORD.CONFIG.ORIGIN_X, SWORD.CONFIG.ORIGIN_Y);
     this.sword.setAngle(angle);
-    this.sword.body.setSize(width, height);
     this.sword.setPosition(x, y);
   }
 
@@ -700,19 +817,19 @@ export class TestScene extends Phaser.Scene {
     let x = this.character.x;
     let y = this.character.y;
     let angle = 0;
-    let width = BULLET_CONFIG.WIDTH;
-    let height = BULLET_CONFIG.HEIGHT;
+    let width = BULLET.CONFIG.WIDTH;
+    let height = BULLET.CONFIG.HEIGHT;
 
     if (this.playerState === 'LOOKING_UP') {
       angle = -90;
-      width = BULLET_CONFIG.HEIGHT;
-      height = BULLET_CONFIG.WIDTH;
+      width = BULLET.CONFIG.HEIGHT;
+      height = BULLET.CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y - this.character.height / 2 - height / 2;
     } else if (this.playerState === 'LOOKING_DOWN') {
       angle = 90;
-      width = BULLET_CONFIG.HEIGHT;
-      height = BULLET_CONFIG.WIDTH;
+      width = BULLET.CONFIG.HEIGHT;
+      height = BULLET.CONFIG.WIDTH;
       x = this.character.x;
       y = this.character.y + this.character.height / 2 + height / 2;
     } else {
@@ -726,9 +843,7 @@ export class TestScene extends Phaser.Scene {
       y = this.character.y;
     }
 
-    bullet.setOrigin(BULLET_CONFIG.ORIGIN_X, BULLET_CONFIG.ORIGIN_Y);
-    bullet.setAngle(angle);
-    bullet.body.setSize(width, height);
+    bullet.setOrigin(BULLET.CONFIG.ORIGIN_X, BULLET.CONFIG.ORIGIN_Y);
     bullet.setPosition(x, y);
   }
 
@@ -739,6 +854,8 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateSwordAttack() {
+    if (!this.keyboardInputs) return;
+
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.attack)) {
       this.createSword();
 
@@ -765,6 +882,8 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateBulletAttack() {
+    if (!this.keyboardInputs) return;
+
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.shoot)) {
       if (this.bulletsLeft) {
         const bullet = this.createBullet();
@@ -788,20 +907,20 @@ export class TestScene extends Phaser.Scene {
     }
   }
 
-  updateBulletMovement({ bullet }: { bullet: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody }) {
+  updateBulletMovement({ bullet }: { bullet: BulletType }) {
     switch (this.weaponState) {
       case 'SHOOTING_FORWARD':
         if (this.character.flipX) {
-          bullet.setVelocityX(-BULLET_CONFIG.VELOCITY);
+          bullet.setVelocityX(-BULLET.ATTACK.VELOCITY);
         } else {
-          bullet.setVelocityX(BULLET_CONFIG.VELOCITY);
+          bullet.setVelocityX(BULLET.ATTACK.VELOCITY);
         }
         break;
       case 'SHOOTING_UP':
-        bullet.setVelocityY(-BULLET_CONFIG.VELOCITY);
+        bullet.setVelocityY(-BULLET.ATTACK.VELOCITY);
         break;
       case 'SHOOTING_DOWN':
-        bullet.setVelocityY(BULLET_CONFIG.VELOCITY);
+        bullet.setVelocityY(BULLET.ATTACK.VELOCITY);
         break;
     }
   }
@@ -812,12 +931,15 @@ export class TestScene extends Phaser.Scene {
     state,
     callback,
   }: {
-    sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+    sprite: Phaser.Physics.Matter.Sprite;
     animationKey: string;
     state?: WeaponState;
     callback?: () => void;
   }) {
-    if (sprite.body) sprite.body.enable = false;
+    if (sprite.body) {
+      sprite.setCollisionCategory(0);
+      sprite.setSensor(true);
+    }
 
     state &&
       this.setWeaponState({
@@ -833,13 +955,7 @@ export class TestScene extends Phaser.Scene {
     });
   }
 
-  applyDamage({
-    target,
-    amount,
-  }: {
-    target: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-    amount: number;
-  }) {
+  applyDamage({ target, amount }: { target: Phaser.Physics.Matter.Sprite; amount: number }) {
     if (target === this.character && !this.isInvincible) {
       this.character.health = Math.max(0, this.character.health - amount);
       if (this.character.health <= 0) {
@@ -854,7 +970,7 @@ export class TestScene extends Phaser.Scene {
 
   activateInvincibility(
     { duration }: { duration: number } = {
-      duration: DEFAULT_CHARACTER_INVENCIBILITY_TIME,
+      duration: CHARACTER.CONFIG.RESPAWN.INVENCIBILITY.TIME,
     }
   ) {
     this.isInvincible = true;
@@ -889,7 +1005,7 @@ export class TestScene extends Phaser.Scene {
       if (this.playerCurrentLives > 0) {
         this.time.delayedCall(500, () => {
           this.character.setActive(true).setVisible(true);
-          this.character.health = CHARACTER_HEALTH;
+          this.character.health = CHARACTER.CONFIG.HEALTH;
           this.enableKeyboard({ value: true });
           this.setPlayerState('IDLE');
           this.handleRespawnCharacter();
@@ -903,7 +1019,7 @@ export class TestScene extends Phaser.Scene {
 
     const randomIndex = Phaser.Math.Between(0, this.spawnPoints.length - 1);
     const spawnPoint = this.spawnPoints[randomIndex];
-    const flip = spawnPoint.x > VIRTUAL_WIDTH / 2;
+    const flip = spawnPoint.x > SCENE.WIDTH / 2;
 
     this.character.setFlipX(flip);
     this.character.setPosition(spawnPoint.x, spawnPoint.y);
@@ -912,6 +1028,8 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateLivesDisplay() {
+    if (!this.playerLives) return;
+
     if (this.playerLives.length === this.playerCurrentLives) return;
 
     const spriteDistance = 15;
@@ -925,7 +1043,7 @@ export class TestScene extends Phaser.Scene {
 
     this.playerLives.setPosition(
       this.cameras.main.centerX - (this.playerCurrentLives * spriteDistance) / 2,
-      0.95 * VIRTUAL_HEIGHT
+      0.95 * SCENE.HEIGHT
     );
   }
 
