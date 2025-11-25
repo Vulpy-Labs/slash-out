@@ -651,9 +651,9 @@ export class TestScene extends Phaser.Scene {
                   );
 
                   return;
-                } else {
-                  this.bullets.splice(index, 1);
                 }
+
+                this.bullets.splice(index, 1);
               },
             });
           }
@@ -676,9 +676,9 @@ export class TestScene extends Phaser.Scene {
                   );
 
                   return;
-                } else {
-                  this.bullets.splice(index, 1);
                 }
+
+                this.bullets.splice(index, 1);
               },
             });
           }
