@@ -12,9 +12,9 @@ const config: Phaser.Types.Core.GameConfig = {
   backgroundColor: '#00000',
   physics: {
     default: 'matter',
-    arcade: {
+    matter: {
       gravity: { x: 0, y: PHYSICS.GRAVITY },
-      debug: true,
+      debug: false,
     },
   },
   scale: {
