@@ -1,3 +1,3 @@
 export const PHYSICS = {
-  GRAVITY: 1300,
+  GRAVITY: 1,
 };
