@@ -3,7 +3,7 @@ export const CHARACTER = {
     HEALTH: 100,
     LIVES: 10,
     RESPAWN: {
-      INVENCIBILITY: {
+      INVINCIBILITY: {
         TIME: 1000,
       },
     },

@@ -969,7 +969,7 @@ export class TestScene extends Phaser.Scene {
 
   activateInvincibility(
     { duration }: { duration: number } = {
-      duration: CHARACTER.CONFIG.RESPAWN.INVENCIBILITY.TIME,
+      duration: CHARACTER.CONFIG.RESPAWN.INVINCIBILITY.TIME,
     }
   ) {
     this.isInvincible = true;
