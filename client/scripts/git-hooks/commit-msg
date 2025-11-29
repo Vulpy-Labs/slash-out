@@ -41,6 +41,7 @@ declare -A types_emojis=(
   [intl]="🌐"
   [lint]="🚨"
   [log]="🔊"
+  [move]="🚚"
   [perf]="⚡️"
   [refac]="♻️"
   [responsive]="📱"

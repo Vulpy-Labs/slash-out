@@ -11,6 +11,7 @@ import {
   DEFAULT_CHARACTER_LIVES,
   DEFAULT_CHARACTER_INVENCIBILITY_TIME,
 } from '../../constants';
+import { RoomConnection } from '@/services/server/connection/RoomConnection';
 
 type PlayerState =
   | 'IDLE'
@@ -87,6 +88,9 @@ export class TestScene extends Phaser.Scene {
   bullets: BulletType[] = [];
   bulletsLeft = BULLET_CONFIG.CLIP_SIZE;
   shinigamiSword: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+
+  // Server Logic
+  roomConnection: RoomConnection;
 
   constructor() {
     super('TestScene');
@@ -193,7 +197,7 @@ export class TestScene extends Phaser.Scene {
     this.load.image('spr_playerlives', 'assets/sprites/icons/spr_icons_6.png');
   }
 
-  create() {
+  async create() {
     this.createMap();
     this.createSpawnPoints();
     this.createTitle();
@@ -202,6 +206,7 @@ export class TestScene extends Phaser.Scene {
     this.createWeaponsAnimations();
     this.createLivesContainer();
     this.updateLivesDisplay();
+    await this.createServerRoom();
   }
 
   update() {
@@ -933,5 +938,10 @@ export class TestScene extends Phaser.Scene {
       if (!value) key.reset();
       key.enabled = value;
     });
+  }
+
+  async createServerRoom() {
+    this.roomConnection = new RoomConnection();
+    await this.roomConnection.create();
   }
 }
