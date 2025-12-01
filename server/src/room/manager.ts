@@ -1,6 +1,7 @@
 import { Client, logger, Room } from 'colyseus';
 import { State } from 'shared/types/room/state';
 import { Player } from 'shared/types/player/schema';
+import { PLAYER_ACTIONS } from 'shared/config/events/player/actions';
 
 export class RoomManager extends Room {
   onCreate() {
@@ -24,6 +25,8 @@ export class RoomManager extends Room {
       this.state.players.set(playerId, player);
 
       logger.info(`Player ${playerId} added successfully!`);
+
+      this.createClientMessagesListeners();
     } catch (error) {
       console.error('🚀 Server - Error in onJoin:', error);
     }
@@ -32,5 +35,19 @@ export class RoomManager extends Room {
   onLeave(client: Client) {
     logger.warn(client.sessionId, 'left!');
     this.state.players.delete(client.sessionId);
+  }
+
+  createClientMessagesListeners() {
+    this.createMovementListeners();
+  }
+
+  createMovementListeners() {
+    this.onMessage(PLAYER_ACTIONS.MOVED, (client, payload) => {
+      const player = this.state.players.get(client.sessionId);
+
+      if (payload.left) player.x -= 1;
+      if (payload.right) player.x += 1;
+      if (payload.jump) player.y -= 5;
+    });
   }
 }
