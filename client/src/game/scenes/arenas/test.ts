@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { CHARACTER, SCENE, SWORD, BULLET } from 'shared/config/constants';
 
 import { RoomConnection } from '@/services/server/connection/RoomConnection';
+import { Player } from 'shared/types/player/schema';
+import { PLAYER_ACTIONS } from 'shared/config/events/player/actions';
 
 type PlayerState =
   | 'IDLE'
@@ -201,12 +203,10 @@ export class TestScene extends Phaser.Scene {
     this.createMap();
     this.createSpawnPoints();
     this.createTitle();
-    this.createCharacter();
-    this.createKeyboardInputs();
-    this.createWeaponsAnimations();
-    this.createLivesContainer();
-    this.updateLivesDisplay();
     await this.createServerRoom();
+
+    if (!this.roomConnection) return;
+    this.createPlayer();
   }
 
   update() {
@@ -266,6 +266,15 @@ export class TestScene extends Phaser.Scene {
       .map(layer => {
         return this.map.createLayer(layer.name, tilesets, 0, 0);
       });
+  }
+
+  createPlayer() {
+    this.createCharacter();
+    this.createKeyboardInputs();
+    this.createWeaponsAnimations();
+    this.createLivesContainer();
+    this.updateLivesDisplay();
+    this.createServerEventListeners();
   }
 
   createCharacter({ x = 150, y = 100 }: { x?: number; y?: number } = {}) {
@@ -1059,7 +1068,18 @@ export class TestScene extends Phaser.Scene {
   }
 
   async createServerRoom() {
-    this.roomConnection = new RoomConnection();
-    await this.roomConnection.create();
+    this.roomConnection = await new RoomConnection().create();
+  }
+
+  createServerEventListeners() {
+    this.createServerMovementListeners();
+  }
+
+  createServerMovementListeners() {
+    this.roomConnection.serverRoom.state.players.onAdd((player: Player, sessionId: string) => {
+      player.onChange(() => {
+        this.character.setPosition(player.x, player.y);
+      });
+    });
   }
 }
