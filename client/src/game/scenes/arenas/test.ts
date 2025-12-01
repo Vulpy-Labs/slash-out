@@ -539,11 +539,11 @@ export class TestScene extends Phaser.Scene {
       up: keyboard.addKey('W'),
       down: keyboard.addKey('S'),
       jump: keyboard.addKey('SPACE'),
-      attack: keyboard.addKey('F'),
-      shoot: keyboard.addKey('G'),
+      attack: keyboard.addKey('J'),
+      shoot: keyboard.addKey('K'),
       dash: keyboard.addKey('SHIFT'),
-      seppuku_attack: keyboard.addKey('Z'),
-      seppuku_shot: keyboard.addKey('X'),
+      seppuku_attack: keyboard.addKey('L'),
+      seppuku_shot: keyboard.addKey('I'),
     };
   }
 
