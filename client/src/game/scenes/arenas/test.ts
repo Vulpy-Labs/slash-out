@@ -747,30 +747,38 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateHorizontalMovement() {
+    const playerMovementPayload = {
+      left: false,
+      right: false,
+      up: false,
+      down: false,
+      jump: false,
+    };
+
     if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
-      this.character.setVelocityX(-CHARACTER.MOVEMENT.GROUND.SPEED);
-      this.character.setFlipX(true);
+      playerMovementPayload.left = this.cursors.left.isDown || this.keyboardInputs.left.isDown;
 
-      if (this.isPlayerTouchingGround) {
-        this.setPlayerState('RUNNING');
-      }
+      this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
     } else if (this.cursors.right.isDown || this.keyboardInputs.right.isDown) {
-      this.character.setVelocityX(CHARACTER.MOVEMENT.GROUND.SPEED);
-      this.character.setFlipX(false);
+      playerMovementPayload.right = this.cursors.right.isDown || this.keyboardInputs.right.isDown;
 
-      if (this.isPlayerTouchingGround) {
-        this.setPlayerState('RUNNING');
-      }
-    } else if (this.isPlayerTouchingGround && !this.isPlayerMovingHorizontally) {
-      this.character.setVelocityX(0);
-      this.setPlayerState('IDLE');
+      this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
     }
   }
 
   updateVerticalMovement() {
+    const playerMovementPayload = {
+      right: false,
+      left: false,
+      up: false,
+      down: false,
+      jump: false,
+    };
+
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
-      this.character.setVelocityY(-CHARACTER.MOVEMENT.AIR.SPEED);
-      this.setPlayerState('JUMPING');
+      playerMovementPayload.jump = true;
+
+      this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
     }
 
     if (!this.isPlayerTouchingGround) {
@@ -783,12 +791,20 @@ export class TestScene extends Phaser.Scene {
       this.isPlayerTouchingGround
     ) {
       this.setPlayerState('LOOKING_UP');
+
+      playerMovementPayload.up = true;
+
+      this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
     } else if (
       (this.cursors.down.isDown || this.keyboardInputs.down.isDown) &&
       !this.isPlayerMovingHorizontally &&
       this.isPlayerTouchingGround
     ) {
       this.setPlayerState('LOOKING_DOWN');
+
+      playerMovementPayload.down = true;
+
+      this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
     }
   }
 
