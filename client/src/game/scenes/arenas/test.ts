@@ -210,6 +210,7 @@ export class TestScene extends Phaser.Scene {
   }
 
   update() {
+    if (!this.roomConnection || !this.roomConnection.serverRoom) return;
     this.updateCharacterMovement();
     this.updateCharacterAttack();
     this.updateLivesDisplay();
