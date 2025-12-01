@@ -68,7 +68,7 @@ export class TestScene extends Phaser.Scene {
   playerCurrentLives: number = CHARACTER.CONFIG.LIVES;
   playerLives: Phaser.GameObjects.Container;
   isPlayerMovingHorizontally: boolean;
-  isPlayerTouchingGround: boolean;
+  isPlayerTouchingGround: boolean = true;
   isInvincible: boolean = false;
   canAttack: boolean = true;
   keyboardInputs: {
