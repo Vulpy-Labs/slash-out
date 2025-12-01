@@ -2,6 +2,7 @@ import { Client, logger, Room } from 'colyseus';
 import { State } from 'shared/types/room/state';
 import { Player } from 'shared/types/player/schema';
 import { PLAYER_ACTIONS } from 'shared/config/events/player/actions';
+import { SCENE } from 'shared/config/constants/scenes';
 
 export class RoomManager extends Room {
   onCreate() {
@@ -11,11 +12,9 @@ export class RoomManager extends Room {
   }
 
   onJoin(client: Client) {
-    console.log('🚀 Server - onJoin called for:', client.sessionId);
-
     try {
-      const mapWidth = 352;
-      const mapHeight = 240;
+      const mapWidth = SCENE.WIDTH;
+      const mapHeight = SCENE.HEIGHT;
       const playerId = client.sessionId;
 
       const player = new Player();
