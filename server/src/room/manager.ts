@@ -43,6 +43,10 @@ export class RoomManager extends Room {
   createMovementListeners() {
     this.onMessage(PLAYER_ACTIONS.MOVED, (client, payload) => {
       const player = this.state.players.get(client.sessionId);
+      if (!player) {
+        logger.warn(`No player found for session ${client.sessionId}`);
+        return;
+      }
 
       if (payload.left) player.x -= 1;
       if (payload.right) player.x += 1;
