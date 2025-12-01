@@ -2,19 +2,19 @@ import { Boot } from './scenes/Boot';
 import { AUTO, Game } from 'phaser';
 import { Preloader } from './scenes/Preloader';
 import { TestScene } from './scenes/arenas/test';
-import { GRAVITY, VIRTUAL_HEIGHT, VIRTUAL_WIDTH } from './constants';
+import { PHYSICS, SCENE } from 'shared/config/constants';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: AUTO,
-  width: VIRTUAL_WIDTH,
-  height: VIRTUAL_HEIGHT,
+  width: SCENE.WIDTH,
+  height: SCENE.HEIGHT,
   parent: 'game-container',
   backgroundColor: '#00000',
   physics: {
-    default: 'arcade',
-    arcade: {
-      gravity: { x: 0, y: GRAVITY },
-      debug: true,
+    default: 'matter',
+    matter: {
+      gravity: { x: 0, y: PHYSICS.GRAVITY },
+      debug: false,
     },
   },
   scale: {

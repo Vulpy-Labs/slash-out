@@ -1,3 +1,4 @@
-export * from './arenas';
+export * from './physics';
+export * from './scenes';
 export * from './characters';
 export * from './weapons';
