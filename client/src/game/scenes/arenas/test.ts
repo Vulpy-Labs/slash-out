@@ -289,6 +289,9 @@ export class TestScene extends Phaser.Scene {
     this.character.setFrictionAir(CHARACTER.MOVEMENT.AIR.FRICTION);
     this.character.setBounce(0);
 
+    this.character.setSensor(true);
+    this.character.setIgnoreGravity(true);
+
     (this.character.body as MatterJS.BodyType).label = 'character';
     this.character.health = CHARACTER.CONFIG.HEALTH;
 
