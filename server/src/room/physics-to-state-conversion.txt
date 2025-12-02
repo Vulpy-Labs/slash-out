@@ -15,7 +15,7 @@ export class RoomManager extends Room {
   private world: World;
 
   // Map players to their Matter.js bodies
-  private playerPhysicBodies: Map<string, Body> = new Map();
+  private playerBodies: Map<string, Body> = new Map();
 
   // Platform bodies
   private platformBodies: Body[] = [];
@@ -26,7 +26,7 @@ export class RoomManager extends Room {
   onCreate() {
     const state = new State();
     this.setState(state);
-    this.setPatchRate(2);
+    this.setPatchRate(6);
 
     // Initialize Matter.js
     this.initiatePhysicsWorld();
@@ -57,22 +57,21 @@ export class RoomManager extends Room {
 
       console.log(`📦 Extracted ${platforms.length} platform tiles`);
 
-      platforms.forEach(platform => {
-        const physicalBody = Bodies.rectangle(
-          platform.x,
-          platform.y,
-          platform.width,
-          platform.height,
-          {
-            isStatic: true,
-            label: 'platform',
-            friction: 0.8,
-            restitution: 0,
-          }
-        );
+      /**
+       * ? Estas plataformas estão sendo convertidas para o centro
+       * ? Porque foram criadas a partir do Position Reference Point do Phaser (top-left)?
+       */
 
-        World.add(this.world, physicalBody);
-        this.platformBodies.push(physicalBody);
+      platforms.forEach(platform => {
+        const body = Bodies.rectangle(platform.x, platform.y, platform.width, platform.height, {
+          isStatic: true,
+          label: 'platform',
+          friction: 0.8,
+          restitution: 0,
+        });
+
+        World.add(this.world, body);
+        this.platformBodies.push(body);
       });
 
       console.log(`✅ Created ${this.platformBodies.length} Matter.js platform bodies`);
@@ -118,19 +117,12 @@ export class RoomManager extends Room {
       const tilesetInfo = this.getTilesetForGid(mapData, tileGid);
 
       if (tilesetInfo && this.tileHasCollider(tilesetInfo.tileset, tilesetInfo.localId)) {
-        const left = (i % width) * tileWidth;
-        const top = Math.floor(i / width) * tileHeight;
-
-        const { centerX, centerY } = PhysicsUtils.getCenterPositionFromTopLeft({
-          x: left,
-          y: top,
-          width: tileWidth,
-          height: tileHeight,
-        });
+        const x = (i % width) * tileWidth;
+        const y = Math.floor(i / width) * tileHeight;
 
         platforms.push({
-          x: centerX,
-          y: centerY,
+          x,
+          y,
           width: tileWidth,
           height: tileHeight,
         });
@@ -179,7 +171,53 @@ export class RoomManager extends Room {
     logger.info('Player joined:', client.sessionId);
 
     try {
-      this.createPlayer({ sessionId: client.sessionId });
+      const mapWidth = SCENE.WIDTH;
+      const mapHeight = SCENE.HEIGHT;
+      const playerId = client.sessionId;
+
+      // Create Colyseus player state
+      const player = new Player();
+      player.x = Math.random() * (mapWidth - CHARACTER.CONFIG.WIDTH);
+      player.y = 100; // Spawn in air
+
+      console.log(`👤 Player spawned at: x=${player.x}, y=${player.y}`);
+
+      this.state.players.set(playerId, player);
+
+      // const body = Bodies.rectangle(
+      //   player.x + CHARACTER.CONFIG.WIDTH / 2, // Center X
+      //   player.y + CHARACTER.CONFIG.HEIGHT / 2, // Center Y
+      //   CHARACTER.CONFIG.WIDTH,
+      //   CHARACTER.CONFIG.HEIGHT,
+      //   {
+      //     label: 'player',
+      //     friction: CHARACTER.MOVEMENT.GROUND.FRICTION,
+      //     frictionAir: CHARACTER.MOVEMENT.AIR.FRICTION,
+      //     restitution: 0,
+      //     inertia: Infinity, // Prevent rotation
+      //   }
+      // );
+
+      const body = Bodies.rectangle(
+        player.x,
+        player.y,
+        CHARACTER.CONFIG.WIDTH,
+        CHARACTER.CONFIG.HEIGHT,
+        {
+          label: 'player',
+          friction: CHARACTER.MOVEMENT.GROUND.FRICTION,
+          frictionAir: CHARACTER.MOVEMENT.AIR.FRICTION,
+          restitution: 0,
+          inertia: Infinity,
+        }
+      );
+
+      console.log(`👤 Player body created at: x=${body.position.x}, y=${body.position.y}`);
+
+      World.add(this.world, body);
+      this.playerBodies.set(playerId, body);
+
+      logger.info(`Player ${playerId} added with Matter.js body`);
     } catch (error) {
       logger.error('Error in onJoin:', error);
     }
@@ -188,11 +226,11 @@ export class RoomManager extends Room {
   onLeave(client: Client) {
     logger.warn(client.sessionId, 'left!');
 
-    // Remove Matter.js physicalBody
-    const physicalBody = this.playerPhysicBodies.get(client.sessionId);
-    if (physicalBody) {
-      World.remove(this.world, physicalBody);
-      this.playerPhysicBodies.delete(client.sessionId);
+    // Remove Matter.js body
+    const body = this.playerBodies.get(client.sessionId);
+    if (body) {
+      World.remove(this.world, body);
+      this.playerBodies.delete(client.sessionId);
     }
 
     // Remove from state
@@ -200,11 +238,9 @@ export class RoomManager extends Room {
   }
 
   update(deltaTime: number) {
-    // Accumulate time since last frame
+    // Fixed timestep physics
     this.accumulator += deltaTime;
 
-    // Run physics in fixed timesteps (e.g., 16.67ms for 60fps)
-    // Purpose: Fixed timestep physics (prevents physics from running faster/slower based on framerate)
     while (this.accumulator >= GAME.CONFIG.FIXED_TIME_STEP) {
       this.fixedUpdate();
       this.accumulator -= GAME.CONFIG.FIXED_TIME_STEP;
@@ -216,96 +252,52 @@ export class RoomManager extends Room {
     Engine.update(this.engine, GAME.CONFIG.FIXED_TIME_STEP);
 
     // Sync Matter.js bodies → Colyseus state
-    this.state.players.forEach((playerState: Player, sessionId: string) => {
-      const playerBody = this.playerPhysicBodies.get(sessionId);
-      if (!playerBody) return;
+    this.state.players.forEach((player: Player, sessionId: string) => {
+      const body = this.playerBodies.get(sessionId);
+      if (!body) return;
 
-      // Clamp velocities
-      if (Math.abs(playerBody.velocity.x) > CHARACTER.MOVEMENT.GROUND.SPEED) {
-        Body.setVelocity(playerBody, {
-          x: Math.sign(playerBody.velocity.x) * CHARACTER.MOVEMENT.GROUND.SPEED,
-          y: playerBody.velocity.y,
-        });
-      }
-
-      if (Math.abs(playerBody.velocity.y) > CHARACTER.MOVEMENT.AIR.SPEED) {
-        Body.setVelocity(playerBody, {
-          x: playerBody.velocity.x,
-          y: Math.sign(playerBody.velocity.y) * CHARACTER.MOVEMENT.AIR.SPEED,
-        });
-      }
+      // Update player state from Matter.js body (convert from center to top-left)
+      this.applyNewStatePositions({ player, body });
 
       // Check if grounded (simple check - you can improve this)
-      playerState.isGrounded = this.isBodyGrounded(playerBody);
-      // Update player state from Matter.js physicalBody (convert from center to top-left)
-      this.syncPlayerStateWithPlayerBody({ playerState, playerBody });
+      player.isGrounded = this.isBodyGrounded(body);
+      console.log('🚀 ~ RoomManager ~ fixedUpdate ~ player.isGrounded:', player.isGrounded);
+
+      // Clamp velocities
+      if (Math.abs(body.velocity.x) > CHARACTER.MOVEMENT.GROUND.SPEED) {
+        Body.setVelocity(body, {
+          x: Math.sign(body.velocity.x) * CHARACTER.MOVEMENT.GROUND.SPEED,
+          y: body.velocity.y,
+        });
+      }
+
+      if (Math.abs(body.velocity.y) > CHARACTER.MOVEMENT.AIR.SPEED) {
+        Body.setVelocity(body, {
+          x: body.velocity.x,
+          y: Math.sign(body.velocity.y) * CHARACTER.MOVEMENT.AIR.SPEED,
+        });
+      }
     });
   }
 
-  createPlayer({ sessionId }: { sessionId: string }) {
-    const mapWidth = SCENE.WIDTH;
-    const mapHeight = SCENE.HEIGHT;
-    const playerId = sessionId;
-    try {
-      // Create Colyseus player state
-      const player = new Player();
-      player.x = Math.random() * (mapWidth - CHARACTER.CONFIG.WIDTH);
-      player.y = 100; // Spawn in air
-
-      console.log(`👤 Player spawned at: x=${player.x}, y=${player.y}`);
-
-      this.state.players.set(playerId, player);
-
-      const playerBody = Bodies.rectangle(
-        player.x,
-        player.y,
-        CHARACTER.CONFIG.WIDTH,
-        CHARACTER.CONFIG.HEIGHT,
-        {
-          label: 'player',
-          friction: CHARACTER.MOVEMENT.GROUND.FRICTION,
-          frictionAir: CHARACTER.MOVEMENT.AIR.FRICTION,
-          restitution: 0,
-          inertia: Infinity, // Prevent rotation
-        }
-      );
-      console.log(
-        `👤 Player playerBody created at: x=${playerBody.position.x}, y=${playerBody.position.y}`
-      );
-
-      World.add(this.world, playerBody);
-      this.playerPhysicBodies.set(playerId, playerBody);
-
-      logger.info(`Player ${playerId} added with Matter.js physicalBody`);
-    } catch (error: any) {
-      logger.error(`Player ${playerId} not created. Error:`, error.message);
-    }
+  applyNewStatePositions({ player, body }: { player: Player; body: Matter.Body }) {
+    player.x = body.position.x;
+    player.y = body.position.y;
+    player.velocityX = body.velocity.x;
+    player.velocityY = body.velocity.y;
   }
 
-  syncPlayerStateWithPlayerBody({
-    playerState,
-    playerBody,
-  }: {
-    playerState: Player;
-    playerBody: Matter.Body;
-  }) {
-    playerState.x = playerBody.position.x;
-    playerState.y = playerBody.position.y;
-    playerState.velocityX = playerBody.velocity.x;
-    playerState.velocityY = playerBody.velocity.y;
-  }
-
-  isBodyGrounded(physicalBody: Body): boolean {
+  isBodyGrounded(body: Body): boolean {
     const groundThresholdPixels = 2;
 
     for (const platform of this.platformBodies) {
-      const bodyBottom = physicalBody.position.y + CHARACTER.CONFIG.HEIGHT / 2;
-      const platformTop = platform.bounds.min.y;
+      const bodyBottom = body.position.y + CHARACTER.CONFIG.HEIGHT / 2;
+      const platformTop = platform.position.y - platform.bounds.max.y + platform.position.y;
 
       if (
         Math.abs(bodyBottom - platformTop) < groundThresholdPixels &&
-        physicalBody.position.x + CHARACTER.CONFIG.WIDTH / 2 > platform.bounds.min.x &&
-        physicalBody.position.x - CHARACTER.CONFIG.WIDTH / 2 < platform.bounds.max.x
+        body.position.x + CHARACTER.CONFIG.WIDTH / 2 > platform.bounds.min.x &&
+        body.position.x - CHARACTER.CONFIG.WIDTH / 2 < platform.bounds.max.x
       ) {
         return true;
       }
@@ -316,38 +308,30 @@ export class RoomManager extends Room {
 
   setupClientMessagesListeners() {
     this.onMessage(ACTIONS.PLAYER_MOVED, (client, payload) => {
-      const playerBody = this.playerPhysicBodies.get(client.sessionId);
-      const playerState = this.state.players.get(client.sessionId);
+      const body = this.playerBodies.get(client.sessionId);
+      const player = this.state.players.get(client.sessionId);
 
-      if (!playerBody || !playerState) return;
+      if (!body || !player) return;
 
-      // Handle horizontal movement
       if (payload.left) {
-        Body.setVelocity(playerBody, {
+        Body.setVelocity(body, {
           x: -CHARACTER.MOVEMENT.GROUND.SPEED,
-          y: playerBody.velocity.y,
+          y: body.velocity.y,
         });
       } else if (payload.right) {
-        Body.setVelocity(playerBody, {
+        Body.setVelocity(body, {
           x: CHARACTER.MOVEMENT.GROUND.SPEED,
-          y: playerBody.velocity.y,
+          y: body.velocity.y,
         });
-      } else {
-        // ✅ Stop horizontal movement
-        Body.setVelocity(playerBody, {
-          x: 0,
-          y: playerBody.velocity.y,
-        });
-      }
-
-      // Handle jump (independent)
-      if (payload.jump && playerState.isGrounded) {
-        Body.setVelocity(playerBody, {
-          x: playerBody.velocity.x,
+      } else if (payload.jump && player.isGrounded) {
+        console.log(
+          '🚀 ~ RoomManager ~ setupClientMessagesListeners ~ payload.jump && player.isGrounded:',
+          payload.jump && player.isGrounded
+        );
+        Body.setVelocity(body, {
+          x: body.velocity.x,
           y: -CHARACTER.MOVEMENT.AIR.SPEED,
         });
-
-        playerState.isGrounded = false; // Immediately set false to prevent double jump
       }
     });
   }

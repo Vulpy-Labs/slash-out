@@ -40,15 +40,15 @@ export class RoomConnection {
     console.log('Client - Attempting to attach onAdd listener...');
     try {
       this.room.state.players.onAdd((player: Player, sessionId: string) => {
-        console.log('🎉🎉🎉 CLIENT - onAdd FIRED!!!', sessionId, player);
+        console.log(`🎉 | onAdd fired for ${sessionId}!`);
+        this.events.emit(CREATION.PLAYER_JOINED, player);
 
         player.onChange(() => {
-          console.log('🎉🎉🎉 CLIENT - onChange FIRED!!!', sessionId, player);
+          if (this.playerId !== sessionId) return;
 
           this.events.emit(ACTIONS.PLAYER_MOVED, player);
+          console.log(`🎉 | onChange fired for ${sessionId}!`);
         });
-
-        this.events.emit(CREATION.PLAYER_JOINED, player);
       });
     } catch (e) {
       console.error('Client - Error attaching onAdd:', e);
@@ -57,6 +57,7 @@ export class RoomConnection {
 
   send(type: string | number, message: any) {
     if (this.isConnected()) {
+      console.warn(`PlayerRoom - sending: ${type}`);
       this.room.send(type, message);
     } else {
       console.warn('PlayerRoom - Cannot send message, connection not ready');

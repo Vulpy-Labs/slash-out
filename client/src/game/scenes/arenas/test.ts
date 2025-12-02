@@ -200,16 +200,16 @@ export class TestScene extends Phaser.Scene {
   }
 
   async create() {
-    // await this.createServerRoom();
+    await this.createServerRoom();
 
-    this.createMap();
-    this.createSpawnPoints();
-    this.createTitle();
-    this.createCharacter();
-    this.createKeyboardInputs();
-    this.createWeaponsAnimations();
-    this.createLivesContainer();
-    this.updateLivesDisplay();
+    // this.createMap();
+    // this.createSpawnPoints();
+    // this.createTitle();
+    // this.createCharacter();
+    // this.createKeyboardInputs();
+    // this.createWeaponsAnimations();
+    // this.createLivesContainer();
+    // this.updateLivesDisplay();
   }
 
   update() {
@@ -275,8 +275,8 @@ export class TestScene extends Phaser.Scene {
     this.character = this.matter.add.sprite(x, y, 'spr_idle') as CharacterType;
     this.character.setBody({
       type: 'rectangle',
-      width: 16,
-      height: 16,
+      width: CHARACTER.CONFIG.WIDTH,
+      height: CHARACTER.CONFIG.HEIGHT,
     });
     this.character.setFixedRotation();
     this.character.setFriction(CHARACTER.MOVEMENT.GROUND.FRICTION);
@@ -741,48 +741,45 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateHorizontalMovement() {
-    // const playerMovementPayload = {
-    //   left: false,
-    //   right: false,
-    //   up: false,
-    //   down: false,
-    //   jump: false,
-    // };
-
-    // if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
-    //   playerMovementPayload.left = this.cursors.left.isDown || this.keyboardInputs.left.isDown;
-
-    //   this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
-    // } else if (this.cursors.right.isDown || this.keyboardInputs.right.isDown) {
-    //   playerMovementPayload.right = this.cursors.right.isDown || this.keyboardInputs.right.isDown;
-
-    //   this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
-    // }
+    const playerMovementPayload = {
+      left: false,
+      right: false,
+      up: false,
+      down: false,
+      jump: false,
+    };
 
     if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
+      playerMovementPayload.left = this.cursors.left.isDown || this.keyboardInputs.left.isDown;
+
       this.character.setVelocityX(-CHARACTER.MOVEMENT.GROUND.SPEED);
       this.character.setFlipX(true);
 
-      if (this.isPlayerTouchingGround) {
-        this.setPlayerState('RUNNING');
-      }
+      this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
     } else if (this.cursors.right.isDown || this.keyboardInputs.right.isDown) {
+      playerMovementPayload.right = this.cursors.right.isDown || this.keyboardInputs.right.isDown;
+
+      this.roomConnection.send(ACTIONS.PLAYER_MOVED, playerMovementPayload);
+
       this.character.setVelocityX(CHARACTER.MOVEMENT.GROUND.SPEED);
       this.character.setFlipX(false);
-
-      if (this.isPlayerTouchingGround) {
-        this.setPlayerState('RUNNING');
-      }
-    } else if (this.isPlayerTouchingGround && !this.isPlayerMovingHorizontally) {
-      this.character.setVelocityX(0);
-      this.setPlayerState('IDLE');
     }
   }
 
   updateVerticalMovement() {
+    const playerMovementPayload = {
+      left: false,
+      right: false,
+      up: false,
+      down: false,
+      jump: false,
+    };
+
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
-      this.character.setVelocityY(-CHARACTER.MOVEMENT.AIR.SPEED);
       this.setPlayerState('JUMPING');
+      this.roomConnection.send(ACTIONS.PLAYER_MOVED, { ...playerMovementPayload, jump: true });
+
+      this.character.setVelocityY(-CHARACTER.MOVEMENT.AIR.SPEED);
     }
 
     if (!this.isPlayerTouchingGround) {
@@ -1083,19 +1080,22 @@ export class TestScene extends Phaser.Scene {
     this.roomConnection = new RoomConnection();
     await this.roomConnection.create();
 
+    this.createEventListeners();
+  }
+
+  createEventListeners() {
     this.roomConnection.events.on(CREATION.PLAYER_JOINED, (player: Player) => {
       this.createPlayer({ player });
     });
 
     this.roomConnection.events.on(ACTIONS.PLAYER_MOVED, (player: Player) => {
-      this.setPlayerState('RUNNING');
       this.character.setPosition(player.x, player.y);
     });
   }
 
   createPlayer({ player }: { player: Player }) {
     this.createMap();
-    this.createSpawnPoints();
+    // this.createSpawnPoints();
     this.createTitle();
     this.createCharacter({ x: player.x, y: player.y });
     this.createKeyboardInputs();
