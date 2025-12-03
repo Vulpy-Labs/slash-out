@@ -15,7 +15,7 @@ export const CHARACTER = {
     },
     GROUND: {
       FRICTION: 0.21,
-      SPEED: 2,
+      SPEED: 2.5,
     },
   },
 };
