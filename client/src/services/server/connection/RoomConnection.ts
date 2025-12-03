@@ -3,11 +3,10 @@ import Phaser from 'phaser';
 import { Client, Room } from 'colyseus.js';
 
 import { State } from 'shared/types/room/state';
-import { ROOM_STATUS } from 'shared/config/events/room/status';
 
 export class RoomConnection {
   client: Client;
-  room: Room<State>;
+  serverRoom: Room<State>;
   roomName: string;
   playerId!: string;
   events: Phaser.Events.EventEmitter;
@@ -19,17 +18,11 @@ export class RoomConnection {
   }
 
   async create() {
-    console.log(
-      `Client - Connected to "${this.roomName}" server via ${import.meta.env.VITE_SERVER_URL}`
-    );
-
     try {
-      this.room = await this.client.joinOrCreate<State>(this.roomName);
-      this.playerId = this.room.sessionId;
+      this.serverRoom = await this.client.joinOrCreate<State>(this.roomName);
+      this.playerId = this.serverRoom.sessionId;
 
-      this.events.emit(ROOM_STATUS.CREATED, this.room);
-
-      return this.room;
+      return this;
     } catch (e: any) {
       throw new Error(`Error while creating room: ${e}`);
     }
