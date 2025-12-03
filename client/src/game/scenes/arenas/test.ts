@@ -282,8 +282,8 @@ export class TestScene extends Phaser.Scene {
     this.character = this.matter.add.sprite(x, y, 'spr_idle') as CharacterType;
     this.character.setBody({
       type: 'rectangle',
-      width: 16,
-      height: 16,
+      width: CHARACTER.CONFIG.WIDTH,
+      height: CHARACTER.CONFIG.HEIGHT,
     });
     this.character.setFixedRotation();
     this.character.setFriction(CHARACTER.MOVEMENT.GROUND.FRICTION);

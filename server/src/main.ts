@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Server } from 'colyseus';
-import { RoomManager } from './room';
+import { RoomManager } from './room/manager';
 
 const port = parseInt(process.env.PORT ?? '', 10) || 2567;
 const gameServer = new Server();
