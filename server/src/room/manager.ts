@@ -1,8 +1,11 @@
 import { Client, logger, Room } from 'colyseus';
 import { State } from 'shared/types/room/state';
 import { Player } from 'shared/types/player/schema';
+
 import { PLAYER_ACTIONS } from 'shared/config/events/player/actions';
+
 import { SCENE } from 'shared/config/constants/scenes';
+import { CHARACTER } from 'shared/config/constants/characters';
 
 export class RoomManager extends Room {
   onCreate() {
@@ -48,9 +51,9 @@ export class RoomManager extends Room {
         return;
       }
 
-      if (payload.left) player.x -= 1;
-      if (payload.right) player.x += 1;
-      if (payload.jump) player.y -= 5;
+      if (payload.left) player.x -= CHARACTER.MOVEMENT.GROUND.SPEED;
+      if (payload.right) player.x += CHARACTER.MOVEMENT.GROUND.SPEED;
+      if (payload.jump) player.y -= CHARACTER.MOVEMENT.AIR.SPEED;
     });
   }
 }
