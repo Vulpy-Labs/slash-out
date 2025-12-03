@@ -763,10 +763,14 @@ export class TestScene extends Phaser.Scene {
       playerMovementPayload.left = this.cursors.left.isDown || this.keyboardInputs.left.isDown;
 
       this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
+
+      this.character.setFlipX(true);
     } else if (this.cursors.right.isDown || this.keyboardInputs.right.isDown) {
       playerMovementPayload.right = this.cursors.right.isDown || this.keyboardInputs.right.isDown;
 
       this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
+
+      this.character.setFlipX(false);
     }
   }
 
