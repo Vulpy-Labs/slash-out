@@ -784,9 +784,12 @@ export class TestScene extends Phaser.Scene {
     };
 
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
-      playerMovementPayload.jump = true;
+      this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, {
+        ...playerMovementPayload,
+        jump: true,
+      });
 
-      this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
+      this.setPlayerState('JUMPING');
     }
 
     if (!this.isPlayerTouchingGround) {
