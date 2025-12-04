@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { CHARACTER, SCENE, SWORD, BULLET } from 'shared/config/constants';
 
 import { RoomConnection } from '@/services/server/connection/RoomConnection';
+import { Player } from 'shared/types/player/schema';
+import { PLAYER_ACTIONS } from 'shared/config/events/player/actions';
 
 type PlayerState =
   | 'IDLE'
@@ -66,7 +68,7 @@ export class TestScene extends Phaser.Scene {
   playerCurrentLives: number = CHARACTER.CONFIG.LIVES;
   playerLives: Phaser.GameObjects.Container;
   isPlayerMovingHorizontally: boolean;
-  isPlayerTouchingGround: boolean;
+  isPlayerTouchingGround: boolean = true;
   isInvincible: boolean = false;
   canAttack: boolean = true;
   keyboardInputs: {
@@ -201,15 +203,14 @@ export class TestScene extends Phaser.Scene {
     this.createMap();
     this.createSpawnPoints();
     this.createTitle();
-    this.createCharacter();
-    this.createKeyboardInputs();
-    this.createWeaponsAnimations();
-    this.createLivesContainer();
-    this.updateLivesDisplay();
     await this.createServerRoom();
+
+    if (!this.roomConnection) return;
+    this.createPlayer();
   }
 
   update() {
+    if (!this.roomConnection || !this.roomConnection.serverRoom) return;
     this.updateCharacterMovement();
     this.updateCharacterAttack();
     this.updateLivesDisplay();
@@ -268,6 +269,15 @@ export class TestScene extends Phaser.Scene {
       });
   }
 
+  createPlayer() {
+    this.createCharacter();
+    this.createKeyboardInputs();
+    this.createWeaponsAnimations();
+    this.createLivesContainer();
+    this.updateLivesDisplay();
+    this.createServerEventListeners();
+  }
+
   createCharacter({ x = 150, y = 100 }: { x?: number; y?: number } = {}) {
     this.character = this.matter.add.sprite(x, y, 'spr_idle') as CharacterType;
     this.character.setBody({
@@ -279,6 +289,9 @@ export class TestScene extends Phaser.Scene {
     this.character.setFriction(CHARACTER.MOVEMENT.GROUND.FRICTION);
     this.character.setFrictionAir(CHARACTER.MOVEMENT.AIR.FRICTION);
     this.character.setBounce(0);
+
+    this.character.setSensor(true);
+    this.character.setIgnoreGravity(true);
 
     (this.character.body as MatterJS.BodyType).label = 'character';
     this.character.health = CHARACTER.CONFIG.HEALTH;
@@ -530,11 +543,11 @@ export class TestScene extends Phaser.Scene {
       up: keyboard.addKey('W'),
       down: keyboard.addKey('S'),
       jump: keyboard.addKey('SPACE'),
-      attack: keyboard.addKey('F'),
-      shoot: keyboard.addKey('G'),
+      attack: keyboard.addKey('J'),
+      shoot: keyboard.addKey('K'),
       dash: keyboard.addKey('SHIFT'),
-      seppuku_attack: keyboard.addKey('Z'),
-      seppuku_shot: keyboard.addKey('X'),
+      seppuku_attack: keyboard.addKey('L'),
+      seppuku_shot: keyboard.addKey('I'),
     };
   }
 
@@ -738,30 +751,38 @@ export class TestScene extends Phaser.Scene {
   }
 
   updateHorizontalMovement() {
+    const playerMovementPayload = {
+      left: false,
+      right: false,
+      up: false,
+      down: false,
+      jump: false,
+    };
+
     if (this.cursors.left.isDown || this.keyboardInputs.left.isDown) {
-      this.character.setVelocityX(-CHARACTER.MOVEMENT.GROUND.SPEED);
-      this.character.setFlipX(true);
+      playerMovementPayload.left = this.cursors.left.isDown || this.keyboardInputs.left.isDown;
 
-      if (this.isPlayerTouchingGround) {
-        this.setPlayerState('RUNNING');
-      }
+      this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
     } else if (this.cursors.right.isDown || this.keyboardInputs.right.isDown) {
-      this.character.setVelocityX(CHARACTER.MOVEMENT.GROUND.SPEED);
-      this.character.setFlipX(false);
+      playerMovementPayload.right = this.cursors.right.isDown || this.keyboardInputs.right.isDown;
 
-      if (this.isPlayerTouchingGround) {
-        this.setPlayerState('RUNNING');
-      }
-    } else if (this.isPlayerTouchingGround && !this.isPlayerMovingHorizontally) {
-      this.character.setVelocityX(0);
-      this.setPlayerState('IDLE');
+      this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
     }
   }
 
   updateVerticalMovement() {
+    const playerMovementPayload = {
+      right: false,
+      left: false,
+      up: false,
+      down: false,
+      jump: false,
+    };
+
     if (Phaser.Input.Keyboard.JustDown(this.keyboardInputs.jump) && this.isPlayerTouchingGround) {
-      this.character.setVelocityY(-CHARACTER.MOVEMENT.AIR.SPEED);
-      this.setPlayerState('JUMPING');
+      playerMovementPayload.jump = true;
+
+      this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
     }
 
     if (!this.isPlayerTouchingGround) {
@@ -774,12 +795,20 @@ export class TestScene extends Phaser.Scene {
       this.isPlayerTouchingGround
     ) {
       this.setPlayerState('LOOKING_UP');
+
+      playerMovementPayload.up = true;
+
+      this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
     } else if (
       (this.cursors.down.isDown || this.keyboardInputs.down.isDown) &&
       !this.isPlayerMovingHorizontally &&
       this.isPlayerTouchingGround
     ) {
       this.setPlayerState('LOOKING_DOWN');
+
+      playerMovementPayload.down = true;
+
+      this.roomConnection.serverRoom.send(PLAYER_ACTIONS.MOVED, playerMovementPayload);
     }
   }
 
@@ -1059,7 +1088,18 @@ export class TestScene extends Phaser.Scene {
   }
 
   async createServerRoom() {
-    this.roomConnection = new RoomConnection();
-    await this.roomConnection.create();
+    this.roomConnection = await new RoomConnection().create();
+  }
+
+  createServerEventListeners() {
+    this.createServerMovementListeners();
+  }
+
+  createServerMovementListeners() {
+    this.roomConnection.serverRoom.state.players.onAdd((player: Player, sessionId: string) => {
+      player.onChange(() => {
+        this.character.setPosition(player.x, player.y);
+      });
+    });
   }
 }
