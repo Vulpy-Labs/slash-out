@@ -1,5 +1,7 @@
 export const CHARACTER = {
   CONFIG: {
+    HEIGHT: 16,
+    WIDTH: 16,
     HEALTH: 100,
     LIVES: 10,
     RESPAWN: {
