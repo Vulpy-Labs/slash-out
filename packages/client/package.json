@@ -2,6 +2,7 @@
   "name": "template-vite-ts",
   "description": "A Phaser 3 TypeScript template using Vite.",
   "version": "1.4.0",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/phaserjs/template-vite-ts.git"
@@ -18,7 +19,9 @@
     "dev": "node log.js dev & vite --config vite/config.dev.mjs",
     "build": "node log.js build & vite build --config vite/config.prod.mjs",
     "dev-nolog": "vite --config vite/config.dev.mjs",
-    "build-nolog": "vite build --config vite/config.prod.mjs"
+    "build-nolog": "vite build --config vite/config.prod.mjs",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "lint": "eslint . --ext .ts,.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
