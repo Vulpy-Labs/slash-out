@@ -3,7 +3,11 @@
     "target": "ES2020",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "skipLibCheck": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -20,8 +24,16 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/game/*"]
+      "@/*": [
+        "src/game/*"
+      ],
+      "shared/*": [
+        "../shared/*"
+      ],
     }
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "shared"
+  ]
 }
