@@ -1,7 +1,7 @@
 import { MatchConfig } from '@/ecs/components';
 
 export class MatchScene extends Phaser.Scene {
-  private matchConfig: MatchConfig;
+  private matchConfig?: MatchConfig;
 
   private inputSystem: any;
   private movementSystem: any;
@@ -16,11 +16,7 @@ export class MatchScene extends Phaser.Scene {
     this.matchConfig = data;
   }
 
-  create() {
-    console.log('MatchScene created with config:', this.matchConfig);
-  }
+  create() {}
 
-  update() {
-    console.log('MatchScene updating...');
-  }
+  update() {}
 }
