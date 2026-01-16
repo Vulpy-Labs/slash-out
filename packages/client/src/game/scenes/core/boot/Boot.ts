@@ -13,9 +13,6 @@ export class Boot extends Scene {
   }
 
   create() {
-    this.scene.start('MatchScene', {
-      playerCount: 2,
-      mapName: 'canyon',
-    });
+    this.scene.start('Preloader');
   }
 }
