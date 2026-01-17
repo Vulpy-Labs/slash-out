@@ -1,1 +1,1 @@
-export * from "./Boot.ts";
+export * from './Boot.ts';
