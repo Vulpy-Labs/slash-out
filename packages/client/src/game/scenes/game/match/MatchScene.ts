@@ -1,7 +1,7 @@
-import { MatchConfig } from '@/components';
+import { MatchConfig } from '@/ecs/components';
 
 export class MatchScene extends Phaser.Scene {
-  private matchConfig: MatchConfig;
+  private matchConfig?: MatchConfig;
 
   private inputSystem: any;
   private movementSystem: any;
