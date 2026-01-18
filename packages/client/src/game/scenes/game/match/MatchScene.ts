@@ -20,6 +20,7 @@ export class MatchScene extends Phaser.Scene {
 
   create() {
     this.createECS();
+    this.createKeyboardInputs();
   }
 
   createECS() {
@@ -40,4 +41,11 @@ export class MatchScene extends Phaser.Scene {
     this.keymapSystem = new KeymapSystem({ scene: this });
   }
 
+  createKeyboardInputs() {
+    this.keymapSystem.addPhaserListenersToKeymap({ entities: this.entities });
+  }
+
+  update() {}
+  // const player1 = this.entities.get('player_01')!.keymap;
+  // console.log(`up:${player1.up.isDown}|down:${player1.down.isDown}`);
 }
