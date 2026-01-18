@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 const phasermsg = () => {
   return {
@@ -41,5 +42,5 @@ export default defineConfig({
   server: {
     port: 8080,
   },
-  plugins: [phasermsg()],
+  plugins: [phasermsg(), tsconfigPaths()],
 });

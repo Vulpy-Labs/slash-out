@@ -1,12 +1,15 @@
 import { MatchConfig } from '@/components';
+import { defaultKeymapP1, defaultInput } from 'ecs/components';
+import { Entities } from 'ecs/entities';
+import { KeymapSystem, InputSystem } from 'ecs/systems';
 
 export class MatchScene extends Phaser.Scene {
   private matchConfig: MatchConfig;
 
-  private inputSystem: any;
-  private movementSystem: any;
+  private entities: Entities = new Map();
 
-  private mapFactory: any;
+  private keymapSystem: KeymapSystem;
+  private inputSystem: InputSystem;
 
   constructor() {
     super('MatchScene');
@@ -16,7 +19,36 @@ export class MatchScene extends Phaser.Scene {
     this.matchConfig = data;
   }
 
-  create() {}
+  create() {
+    this.createECS();
+    this.createKeyboardInputs();
+  }
 
-  update() {}
+  createECS() {
+    this.createEntities();
+    this.createSystems();
+  }
+
+  createEntities() {
+    const fakeEntity = {
+      entityId: 'player_01',
+      keymap: defaultKeymapP1(),
+      input: defaultInput(),
+    };
+
+    this.entities.set(fakeEntity.entityId, fakeEntity);
+  }
+
+  createSystems() {
+    this.keymapSystem = new KeymapSystem({ scene: this });
+    this.inputSystem = new InputSystem({ scene: this });
+  }
+
+  createKeyboardInputs() {
+    this.keymapSystem.addPhaserListenersToKeymap({ entities: this.entities });
+  }
+
+  update() {
+    this.inputSystem.update({ entities: this.entities });
+  }
 }
