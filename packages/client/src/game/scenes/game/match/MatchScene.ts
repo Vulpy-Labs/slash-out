@@ -53,8 +53,6 @@ export class MatchScene extends Phaser.Scene {
       movement: this.movementFactory.getDefaultMovement(),
     };
 
-    console.log('fakeEntity', fakeEntity);
-
     this.entities.set(fakeEntity.entityId, fakeEntity);
   }
 
