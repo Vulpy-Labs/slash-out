@@ -10,7 +10,7 @@ class InputSystem {
 
   update({ entities }: InputSystemUpdateProps) {
     if (!(entities instanceof Map)) {
-      throw new Error(`Entites is not a Map: ${typeof entities}`);
+      throw new Error(`Entities is not a Map: ${typeof entities}`);
     }
 
     entities.forEach(({ keymap, input }) => {
