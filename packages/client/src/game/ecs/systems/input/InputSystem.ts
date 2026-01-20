@@ -1,3 +1,4 @@
+import { PossibleActions } from '@/config/constants';
 import { InputSystemProps, InputSystemUpdateProps } from './types.p';
 
 class InputSystem {
@@ -15,10 +16,10 @@ class InputSystem {
     entities.forEach(({ keymap, input }) => {
       if (!keymap || !input) return;
 
-      for (const [action, actionListenerKey] of Object.entries(keymap.listeners)) {
-        if (!actionListenerKey) return;
+      for (const [action, actionKeyListener] of Object.entries(keymap.listeners)) {
+        if (!actionKeyListener) return;
 
-        input[action] = actionListenerKey.isDown;
+        input[action as PossibleActions] = actionKeyListener.isDown;
       }
     });
   }
