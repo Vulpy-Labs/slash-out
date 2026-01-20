@@ -21,7 +21,7 @@ class InputSystem {
       if (!keymap || !input) return;
 
       for (const [action, actionKeyListener] of Object.entries(keymap.listeners)) {
-        if (!actionKeyListener) return;
+        if (!actionKeyListener) continue;
 
         input[action as PossibleActions] = actionKeyListener.isDown;
       }
