@@ -16,7 +16,7 @@ class KeymapSystem {
     if (!phaserKeyboard || !(entities instanceof Map) || !entities.size) return;
 
     entities.forEach(({ keymap }) => {
-      if (!keymap || !keymap?.codes) return;
+      if (!keymap) return;
 
       for (const action in keymap.codes) {
         const actionKeyCode = keymap.codes[action as keyof KeymapComponent['codes']];
