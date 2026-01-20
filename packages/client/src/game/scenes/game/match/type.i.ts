@@ -1,4 +1,4 @@
-import { MatchConfig, KeymapComponent, InputComponent } from '@/ecs/components';
+import { MatchConfig, InputComponent, KeymapComponent } from '@/ecs/components';
 import { BaseEntity } from '@/ecs/entities';
 
 interface AllComponentsList {
