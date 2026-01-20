@@ -5,6 +5,10 @@ class InputSystem {
   private scene: Phaser.Scene;
 
   constructor({ scene }: InputSystemProps) {
+    if (!scene) {
+      throw new Error('scene parameter is missing or invalid');
+    }
+
     this.scene = scene;
   }
 
