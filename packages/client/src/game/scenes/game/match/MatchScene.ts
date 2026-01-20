@@ -31,7 +31,7 @@ export class MatchScene extends Phaser.Scene {
   createEntities() {
     const fakeEntity = {
       entityId: 'player_01',
-      keymap: defaultKeymapP1(),
+      keymap: defaultKeymap({ player: '01' }),
     };
 
     this.entities.set(fakeEntity.entityId, fakeEntity);
