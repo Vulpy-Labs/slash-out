@@ -18,12 +18,12 @@ class KeymapSystem {
     entities.forEach(({ keymap }) => {
       if (!keymap) return;
 
-      for (const action in keymap.codes) {
+      Object.keys(keymap.codes).forEach(action => {
         const actionKeyCode = keymap.codes[action as keyof KeymapComponent['codes']];
 
         keymap.listeners[action as keyof KeymapComponent['listeners']] =
           phaserKeyboard.addKey(actionKeyCode);
-      }
+      });
     });
   }
 }
