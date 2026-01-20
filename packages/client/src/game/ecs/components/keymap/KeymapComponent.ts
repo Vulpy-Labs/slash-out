@@ -1,9 +1,12 @@
-type PossibleActions = 'left' | 'right' | 'up' | 'down' | 'jump' | 'dash' | 'sword' | 'gun';
+import { PossibleActions } from '@/config/constants';
 
-type KeymapConfig = Record<PossibleActions, string>;
+type KeymapCodes = Record<PossibleActions, string>;
 
-type KeymapRuntime = Record<PossibleActions, Phaser.Input.Keyboard.Key>;
+type KeymapListeners = Record<PossibleActions, Phaser.Input.Keyboard.Key | null>;
 
-type KeymapComponent = KeymapConfig | KeymapRuntime;
+interface KeymapComponent {
+  codes: KeymapCodes;
+  listeners: KeymapListeners;
+}
 
 export type { KeymapComponent };
