@@ -2,8 +2,6 @@ import { PLAYER_MOVEMENT_CONSTANT } from '@/config/constants/movement/player/Pla
 import { MovementComponent } from '@/ecs/components';
 
 class MovementFactory {
-  constructor() {}
-
   getDefaultMovement(): MovementComponent {
     return {
       air: {
