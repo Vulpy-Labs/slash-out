@@ -1,14 +1,3 @@
-import { PossibleActions } from './type.t';
-
-const possibleActions: PossibleActions[] = [
-  'left',
-  'right',
-  'up',
-  'down',
-  'jump',
-  'dash',
-  'sword',
-  'gun',
-];
+const possibleActions = ['left', 'right', 'up', 'down', 'jump', 'dash', 'sword', 'gun'] as const;
 
 export { possibleActions };
