@@ -29,6 +29,10 @@ export class MatchScene extends Phaser.Scene {
   }
 
   createEntities() {
+    this.createFakePlayer();
+  }
+
+  createFakePlayer() {
     const fakeEntity = {
       entityId: 'player_01',
       keymap: defaultKeymap({ player: '01' }),
@@ -43,10 +47,5 @@ export class MatchScene extends Phaser.Scene {
 
   createKeyboardInputs() {
     this.keymapSystem.createPhaserListeners({ entities: this.entities });
-  }
-
-  update() {
-    // const keymap = this.entities.get('player_01')!.keymap;
-    // console.log('keymap', keymap);
   }
 }
