@@ -1,4 +1,4 @@
-import { PLAYER_MOVEMENT_CONSTANT } from '@/config/constants/movement/player/PlayerMovementConstant';
+import { PLAYER_MOVEMENT_CONSTANT } from '@/config/constants';
 import { MovementComponent } from '@/ecs/components';
 
 class MovementFactory {
