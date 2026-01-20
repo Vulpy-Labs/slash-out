@@ -1,16 +1,12 @@
+import { possibleActions } from '@/config/constants';
 import { InputComponent } from '@/ecs/components';
 
 function defaultInput(): InputComponent {
-  return {
-    left: false,
-    right: false,
-    up: false,
-    down: false,
-    jump: false,
-    dash: false,
-    sword: false,
-    gun: false,
-  };
+  return possibleActions.reduce((defaultInput, actionString) => {
+    defaultInput[actionString] = false;
+
+    return defaultInput;
+  }, {} as InputComponent);
 }
 
 export { defaultInput };
