@@ -6,8 +6,8 @@ interface AllComponentsList {
   keymap?: KeymapComponent;
 }
 
-interface AllEntitiesList extends BaseEntity, AllComponentsList {}
+interface GlobalEntity extends BaseEntity, AllComponentsList {}
 
-type GlobalEntityMap = Map<string, AllEntitiesList>;
+type GlobalEntityMap = Map<string, GlobalEntity>;
 
 export type { GlobalEntityMap };

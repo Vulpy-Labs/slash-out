@@ -4,8 +4,8 @@ type KeymapSystemProp = {
   scene: Phaser.Scene;
 };
 
-type AddPhaserListenersToKeymapProp = {
+type CreatePhaserListenersProp = {
   entities: GlobalEntityMap;
 };
 
-export type { KeymapSystemProp, AddPhaserListenersToKeymapProp };
+export type { KeymapSystemProp, CreatePhaserListenersProp };

@@ -1,4 +1,5 @@
-import { AddPhaserListenersToKeymapProp, KeymapSystemProp } from './types.p';
+import { KeymapComponent } from '@/ecs/components';
+import { CreatePhaserListenersProp, KeymapSystemProp } from './types.p';
 
 class KeymapSystem {
   private scene: Phaser.Scene;
@@ -9,18 +10,19 @@ class KeymapSystem {
     this.scene = scene;
   }
 
-  addPhaserListenersToKeymap({ entities }: AddPhaserListenersToKeymapProp) {
+  createPhaserListeners({ entities }: CreatePhaserListenersProp) {
     const phaserKeyboard = this.scene.input.keyboard;
 
     if (!phaserKeyboard || !(entities instanceof Map) || !entities.size) return;
 
     entities.forEach(({ keymap }) => {
-      if (!keymap) return;
+      if (!keymap || !keymap?.codes) return;
 
-      for (const [action, button] of Object.entries(keymap)) {
-        keymap[action as keyof typeof keymap] = phaserKeyboard.addKey(
-          button as keyof typeof keymap
-        );
+      for (const action in keymap.codes) {
+        const actionKeyCode = keymap.codes[action as keyof KeymapComponent['codes']];
+
+        keymap.listeners[action as keyof KeymapComponent['listeners']] =
+          phaserKeyboard.addKey(actionKeyCode);
       }
     });
   }
