@@ -4,7 +4,7 @@ import { GlobalEntityMap } from './type.i';
 import { defaultInput, defaultKeymap } from '@/utils/factories/ecs/components';
 
 export class MatchScene extends Phaser.Scene {
-  private matchConfig: MatchConfig;
+  private matchConfig?: MatchConfig;
 
   private entities: GlobalEntityMap = new Map();
 
