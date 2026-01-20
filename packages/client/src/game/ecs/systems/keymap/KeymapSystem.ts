@@ -5,7 +5,7 @@ class KeymapSystem {
   private scene: Phaser.Scene;
 
   constructor({ scene }: KeymapSystemProp) {
-    if (!scene) throw new Error('scene not found');
+    if (!scene) throw new Error('scene parameter is missing or invalid');
 
     this.scene = scene;
   }
