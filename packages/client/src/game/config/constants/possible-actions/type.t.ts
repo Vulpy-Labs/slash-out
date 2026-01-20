@@ -1,3 +1,5 @@
-type PossibleActions = 'left' | 'right' | 'up' | 'down' | 'jump' | 'dash' | 'sword' | 'gun';
+import { possibleActions } from './PossibleActions';
+
+type PossibleActions = (typeof possibleActions)[number];
 
 export type { PossibleActions };
