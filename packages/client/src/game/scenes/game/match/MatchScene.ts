@@ -1,7 +1,7 @@
 import { MatchConfig } from '@/ecs/components';
 import { InputSystem, KeymapSystem } from '@/ecs/systems';
 import { GlobalEntityMap } from './type.i';
-import { defaultInput, defaultKeymapP1 } from '@/utils/factories/ecs/components';
+import { defaultInput, defaultKeymap } from '@/utils/factories/ecs/components';
 
 export class MatchScene extends Phaser.Scene {
   private matchConfig: MatchConfig;
@@ -30,9 +30,13 @@ export class MatchScene extends Phaser.Scene {
   }
 
   createEntities() {
+    this.createFakePlayer();
+  }
+
+  createFakePlayer() {
     const fakeEntity = {
       entityId: 'player_01',
-      keymap: defaultKeymapP1(),
+      keymap: defaultKeymap({ player: '01' }),
       input: defaultInput(),
     };
 
@@ -45,7 +49,7 @@ export class MatchScene extends Phaser.Scene {
   }
 
   createKeyboardInputs() {
-    this.keymapSystem.addPhaserListenersToKeymap({ entities: this.entities });
+    this.keymapSystem.createPhaserListeners({ entities: this.entities });
   }
 
   update() {

@@ -1,15 +1,16 @@
-import { AddPhaserListenersToKeymapProp, KeymapSystemProp } from './types.p';
+import { KeymapComponent } from '@/ecs/components';
+import { CreatePhaserListenersProp, KeymapSystemProp } from './types.p';
 
 class KeymapSystem {
   private scene: Phaser.Scene;
 
   constructor({ scene }: KeymapSystemProp) {
-    if (!scene) throw new Error('scene not found');
+    if (!scene) throw new Error('scene parameter is missing or invalid');
 
     this.scene = scene;
   }
 
-  addPhaserListenersToKeymap({ entities }: AddPhaserListenersToKeymapProp) {
+  createPhaserListeners({ entities }: CreatePhaserListenersProp) {
     const phaserKeyboard = this.scene.input.keyboard;
 
     if (!phaserKeyboard || !(entities instanceof Map) || !entities.size) return;
@@ -17,11 +18,12 @@ class KeymapSystem {
     entities.forEach(({ keymap }) => {
       if (!keymap) return;
 
-      for (const [action, button] of Object.entries(keymap)) {
-        keymap[action as keyof typeof keymap] = phaserKeyboard.addKey(
-          button as keyof typeof keymap
-        );
-      }
+      Object.keys(keymap.codes).forEach(action => {
+        const actionKeyCode = keymap.codes[action as keyof KeymapComponent['codes']];
+
+        keymap.listeners[action as keyof KeymapComponent['listeners']] =
+          phaserKeyboard.addKey(actionKeyCode);
+      });
     });
   }
 }
