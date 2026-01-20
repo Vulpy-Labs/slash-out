@@ -15,8 +15,10 @@ class InputSystem {
     entities.forEach(({ keymap, input }) => {
       if (!keymap || !input) return;
 
-      for (const [action, phaserKey] of Object.entries(keymap)) {
-        input[action] = phaserKey.isDown;
+      for (const [action, actionListenerKey] of Object.entries(keymap.listeners)) {
+        if (!actionListenerKey) return;
+
+        input[action] = actionListenerKey.isDown;
       }
     });
   }
