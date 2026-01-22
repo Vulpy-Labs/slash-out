@@ -1,5 +1,5 @@
 import { MatchConfig } from '@/ecs/components';
-import { InputSystem, KeymapSystem } from '@/ecs/systems';
+import { InputSystem, KeymapSystem, MovementSystem } from '@/ecs/systems';
 import { GlobalEntityMap } from './type.i';
 import {
   defaultInput,
@@ -15,6 +15,7 @@ export class MatchScene extends Phaser.Scene {
 
   private keymapSystem: KeymapSystem;
   private inputSystem: InputSystem;
+  private movementSystem: MovementSystem;
 
   constructor() {
     super('MatchScene');
@@ -53,6 +54,7 @@ export class MatchScene extends Phaser.Scene {
   createSystems() {
     this.keymapSystem = new KeymapSystem({ scene: this });
     this.inputSystem = new InputSystem({ scene: this });
+    this.movementSystem = new MovementSystem({ scene: this });
   }
 
   createKeyboardInputs() {
@@ -61,5 +63,6 @@ export class MatchScene extends Phaser.Scene {
 
   update() {
     this.inputSystem.update({ entities: this.entities });
+    this.movementSystem.update({ entities: this.entities });
   }
 }
