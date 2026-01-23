@@ -13,6 +13,7 @@ class MovementSystem {
 
       const wantsToMoveHorizontally = input.left || input.right;
       const wantsToJump = input.jump;
+      const isOnGround = false;
 
       if (wantsToMoveHorizontally) {
         if (input.left) velocity.vx = -movement.ground.speed;
@@ -21,10 +22,7 @@ class MovementSystem {
         velocity.vx = 0;
       }
 
-      if (wantsToJump) velocity.vy = movement.air.speed;
-      else {
-        velocity.vy = 0;
-      }
+      if (wantsToJump && isOnGround) velocity.vy = movement.air.speed;
     });
   }
 }
