@@ -1,4 +1,4 @@
-import { GlobalEntityMap } from '@/scenes/game/match';
+import { GlobalEntityMap } from '@/scenes/game';
 
 type KeymapSystemProp = {
   scene: Phaser.Scene;
