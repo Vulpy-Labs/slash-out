@@ -13,6 +13,7 @@ interface AllComponentsList {
   input?: InputComponent;
   movement?: MovementComponent;
   velocity?: VelocityComponent;
+  sprite?: Phaser.Physics.Matter.Sprite;
 }
 
 interface GlobalEntity extends BaseEntity, AllComponentsList {}
