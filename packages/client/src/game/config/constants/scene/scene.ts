@@ -1,6 +1,6 @@
 const SCENE = {
-  WIDTH: 1024,
-  HEIGHT: 768,
+  WIDTH: 352,
+  HEIGHT: 240,
 };
 
 export { SCENE };
