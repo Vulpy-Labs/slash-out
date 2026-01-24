@@ -25,6 +25,21 @@ export class MatchScene extends Phaser.Scene {
     this.matchConfig = data;
   }
 
+  preload() {
+    this.loadPlayerAssets();
+  }
+
+  loadPlayerAssets() {
+    this.loadFirstPlayerAssets();
+  }
+
+  loadFirstPlayerAssets() {
+    this.load.image({
+      key: 'otomo_idle',
+      url: '/assets/sprites/characters/otomo/v1/spr_idle.png',
+    });
+  }
+
   create() {
     this.createECS();
     this.createKeyboardInputs();
