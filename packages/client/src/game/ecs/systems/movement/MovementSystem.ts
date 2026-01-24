@@ -19,19 +19,16 @@ class MovementSystem {
 
       if (wantsToMoveHorizontally) {
         if (input.left) {
-          console.log('left:', input.left);
           vx = -movement.ground.speed;
           sprite.setFlipX(true);
         }
         if (input.right) {
-          console.log('right:', input.right);
           vx = movement.ground.speed;
           sprite.setFlipX(false);
         }
       }
 
       if (wantsToJump) {
-        console.log('jump:', wantsToJump);
         vy = -movement.air.speed;
       }
 
