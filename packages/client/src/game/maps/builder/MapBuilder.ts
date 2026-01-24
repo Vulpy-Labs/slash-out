@@ -12,6 +12,7 @@ class MapBuilder {
   private map: Phaser.Tilemaps.Tilemap;
   private customProps: MapCustomProperties;
   private tilesets: Phaser.Tilemaps.Tileset[];
+  private ground: Phaser.Tilemaps.TilemapLayer[];
 
   private mapName: string;
   private scene: Phaser.Scene;
@@ -32,6 +33,7 @@ class MapBuilder {
   build() {
     this.createMap();
     this.createWorldLayers();
+    this.createCollision();
 
     this.customProps = this.getCustomProperties();
 
@@ -83,8 +85,22 @@ class MapBuilder {
 
   private createWorldLayers() {
     this.createMapLayer({ layerGroup: 'background', tilesets: this.tilesets });
-    this.createMapLayer({ layerGroup: 'ground', tilesets: this.tilesets });
+    this.ground = this.createMapLayer({ layerGroup: 'ground', tilesets: this.tilesets });
     this.createMapLayer({ layerGroup: 'foreground', tilesets: this.tilesets });
+  }
+
+  private createCollision() {
+    const platforms = this.ground.filter(ground => ground.layer.name.includes('platform'));
+
+    if (!platforms?.length) {
+      console.warn(`No platforms layer were found to configure ${this.mapName} map collision.`);
+      return;
+    }
+
+    platforms.forEach(platform => {
+      platform.setCollisionByProperty({ collider: true });
+      this.scene.matter.world.convertTilemapLayer(platform);
+    });
   }
 
   private setLayerDepth({ layerGroup, layer }: SetLayerDepthProp) {
