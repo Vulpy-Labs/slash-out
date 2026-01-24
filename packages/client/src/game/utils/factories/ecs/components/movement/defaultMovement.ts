@@ -13,7 +13,7 @@ function defaultMovement({ entityType }: DefaultMovementProp): MovementComponent
       friction: MOVEMENT_CONSTANT[entityType].AIR.FRICTION,
     },
     ground: {
-      speed: MOVEMENT_CONSTANT[entityType].GROUND.SPEED / 2,
+      speed: MOVEMENT_CONSTANT[entityType].GROUND.SPEED,
       friction: MOVEMENT_CONSTANT[entityType].GROUND.FRICTION,
     },
   };
