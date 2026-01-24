@@ -1,4 +1,10 @@
-import { MatchConfig, InputComponent, KeymapComponent, MovementComponent } from '@/ecs/components';
+import {
+  MatchConfig,
+  InputComponent,
+  KeymapComponent,
+  MovementComponent,
+  VelocityComponent,
+} from '@/ecs/components';
 import { BaseEntity } from '@/ecs/entities';
 
 interface AllComponentsList {
@@ -6,6 +12,7 @@ interface AllComponentsList {
   keymap?: KeymapComponent;
   input?: InputComponent;
   movement?: MovementComponent;
+  velocity?: VelocityComponent;
 }
 
 interface GlobalEntity extends BaseEntity, AllComponentsList {}
