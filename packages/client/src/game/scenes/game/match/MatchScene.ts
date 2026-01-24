@@ -1,10 +1,10 @@
+import { defaultInput, defaultKeymap, defaultMovement } from '@/utils/factories/ecs/components';
 import { MatchConfig } from '@/ecs/components';
 import { InputSystem, KeymapSystem } from '@/ecs/systems';
 import { GlobalEntityMap } from './type.i';
-import { defaultInput, defaultKeymap, defaultMovement } from '@/utils/factories/ecs/components';
 
 export class MatchScene extends Phaser.Scene {
-  private matchConfig?: MatchConfig;
+  private matchConfig: MatchConfig;
 
   private entities: GlobalEntityMap = new Map();
 
@@ -17,6 +17,17 @@ export class MatchScene extends Phaser.Scene {
 
   init(data: MatchConfig) {
     this.matchConfig = data;
+
+    this.initializeInstances();
+  }
+
+  initializeInstances() {
+    this.initializeSystems();
+  }
+
+  initializeSystems() {
+    this.keymapSystem = new KeymapSystem({ scene: this });
+    this.inputSystem = new InputSystem({ scene: this });
   }
 
   create() {
@@ -26,7 +37,6 @@ export class MatchScene extends Phaser.Scene {
 
   createECS() {
     this.createEntities();
-    this.createSystems();
   }
 
   createEntities() {
@@ -42,11 +52,6 @@ export class MatchScene extends Phaser.Scene {
     };
 
     this.entities.set(fakeEntity.entityId, fakeEntity);
-  }
-
-  createSystems() {
-    this.keymapSystem = new KeymapSystem({ scene: this });
-    this.inputSystem = new InputSystem({ scene: this });
   }
 
   createKeyboardInputs() {
