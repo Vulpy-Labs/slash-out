@@ -26,10 +26,6 @@ export class MatchScene extends Phaser.Scene {
   }
 
   loadPlayerAssets() {
-    this.loadFirstPlayerAssets();
-  }
-
-  loadFirstPlayerAssets() {
     this.load.image({
       key: 'otomo_idle',
       url: '/assets/sprites/characters/otomo/v1/spr_idle.png',
