@@ -1,12 +1,8 @@
 import { MatchConfig } from '@/ecs/components';
 import { InputSystem, KeymapSystem, MovementSystem } from '@/ecs/systems';
 import { GlobalEntityMap } from './type.i';
-import {
-  defaultInput,
-  defaultKeymap,
-  defaultMovement,
-  defaultVelocity,
-} from '@/utils/factories/ecs/components';
+import { defaultInput, defaultKeymap, defaultMovement } from '@/utils/factories/ecs/components';
+import { CreatePlayerProp } from './type.p';
 
 export class MatchScene extends Phaser.Scene {
   private matchConfig?: MatchConfig;
@@ -51,19 +47,23 @@ export class MatchScene extends Phaser.Scene {
   }
 
   createEntities() {
-    this.createFakePlayer();
+    this.createPlayer({ x: 100, y: 100 });
   }
 
-  createFakePlayer() {
-    const fakeEntity = {
+  createPlayer({ x, y }: CreatePlayerProp) {
+    const player = this.matter.add.sprite(x, y, 'otomo_idle', undefined);
+    player.setFixedRotation();
+    player.setFriction(0);
+
+    const playerEntity = {
       entityId: 'player_01',
       keymap: defaultKeymap({ player: '01' }),
       input: defaultInput(),
       movement: defaultMovement({ entityType: 'player' }),
-      velocity: defaultVelocity(),
+      sprite: player,
     };
 
-    this.entities.set(fakeEntity.entityId, fakeEntity);
+    this.entities.set(playerEntity.entityId, playerEntity);
   }
 
   createSystems() {
