@@ -11,8 +11,8 @@ import {
 class MapBuilder {
   private map: Phaser.Tilemaps.Tilemap;
   private customProps: MapCustomProperties;
-  private tilesets: Phaser.Tilemaps.Tileset[];
-  private ground: Phaser.Tilemaps.TilemapLayer[];
+  private tilesets: Phaser.Tilemaps.Tileset[] = [];
+  private ground: Phaser.Tilemaps.TilemapLayer[] = [];
 
   private mapName: string;
   private scene: Phaser.Scene;
