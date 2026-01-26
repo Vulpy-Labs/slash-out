@@ -44,10 +44,10 @@ class MapBuilder {
   }
 
   private loadSprites() {
-    this.scene.load.once(
-      Phaser.Loader.Events.FILE_COMPLETE,
-      (_: string, __: string, data: TiledComponent) => {
-        const tilesets = data.tilesets || [];
+    const onFileComplete = (key: string, __: string, data: TiledComponent) => {
+      if (key !== this.mapName) return;
+
+      const tilesets = data.tilesets || [];
 
         tilesets.forEach(tileset => {
           const image = tileset.name;
@@ -56,8 +56,11 @@ class MapBuilder {
 
           this.scene.load.image(image, `${this.baseSpritesPath}/${image}.png`);
         });
-      }
-    );
+
+      this.scene.load.off(Phaser.Loader.Events.FILE_COMPLETE, onFileComplete);
+    };
+
+    this.scene.load.on(Phaser.Loader.Events.FILE_COMPLETE, onFileComplete);
   }
 
   private createMap() {
