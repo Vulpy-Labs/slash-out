@@ -96,7 +96,7 @@ class MapBuilder {
     const platforms = this.ground.filter(ground => ground.layer.name.includes('platform'));
 
     if (!platforms?.length) {
-      console.warn(`No platforms layer were found to configure ${this.mapName} map collision.`);
+      console.warn(`No platform layers were found to configure ${this.mapName} map collision.`);
       return;
     }
 
