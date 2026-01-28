@@ -1,3 +1,4 @@
+import { MapBuilder } from '@/maps/builder';
 import { MatchConfig } from '@/ecs/components';
 import { InputSystem, KeymapSystem, MovementSystem } from '@/ecs/systems';
 import { GlobalEntityMap } from './type.i';
@@ -6,9 +7,11 @@ import { CreatePlayerProp } from './type.p';
 import { PlayerEntity } from '@/ecs/entities/player';
 
 export class MatchScene extends Phaser.Scene {
-  private matchConfig?: MatchConfig;
+  private matchConfig: MatchConfig;
 
   private entities: GlobalEntityMap = new Map();
+
+  private mapBuilder: MapBuilder;
 
   private keymapSystem: KeymapSystem;
   private inputSystem: InputSystem;
@@ -20,10 +23,28 @@ export class MatchScene extends Phaser.Scene {
 
   init(data: MatchConfig) {
     this.matchConfig = data;
+
+    this.initializeInstances();
+  }
+
+  initializeInstances() {
+    this.initializeSystems();
+    this.initializeBuilders();
+  }
+
+  initializeSystems() {
+    this.keymapSystem = new KeymapSystem({ scene: this });
+    this.inputSystem = new InputSystem({ scene: this });
+    this.movementSystem = new MovementSystem({ scene: this });
+  }
+
+  initializeBuilders() {
+    this.mapBuilder = new MapBuilder({ scene: this, mapName: this.matchConfig.mapName });
   }
 
   preload() {
     this.loadPlayerAssets();
+    this.mapBuilder.load();
   }
 
   loadPlayerAssets() {
@@ -34,13 +55,17 @@ export class MatchScene extends Phaser.Scene {
   }
 
   create() {
+    this.createMap();
     this.createECS();
     this.createKeyboardInputs();
   }
 
+  createMap() {
+    this.mapBuilder.build();
+  }
+
   createECS() {
     this.createEntities();
-    this.createSystems();
   }
 
   createEntities() {
@@ -61,12 +86,6 @@ export class MatchScene extends Phaser.Scene {
     };
 
     this.entities.set(playerEntity.entityId, playerEntity);
-  }
-
-  createSystems() {
-    this.keymapSystem = new KeymapSystem({ scene: this });
-    this.inputSystem = new InputSystem({ scene: this });
-    this.movementSystem = new MovementSystem({ scene: this });
   }
 
   createKeyboardInputs() {
