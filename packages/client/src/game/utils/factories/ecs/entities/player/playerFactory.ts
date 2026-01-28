@@ -1,6 +1,33 @@
 import { PlayerEntity } from '@/ecs/entities/player';
-import { GetPlayerIdProp, PlayerFactoryProp } from './types.p';
+import { GetPlayerIdProp, loadCharacterSpritesProp, PlayerFactoryProp } from './types.p';
 import { defaultInput, defaultKeymap, defaultMovement } from '../../components';
+
+const CHARACTER_SPRITES = [
+  'spr_dead',
+  'spr_deadnohead',
+  'spr_head',
+  'spr_idle',
+  'spr_jump',
+  'spr_longattack',
+  'spr_longattackdown',
+  'spr_longattackup',
+  'spr_lookdown',
+  'spr_lookup',
+  'spr_running',
+  'spr_shortattack',
+  'spr_shortattackdown',
+  'spr_shortattackup',
+  'spr_slice',
+] as const;
+
+function loadCharacterSprites({ name, scene, version }: loadCharacterSpritesProp) {
+  CHARACTER_SPRITES.forEach(sprite => {
+    scene.load.image({
+      key: `${name}_${sprite}`,
+      url: `/assets/sprites/characters/${name}/${version}/${sprite}.png`,
+    });
+  });
+}
 
 function getPlayerId({ entities }: GetPlayerIdProp) {
   let playersQuant = 0;
@@ -15,13 +42,11 @@ function playerFactory({
   entities,
   x,
   y,
-  defaultSprite,
+  characterName,
   keymapFor,
 }: PlayerFactoryProp): PlayerEntity {
-  const playerSprite = scene.matter.add.sprite(x, y, defaultSprite, undefined);
+  const playerSprite = scene.matter.add.sprite(x, y, `${characterName}_spr_idle`, undefined);
   const playerId = getPlayerId({ entities });
-
-  // Todo: () => checar outras possíveis modificações no código
 
   playerSprite.setFixedRotation();
   playerSprite.setFriction(0);
@@ -37,4 +62,4 @@ function playerFactory({
   return playerEntity;
 }
 
-export { playerFactory };
+export { playerFactory, loadCharacterSprites };
