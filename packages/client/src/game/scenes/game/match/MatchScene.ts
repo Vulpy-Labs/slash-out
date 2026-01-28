@@ -2,7 +2,7 @@ import { MatchConfig } from '@/ecs/components';
 import { InputSystem, KeymapSystem, MovementSystem } from '@/ecs/systems';
 import { GlobalEntityMap } from './type.i';
 import { CreatePlayerProp } from './type.p';
-import { playerFactory } from '@/utils/factories/ecs/entities';
+import { loadCharacterSprites, playerFactory } from '@/utils/factories/ecs/entities';
 
 export class MatchScene extends Phaser.Scene {
   private matchConfig?: MatchConfig;
@@ -26,10 +26,7 @@ export class MatchScene extends Phaser.Scene {
   }
 
   loadPlayerAssets() {
-    this.load.image({
-      key: 'otomo_idle',
-      url: '/assets/sprites/characters/otomo/v1/spr_idle.png',
-    });
+    loadCharacterSprites({ name: 'otomo', scene: this, version: 'v1' });
   }
 
   create() {
@@ -52,7 +49,7 @@ export class MatchScene extends Phaser.Scene {
       entities: this.entities,
       x,
       y,
-      defaultSprite: 'otomo_idle',
+      characterName: 'otomo',
       keymapFor: '01',
     });
 
