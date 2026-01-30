@@ -62,13 +62,13 @@ class PlayerBuilder {
   }
 
   private getPlayerId() {
-    let playersQuant = 0;
+    let playerCount = 0;
 
     this.entities.forEach(({ entityId }) =>
-      entityId.startsWith('player_') ? playersQuant++ : null
+      entityId.startsWith('player_') ? playerCount++ : null
     );
 
-    return `player_0${playersQuant + 1}`;
+    return `player_0${playerCount + 1}`;
   }
 
   private createPlayers() {
