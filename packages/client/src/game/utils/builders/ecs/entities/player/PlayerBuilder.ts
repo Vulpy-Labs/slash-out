@@ -73,7 +73,7 @@ class PlayerBuilder {
     this.matchConfig.players.characters.forEach(character => {
       const playerId = this.getPlayerId();
       const playerSprite = this.createPlayerSprite({ character, options: { friction: 0 } });
-      const playerEntity: PlayerEntity = this.mountPlayerEntity({
+      const playerEntity = this.mountPlayerEntity({
         entityId: playerId,
         character,
         sprite: playerSprite,
@@ -99,7 +99,7 @@ class PlayerBuilder {
     return sprite;
   }
 
-  private mountPlayerEntity({ entityId, character, sprite }: MountPlayerEntityProp) {
+  private mountPlayerEntity({ entityId, character, sprite }: MountPlayerEntityProp): PlayerEntity {
     return {
       entityId,
       character: {
