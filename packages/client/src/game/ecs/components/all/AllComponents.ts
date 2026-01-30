@@ -1,4 +1,5 @@
 import {
+  CharacterComponent,
   InputComponent,
   KeymapComponent,
   MatchConfig,
@@ -12,6 +13,7 @@ interface AllComponentsList {
   input?: InputComponent;
   movement?: MovementComponent;
   velocity?: VelocityComponent;
+  character?: CharacterComponent;
 }
 
 export type { AllComponentsList };
