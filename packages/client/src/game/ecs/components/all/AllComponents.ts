@@ -1,6 +1,6 @@
 import type { InputComponent } from '../input';
 import type { KeymapComponent } from '../keymap';
-import type { MatchConfig } from '../match-config';
+import type { MatchConfig } from '../match';
 import type { MovementComponent } from '../movement';
 import type { VelocityComponent } from '../velocity';
 
