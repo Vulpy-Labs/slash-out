@@ -1,4 +1,4 @@
-import { CharacterComponent } from '../character';
+import type { CharacterComponent } from '../character';
 import type { InputComponent } from '../input';
 import type { KeymapComponent } from '../keymap';
 import type { MatchConfig } from '../match';
