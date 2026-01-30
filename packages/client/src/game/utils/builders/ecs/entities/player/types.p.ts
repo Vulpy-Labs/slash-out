@@ -1,5 +1,5 @@
 import { GlobalEntityMap } from '@/scenes/game';
-import { CharacterComponent, MatchConfig } from '@/ecs/components';
+import { MatchConfig } from '@/ecs/components';
 import { BaseEntity } from '@/ecs/entities';
 import { MatchConfigCharacter } from '@/ecs/components/match/character-config';
 
@@ -10,7 +10,7 @@ type PlayerBuilderProp = {
 };
 
 type CreatePlayerSpriteProp = {
-  character: CharacterComponent;
+  character: MatchConfigCharacter;
   frame?: string | number;
   options?: Phaser.Types.Physics.Matter.MatterBodyConfig;
 };
