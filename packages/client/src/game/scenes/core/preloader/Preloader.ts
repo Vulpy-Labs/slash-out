@@ -38,7 +38,6 @@ export class Preloader extends Scene {
     const matchConfig: MatchConfig = {
       mapName: 'canyon',
       players: {
-        quantity: 2,
         characters: [{ playerRef: '01', name: 'otomo', skin: 'v1' }],
       },
     };
