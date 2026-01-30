@@ -1,10 +1,8 @@
-import {
-  InputComponent,
-  KeymapComponent,
-  MatchConfig,
-  MovementComponent,
-  VelocityComponent,
-} from '../';
+import type { InputComponent } from '../input';
+import type { KeymapComponent } from '../keymap';
+import type { MatchConfig } from '../match-config';
+import type { MovementComponent } from '../movement';
+import type { VelocityComponent } from '../velocity';
 
 interface AllComponentsList {
   matchConfig?: MatchConfig;
