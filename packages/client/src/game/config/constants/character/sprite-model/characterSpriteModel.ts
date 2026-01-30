@@ -24,6 +24,6 @@ type CharacterName = (typeof CHARACTER_NAMES)[number];
 const CHARACTER_OVERRIDES: Partial<Record<CharacterName, SpriteConfig[]>> = {};
 
 const CHARACTERS_SPRITES_MODEL: Record<CharacterName, SpriteConfig[]> = Object.fromEntries(
-  CHARACTER_NAMES.map((name) => [name, CHARACTER_OVERRIDES[name] ?? BASE_CHARACTER_SPRITES]),
+  CHARACTER_NAMES.map(name => [name, CHARACTER_OVERRIDES[name] ?? BASE_CHARACTER_SPRITES])
 ) as Record<CharacterName, SpriteConfig[]>;
 export { CHARACTERS_SPRITES_MODEL };
