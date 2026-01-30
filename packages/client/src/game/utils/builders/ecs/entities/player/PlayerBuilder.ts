@@ -84,11 +84,11 @@ class PlayerBuilder {
   }
 
   private createPlayerSprite({ character, frame, options }: CreatePlayerSpriteProp) {
-    const intialArt = `${character.name}_spr_idle`;
+    const initialSprite = `${character.name}_spr_idle`;
     const sprite = this.scene.matter.add.sprite(
       this.tempSpawnPoints.x,
       this.tempSpawnPoints.y,
-      intialArt,
+      initialSprite,
       frame,
       options
     );
