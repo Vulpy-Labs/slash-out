@@ -1,7 +1,7 @@
-import { CHARACTER_NAMES } from '@/config/constants';
+import { CHARACTER_NAMES, CHARACTER_SKINS } from '@/config/constants';
 
 interface CharacterComponent {
-  skin: 'v1' | 'v2' | 'v3';
+  skin: (typeof CHARACTER_SKINS)[number];
   name: (typeof CHARACTER_NAMES)[number];
   sprite?: Phaser.Physics.Matter.Sprite;
 }
