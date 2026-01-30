@@ -107,7 +107,7 @@ class PlayerBuilder {
         skin: character.skin,
         sprite: sprite,
       },
-      keymap: defaultKeymap({ player: character.playerRef || '01' }),
+      keymap: defaultKeymap({ player: character.playerRef }),
       input: defaultInput(),
       movement: defaultMovement({ entityType: 'player' }),
     };
