@@ -44,6 +44,8 @@ class PlayerBuilder {
         const key = `${character.name}_${spriteName}`;
         const url = `${this.baseCharacterSpritesPath}/${character.name}/${character.skin}/${spriteName}.png`;
 
+        if (this.scene.textures.exists(key)) return;
+
         if (isSpritesheet) {
           return this.scene.load.spritesheet(key, url, {
             frameWidth: PLAYER_DIMENSIONS.WIDTH,
