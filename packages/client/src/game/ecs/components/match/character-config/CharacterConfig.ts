@@ -1,4 +1,4 @@
-import { CharacterComponent } from '@/ecs/components';
+import { CharacterComponent } from '@/ecs/components/character';
 
 interface MatchConfigCharacter {
   playerRef: '01' | '02';

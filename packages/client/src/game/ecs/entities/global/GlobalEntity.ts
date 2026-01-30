@@ -1,5 +1,5 @@
 import { AllComponentsList } from '@/ecs/components';
-import { BaseEntity } from '../';
+import { BaseEntity } from '../base';
 
 interface GlobalEntity extends BaseEntity, AllComponentsList {}
 
