@@ -108,8 +108,8 @@ class MapBuilder {
       return;
     }
 
-    this.spawnPoints = layer.objects.map(spawnhole => {
-      const { x = 0, y = 0, width = 0, height = 0 } = spawnhole;
+    this.spawnPoints = layer.objects.map(spawnpoint => {
+      const { x = 0, y = 0, width = 0, height = 0 } = spawnpoint;
 
       return {
         y: y + height,
