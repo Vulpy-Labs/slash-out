@@ -2,6 +2,7 @@ import { DEPTH } from '@/config/constants';
 import { TiledComponent } from '@/ecs/components';
 import {
   DepthMapping,
+  MapSpawnPoint,
   MapBuilderProp,
   SetLayerDepthProp,
   CreateMapLayerProp,
@@ -11,6 +12,7 @@ import {
 class MapBuilder {
   private map: Phaser.Tilemaps.Tilemap;
   private customProps: MapCustomProperties;
+  private spawnPoints: MapSpawnPoint[] = [];
   private tilesets: Phaser.Tilemaps.Tileset[] = [];
   private ground: Phaser.Tilemaps.TilemapLayer[] = [];
 
@@ -34,10 +36,15 @@ class MapBuilder {
     this.createMap();
     this.createWorldLayers();
     this.createCollision();
+    this.createSpawnPoints();
 
     this.customProps = this.getCustomProperties();
 
-    return { map: this.map, props: this.customProps };
+    return {
+      map: this.map,
+      props: this.customProps,
+      spawnPoints: this.spawnPoints,
+    };
   }
 
   private loadTiledMap() {
@@ -51,13 +58,13 @@ class MapBuilder {
 
       const tilesets = data.tilesets || [];
 
-        tilesets.forEach(tileset => {
-          const image = tileset.name;
+      tilesets.forEach(tileset => {
+        const image = tileset.name;
 
-          if (this.scene.textures.exists(image)) return;
+        if (this.scene.textures.exists(image)) return;
 
-          this.scene.load.image(image, `${this.baseSpritesPath}/${image}.png`);
-        });
+        this.scene.load.image(image, `${this.baseSpritesPath}/${image}.png`);
+      });
 
       this.scene.load.off(Phaser.Loader.Events.FILE_COMPLETE, onFileComplete);
     };
@@ -90,6 +97,29 @@ class MapBuilder {
     this.createMapLayer({ layerGroup: 'background', tilesets: this.tilesets });
     this.ground = this.createMapLayer({ layerGroup: 'ground', tilesets: this.tilesets });
     this.createMapLayer({ layerGroup: 'foreground', tilesets: this.tilesets });
+  }
+
+  private createSpawnPoints() {
+    const layer = this.map.getObjectLayer('objects/spawnpoint');
+
+    if (!layer?.objects?.length) {
+      console.warn('The "spawnpoint" layer is missing. Using fallback.');
+      this.spawnPoints = [{ x: 150, y: 100 }];
+      return;
+    }
+
+    this.spawnPoints = layer.objects.map(spawnpoint => {
+      const { x = 0, y = 0, width = 0, height = 0 } = spawnpoint;
+
+      // Sets the spawn point at the bottom-center of the Tiled object.
+      // x + width / 2: Horizontal center alignment.
+      // y + height: Bottom edge alignment (floor level), helping to position
+      // the entity's feet correctly regardless of its internal pivot.
+      return {
+        y: y + height,
+        x: x + width / 2,
+      };
+    });
   }
 
   private createCollision() {
