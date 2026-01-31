@@ -111,6 +111,10 @@ class MapBuilder {
     this.spawnPoints = layer.objects.map(spawnpoint => {
       const { x = 0, y = 0, width = 0, height = 0 } = spawnpoint;
 
+      // Sets the spawn point at the bottom-center of the Tiled object.
+      // x + width / 2: Horizontal center alignment.
+      // y + height: Bottom edge alignment (floor level), helping to position
+      // the entity's feet correctly regardless of its internal pivot.
       return {
         y: y + height,
         x: x + width / 2,
