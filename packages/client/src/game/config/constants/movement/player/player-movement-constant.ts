@@ -5,7 +5,7 @@ const PLAYER_MOVEMENT_CONSTANT = {
   },
   GROUND: {
     FRICTION: 0.21,
-    SPEED: 5,
+    SPEED: 2,
   },
 } as const;
 
