@@ -1,6 +1,10 @@
+import { MatchConfigCharacter } from './character-config';
+
 interface MatchConfig {
   mapName: string;
-  playerCount: number;
+  players: {
+    characters: MatchConfigCharacter[];
+  };
 }
 
 export type { MatchConfig };
