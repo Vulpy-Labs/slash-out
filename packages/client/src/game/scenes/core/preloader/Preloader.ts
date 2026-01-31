@@ -1,3 +1,4 @@
+import { MatchConfig } from '@/ecs/components';
 import { Scene } from 'phaser';
 
 export class Preloader extends Scene {
@@ -34,10 +35,13 @@ export class Preloader extends Scene {
     //  For example, you can define global animations here, so we can use them in other scenes.
 
     //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
-
-    this.scene.start('MatchScene', {
-      playerCount: 2,
+    const matchConfig: MatchConfig = {
       mapName: 'canyon',
-    });
+      players: {
+        characters: [{ playerRef: '01', name: 'otomo', skin: 'v1' }],
+      },
+    };
+
+    this.scene.start('MatchScene', matchConfig);
   }
 }

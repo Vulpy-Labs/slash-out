@@ -1,22 +1,4 @@
-import {
-  MatchConfig,
-  InputComponent,
-  KeymapComponent,
-  MovementComponent,
-  VelocityComponent,
-} from '@/ecs/components';
-import { BaseEntity } from '@/ecs/entities';
-
-interface AllComponentsList {
-  matchConfig?: MatchConfig;
-  keymap?: KeymapComponent;
-  input?: InputComponent;
-  movement?: MovementComponent;
-  velocity?: VelocityComponent;
-  sprite?: Phaser.Physics.Matter.Sprite;
-}
-
-interface GlobalEntity extends BaseEntity, AllComponentsList {}
+import { GlobalEntity } from '@/ecs/entities';
 
 type GlobalEntityMap = Map<string, GlobalEntity>;
 

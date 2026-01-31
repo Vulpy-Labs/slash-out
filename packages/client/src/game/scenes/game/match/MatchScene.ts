@@ -4,6 +4,7 @@ import { InputSystem, KeymapSystem, MovementSystem } from '@/ecs/systems';
 import { GlobalEntityMap } from './type.i';
 import { defaultInput, defaultKeymap, defaultMovement } from '@/utils/factories/ecs/components';
 import { CreatePlayerProp } from './type.p';
+import { PlayerEntity } from '@/ecs/entities/player';
 
 export class MatchScene extends Phaser.Scene {
   private matchConfig: MatchConfig;
@@ -76,7 +77,7 @@ export class MatchScene extends Phaser.Scene {
     player.setFixedRotation();
     player.setFriction(0);
 
-    const playerEntity = {
+    const playerEntity: PlayerEntity = {
       entityId: 'player_01',
       keymap: defaultKeymap({ player: '01' }),
       input: defaultInput(),
