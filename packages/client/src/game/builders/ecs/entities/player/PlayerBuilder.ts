@@ -41,7 +41,7 @@ class PlayerBuilder {
       }
 
       characterSprites.forEach(({ isSpritesheet, spriteName }) => {
-        const key = `${character.name}_${spriteName}`;
+        const key = `${character.name}_${spriteName}_${character.skin}`;
         const url = `${this.baseCharacterSpritesPath}/${character.name}/${character.skin}/${spriteName}.png`;
 
         if (this.scene.textures.exists(key)) return;
@@ -86,7 +86,7 @@ class PlayerBuilder {
   }
 
   private createPlayerSprite({ character, frame, options }: CreatePlayerSpriteProp) {
-    const initialSprite = `${character.name}_spr_idle`;
+    const initialSprite = `${character.name}_spr_idle_${character.skin}`;
     const sprite = this.scene.matter.add.sprite(
       this.tempSpawnPoints.x,
       this.tempSpawnPoints.y,
