@@ -1,3 +1,3 @@
-const possibleActions = ['left', 'right', 'up', 'down', 'jump', 'dash', 'sword', 'gun'] as const;
+const POSSIBLE_ACTIONS = ['left', 'right', 'up', 'down', 'jump', 'dash', 'sword', 'gun'] as const;
 
-export { possibleActions };
+export { POSSIBLE_ACTIONS };

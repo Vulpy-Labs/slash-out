@@ -1,9 +1,9 @@
 import { KeymapComponent } from '@/ecs/components';
 import { DefaultKeymapProp } from './type.p';
-import { PossibleActions, possibleActions } from '@/config/constants';
+import { PossibleActions, POSSIBLE_ACTIONS } from '@/config/constants';
 
 const defaultListeners = () => {
-  return possibleActions.reduce(
+  return POSSIBLE_ACTIONS.reduce(
     (obj, actionString) => {
       obj[actionString as PossibleActions] = null;
 
