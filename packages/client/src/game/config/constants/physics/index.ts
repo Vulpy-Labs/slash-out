@@ -1,1 +1,1 @@
-export * from './physics-constant';
+export * from './physics';

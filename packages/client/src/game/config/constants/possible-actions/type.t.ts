@@ -1,4 +1,4 @@
-import { POSSIBLE_ACTIONS } from './PossibleActions';
+import { POSSIBLE_ACTIONS } from './possibleActions';
 
 type PossibleActions = (typeof POSSIBLE_ACTIONS)[number];
 
