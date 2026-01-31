@@ -1,4 +1,4 @@
-const PLAYER_MOVEMENT_CONSTANT = {
+const PLAYER_MOVEMENT = {
   AIR: {
     FRICTION: 0.05,
     SPEED: 5,
@@ -9,4 +9,4 @@ const PLAYER_MOVEMENT_CONSTANT = {
   },
 } as const;
 
-export { PLAYER_MOVEMENT_CONSTANT };
+export { PLAYER_MOVEMENT };
