@@ -53,11 +53,11 @@ jobs:
               pull_number: prNumber
             });
             
-            const previewSection = `\n\n---\n\n🚀 **Preview Ready:**\n🔗 ${previewUrl}`;
+            const previewSection = `\n\n---\n\n🚀 | **Preview Ready:** [View Preview](${previewUrl})`;
             const currentBody = pr.body || '';
             
             // Remove old preview section if it exists
-            const updatedBody = currentBody.replace(/\n\n---\n\n🚀 \*\*Preview Ready:\*\*\n🔗 https:\/\/vulpy-labs\.github\.io\/slash-out\/preview\/pr-\d+\//, '');
+            const updatedBody = currentBody.replace(/\n\n---\n\n🚀 | \*\*Preview Ready:\*\*.+/, '');
             
             await github.rest.pulls.update({
               owner: context.repo.owner,
