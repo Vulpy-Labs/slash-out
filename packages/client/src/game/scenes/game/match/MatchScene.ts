@@ -2,7 +2,7 @@ import { MapBuilder } from '@/maps/builder';
 import { MatchConfig } from '@/ecs/components';
 import { InputSystem, KeymapSystem, MovementSystem } from '@/ecs/systems';
 import { GlobalEntityMap } from './type.i';
-import { PlayerBuilder } from '@/builders/ecs/entities';
+import { PlayerBuilder } from '@/builders';
 export class MatchScene extends Phaser.Scene {
   private matchConfig: MatchConfig;
 
