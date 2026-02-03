@@ -1,10 +1,10 @@
-import { PLAYER_MOVEMENT_CONSTANT } from '@/config/constants';
+import { PLAYER_MOVEMENT } from '@/config/constants';
 import { MovementComponent } from '@/ecs/components';
 import { DefaultMovementProp } from './type.p';
 
 function defaultMovement({ entityType }: DefaultMovementProp): MovementComponent {
   const MOVEMENT_CONSTANT = {
-    player: PLAYER_MOVEMENT_CONSTANT,
+    player: PLAYER_MOVEMENT,
   };
 
   return {
