@@ -1,2 +1,2 @@
-export * from './PossibleActions';
+export * from './possibleActions';
 export * from './type.t';

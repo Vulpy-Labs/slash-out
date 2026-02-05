@@ -1,9 +1,9 @@
-import { PlayerEntity } from '@/ecs/entities/player';
-import { CreatePlayerSpriteProp, MountPlayerEntityProp, PlayerBuilderProp } from './types.p';
-import { defaultInput, defaultKeymap, defaultMovement } from '@/utils/factories/ecs/components';
 import { CHARACTERS_SPRITES_MODEL, DEPTH, PLAYER_DIMENSIONS } from '@/config/constants';
-import { MatchConfig } from '@/ecs/components';
+import { defaultInput, defaultKeymap, defaultMovement } from '@/utils/factories/ecs/components';
 import { GlobalEntityMap } from '@/scenes/game';
+import { PlayerEntity } from '@/ecs/entities';
+import { MatchConfig } from '@/ecs/components';
+import { CreatePlayerSpriteProp, MountPlayerEntityProp, PlayerBuilderProp } from './types.p';
 
 class PlayerBuilder {
   private scene: Phaser.Scene;

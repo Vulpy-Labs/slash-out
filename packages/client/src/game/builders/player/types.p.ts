@@ -1,7 +1,6 @@
 import { GlobalEntityMap } from '@/scenes/game';
-import { MatchConfig } from '@/ecs/components';
+import { MatchConfig, MatchConfigCharacter } from '@/ecs/components';
 import { BaseEntity } from '@/ecs/entities';
-import { MatchConfigCharacter } from '@/ecs/components/match/character-config';
 
 type PlayerBuilderProp = {
   scene: Phaser.Scene;

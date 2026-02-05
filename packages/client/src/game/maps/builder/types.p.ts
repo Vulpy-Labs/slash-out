@@ -15,6 +15,8 @@ type SetLayerDepthProp = {
 
 type DepthMapping = Record<string, number>;
 
+type MapSpawnPoint = { x: number; y: number };
+
 type MapCustomProperties = Record<string, string | number | boolean | undefined>;
 
 export type {
@@ -22,5 +24,6 @@ export type {
   SetLayerDepthProp,
   CreateMapLayerProp,
   MapCustomProperties,
+  MapSpawnPoint,
   DepthMapping,
 };
