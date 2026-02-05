@@ -2,16 +2,14 @@ import { MapBuilder } from '@/maps/builder';
 import { MatchConfig } from '@/ecs/components';
 import { InputSystem, KeymapSystem, MovementSystem } from '@/ecs/systems';
 import { GlobalEntityMap } from './type.i';
-import { defaultInput, defaultKeymap, defaultMovement } from '@/utils/factories/ecs/components';
-import { CreatePlayerProp } from './type.p';
-import { PlayerEntity } from '@/ecs/entities/player';
-
+import { PlayerBuilder } from '@/builders';
 export class MatchScene extends Phaser.Scene {
   private matchConfig: MatchConfig;
 
   private entities: GlobalEntityMap = new Map();
 
   private mapBuilder: MapBuilder;
+  private playerBuilder: PlayerBuilder;
 
   private keymapSystem: KeymapSystem;
   private inputSystem: InputSystem;
@@ -40,23 +38,21 @@ export class MatchScene extends Phaser.Scene {
 
   initializeBuilders() {
     this.mapBuilder = new MapBuilder({ scene: this, mapName: this.matchConfig.mapName });
+    this.playerBuilder = new PlayerBuilder({
+      scene: this,
+      matchConfig: this.matchConfig,
+      entities: this.entities,
+    });
   }
 
   preload() {
-    this.loadPlayerAssets();
     this.mapBuilder.load();
-  }
-
-  loadPlayerAssets() {
-    this.load.image({
-      key: 'otomo_idle',
-      url: '/assets/sprites/characters/otomo/v1/spr_idle.png',
-    });
+    this.playerBuilder.load();
   }
 
   create() {
     this.createMap();
-    this.createECS();
+    this.createPlayers();
     this.createKeyboardInputs();
   }
 
@@ -64,28 +60,8 @@ export class MatchScene extends Phaser.Scene {
     this.mapBuilder.build();
   }
 
-  createECS() {
-    this.createEntities();
-  }
-
-  createEntities() {
-    this.createPlayer({ x: 100, y: 100 });
-  }
-
-  createPlayer({ x, y }: CreatePlayerProp) {
-    const player = this.matter.add.sprite(x, y, 'otomo_idle', undefined);
-    player.setFixedRotation();
-    player.setFriction(0);
-
-    const playerEntity: PlayerEntity = {
-      entityId: 'player_01',
-      keymap: defaultKeymap({ player: '01' }),
-      input: defaultInput(),
-      movement: defaultMovement({ entityType: 'player' }),
-      sprite: player,
-    };
-
-    this.entities.set(playerEntity.entityId, playerEntity);
+  createPlayers() {
+    this.playerBuilder.build();
   }
 
   createKeyboardInputs() {
