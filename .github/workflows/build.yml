@@ -1,0 +1,17 @@
+name: Build Client
+
+on: [pull_request, push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: cd packages/client && npm install
+
+      - name: EsLint Validation
+        run: cd packages/client && npm run lint
