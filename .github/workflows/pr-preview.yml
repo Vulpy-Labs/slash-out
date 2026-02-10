@@ -54,16 +54,19 @@ jobs:
     needs: prepare-client
 
     steps:
-      - name: Access Branch Code
-        uses: actions/checkout@v4
-
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           artifact-ids: ${{needs.prepare-client.outputs.artifact-id}}
 
+      - name: List Artifact's Content (before)
+        run: ls -lh
+
       - name: Extract Artifact
+        run: tar xvf artifact.tar
+
+      - name: List Artifact's Content (after)
         run: ls -lh
 
       - name: Deploy Client To GitHub Pages
