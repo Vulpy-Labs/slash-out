@@ -29,6 +29,8 @@ jobs:
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v4
+        with:
+          path: /dist
 
   deploy-client:
     runs-on: ubuntu-latest
