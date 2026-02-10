@@ -52,5 +52,5 @@ jobs:
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
           publish_branch: gh-pages
-          publish_dir: preview
-          destination_dir: pr-${{github.event.pull_request.number}}
+          publish_dir: ./packages/client/dist
+          destination_dir: preview/pr-${{github.event.pull_request.number}}
