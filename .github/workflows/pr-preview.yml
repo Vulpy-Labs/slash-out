@@ -10,6 +10,9 @@ jobs:
   prepare-client:
     runs-on: ubuntu-22.04
 
+    outputs:
+      artifact-id: ${{steps.upload-artifact.outputs.artifact_id}}
+
     steps:
       - name: Access Branch Code
         uses: actions/checkout@v6
@@ -32,6 +35,7 @@ jobs:
           echo "PR Number = ${{github.event.pull_request.number}}"
 
       - name: Upload Static Files As Artifact
+        id: upload-artifact
         uses: actions/upload-pages-artifact@v4
         with:
           # upload-pages-artifact doesn't automatically access the predifined default working directory (line 7).
@@ -57,7 +61,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
-          name: "preview-${{github.event.pull_request.number}}"
+          artifact-ids: ${{needs.prepare-client.outputs.artifact-id}}
 
       - name: Deploy Client To GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
