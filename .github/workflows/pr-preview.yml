@@ -38,6 +38,7 @@ jobs:
           # That's why I'm using the full path below.
           # Ref: https://github.com/actions/upload-artifact/issues/232
           path: packages/client/dist
+          name: "preview-${{github.event.pull_request.number}}"
 
   deploy-client:
     runs-on: ubuntu-22.04
@@ -51,6 +52,12 @@ jobs:
     steps:
       - name: Access Branch Code
         uses: actions/checkout@v4
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          name: "preview-${{github.event.pull_request.number}}"
 
       - name: Deploy Client To GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
