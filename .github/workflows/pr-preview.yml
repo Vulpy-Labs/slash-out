@@ -63,6 +63,9 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           artifact-ids: ${{needs.prepare-client.outputs.artifact-id}}
 
+      - name: Extract Artifact
+        run: ls -lh
+
       - name: Deploy Client To GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
