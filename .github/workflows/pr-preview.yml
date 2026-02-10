@@ -2,10 +2,6 @@ name: Client - Deploy To GitHub Pages
 
 on: pull_request
 
-defaults:
-  run:
-    working-directory: packages/client
-
 jobs:
   prepare-client:
     runs-on: ubuntu-22.04
@@ -24,6 +20,7 @@ jobs:
 
       - name: Build Static Files
         run: |
+          cd packages/client
           npm ci
           npm run build
 
