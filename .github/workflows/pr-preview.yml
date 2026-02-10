@@ -50,6 +50,7 @@ jobs:
         id: page_deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
           publish_branch: gh-pages
           publish_dir: preview
           destination_dir: pr-${{github.event.pull_request.number}}
