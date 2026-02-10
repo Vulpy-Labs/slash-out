@@ -1,0 +1,38 @@
+name: Deploy Client - GitHub Pages
+
+on: pull_request
+
+jobs:
+  prepare-client:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build
+        run: cd packages/client && npm run build
+
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v4
+
+  deploy-client:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: $${{steps.deployment.outputs.page_urll}}
+
+    needs: prepare-client
+
+    steps:
+      - name: Deploy Client To GitHub Pages
+        uses: actions/deploy-pages@v4
