@@ -59,18 +59,16 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           artifact-ids: ${{needs.prepare-client.outputs.artifact-id}}
+          path: ./
 
       - name: List Artifact's Content (before)
-        run: |
-          ls -la
-          echo 'na pasta'
-          cd ${{env.ARTIFACT_NAME}}
-          ls -la
+        run: ls -R
 
-      - name: Extract Artifact
-        run: |
-          cd ${{env.ARTIFACT_NAME}}
-          tar xvf artifact.tar
+      # - name: Extract Artifact
+      #   run: |
+      #     cd ${{env.ARTIFACT_NAME}}
+      #     tar xvf artifact.tar
+
       - name: List Artifact's Content (after)
         run: ls -lh
 
