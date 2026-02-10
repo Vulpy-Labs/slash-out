@@ -62,8 +62,9 @@ jobs:
 
       - name: List Artifact's Content (before)
         run: |
-          ls -lh
-          ls -ls
+          ls -la
+          echo 'na pasta'
+          cd ${{env.ARTIFACT_NAME}}
           ls -la
 
       - name: Extract Artifact
