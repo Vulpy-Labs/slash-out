@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout Branch
+      - name: Access Branch Code
         uses: actions/checkout@v6
 
       - name: Setup Node.js
@@ -49,8 +49,10 @@ jobs:
     needs: prepare-client
 
     steps:
+      - name: Access Branch Code
+        uses: actions/checkout@v4
+
       - name: Deploy Client To GitHub Pages
-        id: page_deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
