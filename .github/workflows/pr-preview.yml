@@ -24,6 +24,11 @@ jobs:
           npm ci
           npm run build
 
+      - name: Check Values
+        run: |
+          echo "PR Number = ${{github.event.pull_request.number}}"
+          echo "Branch Name = ${{github.base_ref}}"
+
       - name: Upload Static Files As Artifact
         uses: actions/upload-pages-artifact@v4
         with:
@@ -46,10 +51,6 @@ jobs:
     needs: prepare-client
 
     steps:
-      - name: Check Values
-        run: |
-          echo "PR Number = ${{github.event.pull_request.number}}"
-          echo "Branch Name = ${{github.base_ref}}"
       - name: Deploy Client To GitHub Pages
         id: page_deploy
         uses: peaceiris/actions-gh-pages@v4
