@@ -64,13 +64,13 @@ jobs:
       - name: List Artifact's Content (before)
         run: ls -R
 
-      # - name: Extract Artifact
-      #   run: |
-      #     cd ${{env.ARTIFACT_NAME}}
-      #     tar xvf artifact.tar
+      - name: Extract Artifact
+        run: |
+          tar xvf ${{env.ARTIFACT_NAME}}/artifact.tar -C ./
+          rm -rf ${{env.ARTIFACT_NAME}}
 
       - name: List Artifact's Content (after)
-        run: ls -lh
+        run: ls -R
 
       - name: Deploy Client To GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
