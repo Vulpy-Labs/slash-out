@@ -18,5 +18,8 @@ jobs:
       - name: Install Dependencies
         run: cd packages/client && npm install
 
+  validate-eslint:
+    runs-on: ubuntu-latest
+    steps:
       - name: EsLint Validation
         run: cd packages/client && npm run lint
