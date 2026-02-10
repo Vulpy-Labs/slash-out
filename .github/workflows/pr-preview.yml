@@ -46,6 +46,10 @@ jobs:
     needs: prepare-client
 
     steps:
+      - name: Check Values
+        run: |
+          echo "PR Number = ${{github.event.pull_request.number}}"
+          echo "Branch Name = ${{github.base_ref}}"
       - name: Deploy Client To GitHub Pages
         id: page_deploy
         uses: peaceiris/actions-gh-pages@v4
