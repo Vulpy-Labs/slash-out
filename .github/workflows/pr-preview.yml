@@ -31,6 +31,12 @@ jobs:
       - name: Build the project
         run: npm run build
 
+      - name: Check Values
+        run: |
+          echo "Ref: ${{github.ref}}"
+          echo "Base Ref: ${{github.base_ref}}"
+          echo "Head Ref: ${{github.head_ref}}"
+
       - name: Deploy to GitHub Pages (PR Preview)
         uses: peaceiris/actions-gh-pages@v3
         with:
