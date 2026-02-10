@@ -1,9 +1,13 @@
-name: Build Client
+name: Client - Validate EsLint
 
 on: pull_request
 
+defaults:
+  run:
+    working-directory: packages/client
+
 jobs:
-  build-client:
+  validate-eslint:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,10 +20,7 @@ jobs:
           node-version: 22
 
       - name: Install Dependencies
-        run: cd packages/client && npm install
+        run: npm install
 
-  validate-eslint:
-    runs-on: ubuntu-latest
-    steps:
       - name: EsLint Validation
-        run: cd packages/client && npm run lint
+        run: npm run lint
