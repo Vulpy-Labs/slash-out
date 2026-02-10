@@ -1,6 +1,10 @@
-name: Deploy Client - GitHub Pages
+name: Client - Deploy To GitHub Pages
 
 on: pull_request
+
+defaults:
+  run:
+    working-directory: packages/client
 
 jobs:
   prepare-client:
@@ -20,7 +24,6 @@ jobs:
 
       - name: Build
         run: |
-          cd packages/client
           npm i
           npm run build
 
