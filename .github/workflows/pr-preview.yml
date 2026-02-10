@@ -8,7 +8,7 @@ defaults:
 
 jobs:
   prepare-client:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Branch
@@ -36,11 +36,11 @@ jobs:
           path: packages/client/dist
 
   deploy-client:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     environment:
       name: github-pages
-      url: $${{steps.page_deploy.outputs.page_url}}
+      url: ${{steps.page_deploy.outputs.page_url}}
 
     permissions:
       pages: write
@@ -51,6 +51,8 @@ jobs:
     steps:
       - name: Deploy Client To GitHub Pages
         id: page_deploy
-        uses: actions/deploy-pages@v4
-        # with:
-        #   preview: true
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          publish_branch: gh-pages
+          publish_dir: preview
+          destination_dir: pr-${{github.event.pull_request.number}}
