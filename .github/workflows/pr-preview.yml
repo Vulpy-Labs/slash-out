@@ -58,10 +58,13 @@ jobs:
           artifact-ids: ${{needs.prepare-client.outputs.artifact-id}}
 
       - name: List Artifact's Content (before)
-        run: ls -lh
+        run: |
+          ls -lh
+          ls -ls
+          ls -la
 
       - name: Extract Artifact
-        run: tar xvf artifact.tar
+        run: tar xvf preview-${{github.event.pull_request.number}}.tar
 
       - name: List Artifact's Content (after)
         run: ls -lh
