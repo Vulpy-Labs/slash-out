@@ -1,6 +1,6 @@
 import { PlayerBuilder, MapBuilder } from '@/builders';
 import { MatchConfig } from '@/ecs/components';
-import { InputSystem, KeymapSystem, MovementSystem } from '@/ecs/systems';
+import { AnimationSystem, InputSystem, KeymapSystem, MovementSystem } from '@/ecs/systems';
 import { GlobalEntityMap } from './type.i';
 
 export class MatchScene extends Phaser.Scene {
@@ -14,6 +14,7 @@ export class MatchScene extends Phaser.Scene {
   private keymapSystem: KeymapSystem;
   private inputSystem: InputSystem;
   private movementSystem: MovementSystem;
+  private animationSystem: AnimationSystem;
 
   constructor() {
     super('MatchScene');
@@ -34,6 +35,7 @@ export class MatchScene extends Phaser.Scene {
     this.keymapSystem = new KeymapSystem({ scene: this });
     this.inputSystem = new InputSystem({ scene: this });
     this.movementSystem = new MovementSystem({ scene: this });
+    this.animationSystem = new AnimationSystem({ scene: this });
   }
 
   initializeBuilders() {
@@ -54,6 +56,7 @@ export class MatchScene extends Phaser.Scene {
     this.createMap();
     this.createPlayers();
     this.createKeyboardInputs();
+    this.createAnimations();
   }
 
   createMap() {
@@ -68,8 +71,13 @@ export class MatchScene extends Phaser.Scene {
     this.keymapSystem.createPhaserListeners({ entities: this.entities });
   }
 
+  createAnimations() {
+    this.animationSystem.create({ entities: this.entities });
+  }
+
   update() {
     this.inputSystem.update({ entities: this.entities });
     this.movementSystem.update({ entities: this.entities });
+    this.animationSystem.update({ entities: this.entities });
   }
 }
