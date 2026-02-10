@@ -2,6 +2,9 @@ name: Client - Deploy To GitHub Pages
 
 on: pull_request
 
+env:
+  ARTIFACT_NAME: artifact-preview-${{github.event.pull_request.number}}
+
 jobs:
   prepare-client:
     runs-on: ubuntu-22.04
@@ -39,7 +42,7 @@ jobs:
           # That's why I'm using the full path below.
           # Ref: https://github.com/actions/upload-artifact/issues/232
           path: packages/client/dist
-          name: "preview-${{github.event.pull_request.number}}"
+          name: ${{env.ARTIFACT_NAME}}
 
   deploy-client:
     runs-on: ubuntu-22.04
@@ -64,8 +67,7 @@ jobs:
           ls -la
 
       - name: Extract Artifact
-        run: tar xvf preview-${{github.event.pull_request.number}}.tar
-
+        run: tar xvf ${{env.ARTIFACT_NAME}}
       - name: List Artifact's Content (after)
         run: ls -lh
 
