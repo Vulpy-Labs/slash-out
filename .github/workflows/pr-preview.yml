@@ -29,6 +29,7 @@ jobs:
           echo "Ref = ${{github.ref}}"
           echo "Base Ref = ${{github.base_ref}}"
           echo "Head Ref = ${{github.head_ref}}"
+          echo "PR Number = ${{github.event.pull_request.number}}"
 
       - name: Upload Static Files As Artifact
         uses: actions/upload-pages-artifact@v4
@@ -56,3 +57,6 @@ jobs:
           publish_branch: gh-pages
           publish_dir: ./packages/client/dist
           destination_dir: preview/pr-${{github.event.pull_request.number}}
+
+      - name: Publish Link
+        run: echo "Link = https://vulpy-labs.github.io/slash-out/preview/pr-${{github.event.pull_request.number}}"
