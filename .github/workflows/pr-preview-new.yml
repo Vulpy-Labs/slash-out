@@ -19,7 +19,10 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Build
-        run: cd packages/client && npm run build
+        run: |
+          cd packages/client
+          npm i
+          npm run build
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v4
