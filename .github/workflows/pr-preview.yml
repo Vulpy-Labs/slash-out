@@ -26,7 +26,7 @@ jobs:
 
       - name: Check Values
         run: |
-          echo "PR Number = ${{github.event.pull_request.number}}"
+          echo "Ref = ${{github.ref}}"
           echo "Base Ref = ${{github.base_ref}}"
           echo "Head Ref = ${{github.head_ref}}"
 
