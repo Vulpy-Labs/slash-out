@@ -68,7 +68,9 @@ jobs:
           ls -la
 
       - name: Extract Artifact
-        run: tar xvf ${{env.ARTIFACT_NAME}}
+        run: |
+          cd ${{env.ARTIFACT_NAME}}
+          tar xvf artifact.tar
       - name: List Artifact's Content (after)
         run: ls -lh
 
