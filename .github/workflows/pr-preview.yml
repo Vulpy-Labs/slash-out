@@ -78,5 +78,37 @@ jobs:
           publish_dir: ./
           destination_dir: preview/pr-${{github.event.pull_request.number}}
 
-      - name: Publish Link
+      - name: Output Link
         run: echo "Link = ${{env.BASE_URL}}/pr-${{github.event.pull_request.number}}"
+
+  publish-link:
+    runs-on: ubuntu-22.04
+
+    needs: deploy-client
+
+    steps:
+      - name: Publish Link
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const previewUrl = `https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}/`;
+            const previewSection = `\n\n---\n🚀 **Preview:** ${previewUrl}`;
+
+            const body = pr.data.body || '';
+            const newBody = body.includes('🚀 **Preview:**') 
+              ? body.replace(/🚀 \*\*Preview:\*\*.+/, `🚀 **Preview:** ${previewUrl}`)
+              : body + previewSection;
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body: newBody
+            });
