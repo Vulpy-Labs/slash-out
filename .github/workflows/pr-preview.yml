@@ -98,12 +98,12 @@ jobs:
               pull_number: context.issue.number
             });
 
-            const previewUrl = `${{env.BASE_URL}}/pr-${{ github.event.pull_request.number }}/`;
-            const previewSection = `\n\n---\n🚀 **Preview:** ${previewUrl}`;
+            const previewUrl = `${{env.BASE_URL}}/pr-${{ github.event.pull_request.number }}`;
+            const previewSection = `\n\n---\n🔗 | **[Click to See The Preview](${previewUrl})**`;
 
             const body = pr.data.body || '';
-            const newBody = body.includes('🚀 **Preview:**') 
-              ? body.replace(/🚀 \*\*Preview:\*\*.+/, `🚀 **Preview:** ${previewUrl}`)
+            const newBody = body.includes('🔗 | **[Click to See The Preview]') 
+              ? body.replace(/🔗 \| \*\*\[Click to See The Preview\]\([^)]+\)\*\*/, `🔗 | **[Click to See The Preview](${previewUrl})**`)
               : body + previewSection;
 
             await github.rest.pulls.update({
