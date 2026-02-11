@@ -4,6 +4,7 @@ on: pull_request
 
 env:
   ARTIFACT_NAME: artifact-preview-${{github.event.pull_request.number}}
+  BASE_LINK: https://vulpy-labs.github.io/slash-out/preview
 
 jobs:
   prepare-client:
@@ -63,8 +64,8 @@ jobs:
 
       - name: Extract Artifact
         run: |
-          tar xvf ${{env.ARTIFACT_NAME}}/artifact.tar -C ./
-          rm -rf ${{env.ARTIFACT_NAME}}
+          tar xvf artifact.tar -C ./
+          rm -rf artifact.tar
 
       - name: List Artifact's Content (after)
         run: ls -R
@@ -78,4 +79,4 @@ jobs:
           destination_dir: preview/pr-${{github.event.pull_request.number}}
 
       - name: Publish Link
-        run: echo "Link = https://vulpy-labs.github.io/slash-out/preview/pr-${{github.event.pull_request.number}}"
+        run: echo "Link = ${{env.BASE_LINK}}/pr-${{github.event.pull_request.number}}"
