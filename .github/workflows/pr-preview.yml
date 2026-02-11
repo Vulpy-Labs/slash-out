@@ -4,7 +4,7 @@ on: pull_request
 
 env:
   ARTIFACT_NAME: artifact-preview-${{github.event.pull_request.number}}
-  BASE_LINK: https://vulpy-labs.github.io/slash-out/preview
+  BASE_URL: https://vulpy-labs.github.io/slash-out/preview
 
 jobs:
   prepare-client:
@@ -79,4 +79,4 @@ jobs:
           destination_dir: preview/pr-${{github.event.pull_request.number}}
 
       - name: Publish Link
-        run: echo "Link = ${{env.BASE_LINK}}/pr-${{github.event.pull_request.number}}"
+        run: echo "Link = ${{env.BASE_URL}}/pr-${{github.event.pull_request.number}}"
