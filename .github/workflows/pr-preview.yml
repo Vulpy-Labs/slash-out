@@ -9,9 +9,6 @@ jobs:
   prepare-client:
     runs-on: ubuntu-22.04
 
-    outputs:
-      artifact-id: ${{steps.upload-artifact.outputs.artifact_id}}
-
     steps:
       - name: Access Branch Code
         uses: actions/checkout@v6
@@ -58,7 +55,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
-          artifact-ids: ${{needs.prepare-client.outputs.artifact-id}}
+          name: ${{env.ARTIFACT_NAME}}
           path: ./
 
       - name: List Artifact's Content (before)
