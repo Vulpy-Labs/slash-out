@@ -1,4 +1,5 @@
 import {
+  AnimationComponent,
   CharacterComponent,
   InputComponent,
   KeymapComponent,
@@ -11,6 +12,8 @@ interface PlayerEntity extends BaseEntity {
   input: InputComponent;
   movement: MovementComponent;
   character: CharacterComponent;
+  animation: AnimationComponent;
+  sprite: Phaser.Physics.Matter.Sprite;
 }
 
 export type { PlayerEntity };

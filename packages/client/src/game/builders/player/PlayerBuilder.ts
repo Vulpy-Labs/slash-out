@@ -104,10 +104,10 @@ class PlayerBuilder {
   private mountPlayerEntity({ entityId, character, sprite }: MountPlayerEntityProp): PlayerEntity {
     return {
       entityId,
+      sprite,
       character: {
         name: character.name,
         skin: character.skin,
-        sprite: sprite,
       },
       keymap: defaultKeymap({ player: character.playerRef }),
       input: defaultInput(),

@@ -8,23 +8,23 @@ class MovementSystem {
   }
 
   update({ entities }: MovementSystemUpdateProp) {
-    entities.forEach(({ input, movement, character }) => {
-      if (!input || !movement || !character?.sprite?.body) return;
+    entities.forEach(({ input, movement, sprite }) => {
+      if (!input || !movement || !sprite?.body) return;
 
       const wantsToMoveHorizontally = input.left || input.right;
       const wantsToJump = input.jump;
 
       let vx = 0;
-      let vy = character.sprite.body.velocity.y;
+      let vy = sprite.body.velocity.y;
 
       if (wantsToMoveHorizontally) {
         if (input.left) {
           vx = -movement.ground.speed;
-          character.sprite.setFlipX(true);
+          sprite.setFlipX(true);
         }
         if (input.right) {
           vx = movement.ground.speed;
-          character.sprite.setFlipX(false);
+          sprite.setFlipX(false);
         }
       }
 
@@ -32,7 +32,7 @@ class MovementSystem {
         vy = -movement.air.speed;
       }
 
-      this.scene.matter.body.setVelocity(character.sprite.body as MatterJS.BodyType, {
+      this.scene.matter.body.setVelocity(sprite.body as MatterJS.BodyType, {
         x: vx,
         y: vy,
       });
