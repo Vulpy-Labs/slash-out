@@ -1,5 +1,12 @@
 import { CHARACTERS_SPRITES_MODEL, DEPTH, PLAYER_DIMENSIONS } from '@/config/constants';
-import { defaultInput, defaultKeymap, defaultMovement } from '@/utils/factories/ecs/components';
+
+import {
+  defaultInput,
+  defaultKeymap,
+  defaultMovement,
+  defaultPlayerAnimation,
+} from '@/utils/factories/ecs/components';
+
 import { GlobalEntityMap } from '@/scenes/game';
 import { PlayerEntity } from '@/ecs/entities';
 import { MatchConfig } from '@/ecs/components';
@@ -102,9 +109,10 @@ class PlayerBuilder {
         name: character.name,
         skin: character.skin,
       },
-      keymap: defaultKeymap({ player: character.playerRef }),
       input: defaultInput(),
+      animation: defaultPlayerAnimation({ character }),
       movement: defaultMovement({ entityType: 'player' }),
+      keymap: defaultKeymap({ player: character.playerRef }),
     };
   }
 }
