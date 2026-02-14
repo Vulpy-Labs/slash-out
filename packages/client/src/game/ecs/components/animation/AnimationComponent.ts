@@ -1,3 +1,7 @@
+import { CharacterState } from '@/config/constants';
+
+type AnimationState = CharacterState;
+
 type Animation = {
   key: string;
   end: number;
@@ -5,12 +9,12 @@ type Animation = {
   repeat: boolean;
   frameRate: number;
   frames?: Phaser.Types.Animations.AnimationFrame[];
-}
+};
 
 interface AnimationComponent {
-  flipX: boolean;
-  currentState: string;
-  animations: Record<string, Animation>;
+  flipX: boolean | null;
+  currentState: AnimationState;
+  animations: Partial<Record<AnimationState, Animation>>;
 }
 
 export type { AnimationComponent };
