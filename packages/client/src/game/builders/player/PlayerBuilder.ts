@@ -40,22 +40,15 @@ class PlayerBuilder {
         throw new Error(`Sprite model not found for character: ${character.name}`);
       }
 
-      characterSprites.forEach(({ isSpritesheet, spriteName }) => {
+      characterSprites.forEach(({ spriteName }) => {
         const key = `${character.name}_${spriteName}_${character.skin}`;
         const url = `${this.baseCharacterSpritesPath}/${character.name}/${character.skin}/${spriteName}.png`;
 
         if (this.scene.textures.exists(key)) return;
 
-        if (isSpritesheet) {
-          return this.scene.load.spritesheet(key, url, {
-            frameWidth: PLAYER_DIMENSIONS.WIDTH,
-            frameHeight: PLAYER_DIMENSIONS.HEIGHT,
-          });
-        }
-
-        return this.scene.load.image({
-          key,
-          url,
+        return this.scene.load.spritesheet(key, url, {
+          frameWidth: PLAYER_DIMENSIONS.WIDTH,
+          frameHeight: PLAYER_DIMENSIONS.HEIGHT,
         });
       });
     });
