@@ -1,8 +1,8 @@
-import { possibleActions } from '@/config/constants';
+import { POSSIBLE_ACTIONS } from '@/config/constants';
 import { InputComponent } from '@/ecs/components';
 
 function defaultInput(): InputComponent {
-  return possibleActions.reduce((defaultInput, actionString) => {
+  return POSSIBLE_ACTIONS.reduce((defaultInput, actionString) => {
     defaultInput[actionString] = false;
 
     return defaultInput;

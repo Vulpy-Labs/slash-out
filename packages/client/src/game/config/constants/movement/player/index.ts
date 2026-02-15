@@ -1,1 +1,1 @@
-export * from './player-movement-constant';
+export * from './playerMovement';
