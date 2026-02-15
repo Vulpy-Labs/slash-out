@@ -31,20 +31,6 @@ jobs:
           npm ci
           npm run build
 
-      - name: Check Values
-        run: |
-          echo "Ref = ${{github.ref}}"
-          echo "Base Ref = ${{github.base_ref}}"
-          echo "Head Ref = ${{github.head_ref}}"
-          echo "PR Number = ${{github.event.pull_request.number}}"
-
-      - name: List Client's Content (after)
-        run: |
-          echo "Contents of packages/client:"
-          ls -la
-          echo "Looking for dist folder:"
-          find . -name "dist" -type d
-
       - name: Deploy to GitHub Pages (PR Preview)
         uses: peaceiris/actions-gh-pages@v3
         with:
