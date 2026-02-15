@@ -1,4 +1,4 @@
-name: Client - Deploy To GitHub Pages
+name: Deploy PR Preview
 
 on: pull_request
 
@@ -18,11 +18,11 @@ jobs:
       contents: write
 
     steps:
-      - name: Access Branch Code
-        uses: actions/checkout@v6
+      - name: Checkout PR code
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: 22
 
@@ -45,10 +45,10 @@ jobs:
           echo "Looking for dist folder:"
           find . -name "dist" -type d
 
-      - name: Deploy Client To GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Deploy to GitHub Pages (PR Preview)
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./packages/client/dist
           destination_dir: preview/pr-${{github.event.pull_request.number}}
@@ -78,8 +78,6 @@ jobs:
 
             const body = pr.data.body || '';
             const doesPreviewLinkExists = body.includes(`↗️ | **[Click to See The Preview](${previewUrl})**`);
-
-            console.log('doesPreviewLinkExists', doesPreviewLinkExists);
 
             if (!doesPreviewLinkExists) {
               await github.rest.pulls.update({
