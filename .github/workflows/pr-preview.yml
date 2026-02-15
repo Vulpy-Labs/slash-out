@@ -104,6 +104,8 @@ jobs:
             const body = pr.data.body || '';
             const doesPreviewLinkExists = body.includes('↗️ | **[Click to See The Preview](${previewUrl})**');
 
+            console.log('doesPreviewLinkExists', doesPreviewLinkExists);
+
             if (!doesPreviewLinkExists) {
               await github.rest.pulls.update({
                 owner: context.repo.owner,
