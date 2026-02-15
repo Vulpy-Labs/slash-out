@@ -1,82 +1,49 @@
-name: Client - Deploy To GitHub Pages
+name: Deploy PR Preview
 
-on: pull_request
-
-env:
-  ARTIFACT_NAME: artifact-preview-${{github.event.pull_request.number}}
-  BASE_LINK: https://vulpy-labs.github.io/slash-out/preview
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
-  prepare-client:
-    runs-on: ubuntu-22.04
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./packages/client
 
     steps:
-      - name: Access Branch Code
-        uses: actions/checkout@v6
+      - name: Checkout PR code
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: 22
 
-      - name: Build Static Files
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Inject PR environment variables
         run: |
-          cd packages/client
-          npm ci
-          npm run build
+          echo "PR_PREVIEW=true" >> $GITHUB_ENV
+          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
 
-      - name: Check Values
-        run: |
-          echo "Ref = ${{github.ref}}"
-          echo "Base Ref = ${{github.base_ref}}"
-          echo "Head Ref = ${{github.head_ref}}"
-          echo "PR Number = ${{github.event.pull_request.number}}"
+      - name: Build the project
+        run: npm run build
 
-      - name: Upload Static Files As Artifact
-        id: upload-artifact
-        uses: actions/upload-pages-artifact@v4
+      - name: Deploy to GitHub Pages (PR Preview)
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          # upload-pages-artifact doesn't automatically access the predifined default working directory (line 7).
-          # That's why I'm using the full path below.
-          # Ref: https://github.com/actions/upload-artifact/issues/232
-          path: packages/client/dist
-          name: ${{env.ARTIFACT_NAME}}
-
-  deploy-client:
-    runs-on: ubuntu-22.04
-
-    permissions:
-      pages: write
-      contents: write
-
-    needs: prepare-client
-
-    steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          name: ${{env.ARTIFACT_NAME}}
-          path: ./
-
-      - name: List Artifact's Content (before)
-        run: ls -R
-
-      - name: Extract Artifact
-        run: |
-          tar xvf artifact.tar -C ./
-          rm -rf artifact.tar
-
-      - name: List Artifact's Content (after)
-        run: ls -R
-
-      - name: Deploy Client To GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: ./
-          destination_dir: preview/pr-${{github.event.pull_request.number}}
+          publish_dir: ./packages/client/dist
+          destination_dir: preview/pr-${{ github.event.pull_request.number }}
+          keep_files: true
 
-      - name: Publish Link
-        run: echo "Link = ${{env.BASE_LINK}}/pr-${{github.event.pull_request.number}}"
+      - name: Comment PR with preview link
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            🚀 Preview Ready:  
+            🔗 https://vulpy-labs.github.io/slash-out/preview/pr-${{ github.event.pull_request.number }}/
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
