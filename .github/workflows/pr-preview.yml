@@ -8,7 +8,7 @@ defaults:
 
 env:
   BASE_URL: https://vulpy-labs.github.io/slash-out/preview
-  PREVIEW_URL: https://vulpy-labs.github.io/slash-out/preview/pr-${{github.event.pull_request.number}}
+  PREVIEW_URL: https://vulpy-labs.github.io/slash-out/preview/pr-${{ github.event.pull_request.number }}
 jobs:
   deploy-client:
     runs-on: ubuntu-22.04
@@ -36,10 +36,10 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./packages/client/dist
-          destination_dir: preview/pr-${{github.event.pull_request.number}}
+          destination_dir: preview/pr-${{ github.event.pull_request.number }}
 
       - name: Output Link
-        run: echo "Link = ${{env.PREVIEW_URL}}"
+        run: echo "Link = ${{ env.PREVIEW_URL }}"
 
   update-pr-description:
     runs-on: ubuntu-22.04
@@ -57,7 +57,7 @@ jobs:
               pull_number: context.issue.number
             });
 
-            const previewUrl = `${{env.PREVIEW_URL}}`;
+            const previewUrl = `${{ env.PREVIEW_URL }}`;
             const previewSection = `\n\n---\n↗️ | **[Click to See The Preview](${previewUrl})**`;
 
             const body = pr.data.body || '';
