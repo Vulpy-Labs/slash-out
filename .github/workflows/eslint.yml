@@ -22,5 +22,5 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: EsLint Validation
+      - name: ESLint Validation
         run: npm run lint
