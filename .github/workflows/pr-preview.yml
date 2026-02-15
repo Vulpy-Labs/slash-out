@@ -2,8 +2,12 @@ name: Client - Deploy To GitHub Pages
 
 on: pull_request
 
+defaults:
+  run:
+    working-directory: packages/client
+
 env:
-  ARTIFACT_NAME: artifact-preview-${{github.event.pull_request.number}}
+  CLIENT_URL: artifact-preview-${{github.event.pull_request.number}}
   BASE_URL: https://vulpy-labs.github.io/slash-out/preview
 
 jobs:
@@ -25,7 +29,6 @@ jobs:
 
       - name: Build Static Files
         run: |
-          cd packages/client
           npm ci
           npm run build
 
@@ -36,7 +39,7 @@ jobs:
           echo "Head Ref = ${{github.head_ref}}"
           echo "PR Number = ${{github.event.pull_request.number}}"
 
-      - name: List Artifact's Content (after)
+      - name: List Client's Content (after)
         run: ls -R
 
       - name: Deploy Client To GitHub Pages
