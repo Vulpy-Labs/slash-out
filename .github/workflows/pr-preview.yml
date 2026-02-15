@@ -7,9 +7,8 @@ defaults:
     working-directory: packages/client
 
 env:
-  CLIENT_URL: artifact-preview-${{github.event.pull_request.number}}
   BASE_URL: https://vulpy-labs.github.io/slash-out/preview
-
+  PREVIEW_URL: https://vulpy-labs.github.io/slash-out/preview/pr-${{github.event.pull_request.number}}
 jobs:
   deploy-client:
     runs-on: ubuntu-22.04
@@ -51,7 +50,7 @@ jobs:
           destination_dir: preview/pr-${{github.event.pull_request.number}}
 
       - name: Output Link
-        run: echo "Link = ${{env.BASE_URL}}/pr-${{github.event.pull_request.number}}"
+        run: echo "Link = ${{env.PREVIEW_URL}}"
 
   update-pr-description:
     runs-on: ubuntu-22.04
@@ -70,7 +69,7 @@ jobs:
               pull_number: context.issue.number
             });
 
-            const previewUrl = `${{env.BASE_URL}}/pr-${{ github.event.pull_request.number }}`;
+            const previewUrl = `${{env.PREVIEW_URL}}`;
             const previewSection = `\n\n---\n↗️ | **[Click to See The Preview](${previewUrl})**`;
 
             const body = pr.data.body || '';
