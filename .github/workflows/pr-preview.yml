@@ -37,12 +37,16 @@ jobs:
           publish_branch: gh-pages
           publish_dir: ./packages/client/dist
           destination_dir: preview/pr-${{ github.event.pull_request.number }}
+          keep_files: true
 
       - name: Output Link
         run: echo "Link = ${{ env.PREVIEW_URL }}"
 
   update-pr-description:
     runs-on: ubuntu-22.04
+
+    permissions:
+      pull-requests: write
 
     needs: deploy-client
 
@@ -73,5 +77,5 @@ jobs:
 
               console.log('Link preview created!');
             } else {
-              console.log('Link preview already exists. No update needed.'); 
+              console.log('Link preview already exists. No update needed.');
             }
