@@ -102,9 +102,9 @@ jobs:
             const previewSection = `\n\n---\n↗️ | **[Click to See The Preview](${previewUrl})**`;
 
             const body = pr.data.body || '';
-            const newBody = body.includes('↗️ | **[Click to See The Preview]') 
-              ? body.replace(/↗️ \| \*\*\[Click to See The Preview\]\([^)]+\)\*\*/, `↗️ | **[Click to See The Preview](${previewUrl})**`)
-              : body + previewSection;
+            const newBody = !body.includes('↗️ | **[Click to See The Preview](${previewUrl})') 
+              ? body + previewSection
+              : null;
 
             await github.rest.pulls.update({
               owner: context.repo.owner,
