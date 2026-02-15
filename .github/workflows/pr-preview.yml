@@ -102,9 +102,12 @@ jobs:
             const previewSection = `\n\n---\n↗️ | **[Click to See The Preview](${previewUrl})**`;
 
             const body = pr.data.body || '';
-            const newBody = !body.includes('↗️ | **[Click to See The Preview](${previewUrl})') 
+            const doesPreviewLinkExists = body.includes('↗️ | **[Click to See The Preview](${previewUrl})**');
+            const newBody = !doesPreviewLinkExists 
               ? body + previewSection
               : null;
+
+            echo "${doesLinkPreviewExists}"
 
             await github.rest.pulls.update({
               owner: context.repo.owner,
