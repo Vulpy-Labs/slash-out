@@ -87,7 +87,7 @@ jobs:
     needs: deploy-client
 
     steps:
-      - name: Publish Link
+      - name: Update PR Description
         uses: actions/github-script@v7
         with:
           result-encoding: string
