@@ -7,8 +7,12 @@ env:
   BASE_URL: https://vulpy-labs.github.io/slash-out/preview
 
 jobs:
-  prepare-client:
+  deploy-client:
     runs-on: ubuntu-22.04
+
+    permissions:
+      pages: write
+      contents: write
 
     steps:
       - name: Access Branch Code
@@ -32,41 +36,6 @@ jobs:
           echo "Head Ref = ${{github.head_ref}}"
           echo "PR Number = ${{github.event.pull_request.number}}"
 
-      - name: Upload Static Files As Artifact
-        id: upload-artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          # upload-pages-artifact doesn't automatically access the predifined default working directory (line 7).
-          # That's why I'm using the full path below.
-          # Ref: https://github.com/actions/upload-artifact/issues/232
-          path: packages/client/dist
-          name: ${{env.ARTIFACT_NAME}}
-
-  deploy-client:
-    runs-on: ubuntu-22.04
-
-    permissions:
-      pages: write
-      contents: write
-
-    needs: prepare-client
-
-    steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          name: ${{env.ARTIFACT_NAME}}
-          path: ./
-
-      - name: List Artifact's Content (before)
-        run: ls -R
-
-      - name: Extract Artifact
-        run: |
-          tar xvf artifact.tar -C ./
-          rm -rf artifact.tar
-
       - name: List Artifact's Content (after)
         run: ls -R
 
@@ -75,13 +44,13 @@ jobs:
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
           publish_branch: gh-pages
-          publish_dir: ./
+          publish_dir: ./dist
           destination_dir: preview/pr-${{github.event.pull_request.number}}
 
       - name: Output Link
         run: echo "Link = ${{env.BASE_URL}}/pr-${{github.event.pull_request.number}}"
 
-  publish-link:
+  update-pr-description:
     runs-on: ubuntu-22.04
 
     needs: deploy-client
