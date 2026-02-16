@@ -12,6 +12,7 @@ class AnimationSystem {
       if (!animation) return;
 
       Object.values(animation.animations).forEach(anim => {
+        if (!anim?.key) return;
         if (this.scene.anims.exists(anim.key)) return;
 
         const frames = anim.frames?.length
