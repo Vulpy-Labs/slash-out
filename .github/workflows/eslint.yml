@@ -1,4 +1,4 @@
-name: Client - Validate EsLint
+name: Client - Validate ESLint
 
 on: pull_request
 
