@@ -1,6 +1,6 @@
 import { CHARACTERS_SPRITES_MODEL } from '@/config/constants';
 import { AnimationComponent } from '@/ecs/components';
-import { DefaultPlayerAnimationProp } from './types.p';
+import { DefaultPlayerAnimationProp } from './type.p';
 
 function defaultPlayerAnimation({ character }: DefaultPlayerAnimationProp): AnimationComponent {
   let animationsConfig = CHARACTERS_SPRITES_MODEL[character.name];
@@ -11,9 +11,9 @@ function defaultPlayerAnimation({ character }: DefaultPlayerAnimationProp): Anim
   }
 
   const animations = animationsConfig.reduce(
-    (acc, { key, ...anim }) => {
+    (acc, { key, spriteName, ...anim }) => {
       acc[key] = {
-        key: `${character.name}_${anim.spriteName}_${character.skin}`,
+        key: `${character.name}_${spriteName}_${character.skin}`,
         ...anim,
       };
 
@@ -24,7 +24,6 @@ function defaultPlayerAnimation({ character }: DefaultPlayerAnimationProp): Anim
 
   return {
     animations,
-    flipX: null,
     currentState: 'IDLE',
   };
 }
