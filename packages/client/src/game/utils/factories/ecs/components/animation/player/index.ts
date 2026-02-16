@@ -1,2 +1,2 @@
-export * from './types.p';
+export * from './type.p';
 export * from './defaultPlayerAnimation';
