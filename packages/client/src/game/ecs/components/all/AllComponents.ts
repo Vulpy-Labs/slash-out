@@ -1,3 +1,4 @@
+import type { AnimationComponent } from '../animation';
 import type { CharacterComponent } from '../character';
 import type { InputComponent } from '../input';
 import type { KeymapComponent } from '../keymap';
@@ -12,6 +13,7 @@ interface AllComponentsList {
   movement?: MovementComponent;
   velocity?: VelocityComponent;
   character?: CharacterComponent;
+  animation?: AnimationComponent;
 }
 
 export type { AllComponentsList };
