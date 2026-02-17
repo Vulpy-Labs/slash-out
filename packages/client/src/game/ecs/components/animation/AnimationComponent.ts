@@ -5,7 +5,7 @@ type Animation = {
   repeat: boolean;
   frameRate: number;
   frames?: Phaser.Types.Animations.AnimationFrame[];
-}
+};
 
 interface AnimationComponent {
   flipX: boolean;

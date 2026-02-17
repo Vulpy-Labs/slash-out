@@ -1,35 +1,34 @@
 name: Deploy PR Preview
 
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+on: pull_request
 
+defaults:
+  run:
+    working-directory: packages/client
+
+env:
+  BASE_URL: https://vulpy-labs.github.io/slash-out/preview
+  PREVIEW_URL: https://vulpy-labs.github.io/slash-out/preview/pr-${{ github.event.pull_request.number }}
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./packages/client
+  deploy-client:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout PR code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: packages/client/.nvmrc
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Inject PR environment variables
+      - name: Build Static Files
         run: |
-          echo "PR_PREVIEW=true" >> $GITHUB_ENV
-          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-
-      - name: Build the project
-        run: npm run build
+          npm ci
+          npm run build
 
       - name: Deploy to GitHub Pages (PR Preview)
         uses: peaceiris/actions-gh-pages@v3
@@ -40,10 +39,43 @@ jobs:
           destination_dir: preview/pr-${{ github.event.pull_request.number }}
           keep_files: true
 
-      - name: Comment PR with preview link
-        uses: thollander/actions-comment-pull-request@v2
+      - name: Output Link
+        run: echo "Link = ${{ env.PREVIEW_URL }}"
+
+  update-pr-description:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      pull-requests: write
+
+    needs: deploy-client
+
+    steps:
+      - name: Update PR Description
+        uses: actions/github-script@v7
         with:
-          message: |
-            🚀 Preview Ready:  
-            🔗 https://vulpy-labs.github.io/slash-out/preview/pr-${{ github.event.pull_request.number }}/
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const previewUrl = `${{ env.PREVIEW_URL }}`;
+            const previewSection = `\n\n---\n\n↗️ | **[Click to See The Preview](${previewUrl})**`;
+
+            const body = pr.data.body || '';
+            const doesPreviewLinkExist = body.includes(`↗️ | **[Click to See The Preview](${previewUrl})**`);
+
+            if (!doesPreviewLinkExist) {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                body: body + previewSection
+              });
+
+              console.log('Link preview created!');
+            } else {
+              console.log('Link preview already exists. No update needed.');
+            }
