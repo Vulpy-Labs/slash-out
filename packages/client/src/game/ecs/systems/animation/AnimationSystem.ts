@@ -8,11 +8,15 @@ class AnimationSystem {
   }
 
   create({ entities }: AnimationSystemPayloadProp) {
-    entities.forEach(({ animation }) => {
+    entities.forEach(({ animation, entityId }) => {
       if (!animation) return;
 
-      Object.values(animation.animations).forEach(anim => {
-        if (!anim?.key) return;
+      Object.values(animation.animations).forEach((anim, index) => {
+        if (!anim?.key) {
+          console.warn(`No animation key was found in index ${index} for entity ${entityId}.`);
+          return;
+        }
+
         if (this.scene.anims.exists(anim.key)) return;
 
         const frames = anim.frames?.length
