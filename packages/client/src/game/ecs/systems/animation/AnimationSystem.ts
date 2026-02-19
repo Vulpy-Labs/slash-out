@@ -47,7 +47,9 @@ class AnimationSystem {
     entities.forEach(({ animation, sprite }) => {
       if (!animation || !sprite) return;
 
-      sprite.setFlipX(animation.flipX);
+      if (typeof animation.flipX === 'boolean') {
+        sprite.setFlipX(animation.flipX);
+      }
 
       const targetAnimKey = animation.animations[animation.currentState];
 
