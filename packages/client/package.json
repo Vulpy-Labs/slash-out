@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/phaserjs/template-vite-ts#readme",
   "scripts": {
+    "prepare": "node ../scripts/git-hooks/setup-hooks.js",
     "dev": "node log.js dev & vite --config vite/config.dev.mjs",
     "build": "node log.js build & vite build --config vite/config.prod.mjs",
     "dev-nolog": "vite --config vite/config.dev.mjs",
