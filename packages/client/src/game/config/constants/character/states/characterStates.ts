@@ -1,0 +1,19 @@
+const CHARACTER_STATES = [
+  'RUN',
+  'IDLE',
+  'DEAD',
+  'HEAD',
+  'JUMP',
+  'SLICE',
+  'LOOK_UP',
+  'LOOK_DOWN',
+  'DEAD_NO_HEAD',
+  'LONG_ATTACK_UP',
+  'LONG_ATTACK_DOWN',
+  'LONG_ATTACK_FORWARD',
+  'SHORT_ATTACK_UP',
+  'SHORT_ATTACK_DOWN',
+  'SHORT_ATTACK_FORWARD',
+] as const;
+
+export { CHARACTER_STATES };
