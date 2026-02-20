@@ -1,5 +1,12 @@
 import { CHARACTERS_SPRITES_MODEL, DEPTH, PLAYER_DIMENSIONS } from '@/config/constants';
-import { defaultInput, defaultKeymap, defaultMovement } from '@/utils/factories/ecs/components';
+
+import {
+  defaultInput,
+  defaultKeymap,
+  defaultMovement,
+  defaultPlayerAnimation,
+} from '@/utils/factories/ecs/components';
+
 import { GlobalEntityMap } from '@/scenes/game';
 import { PlayerEntity } from '@/ecs/entities';
 import { MatchConfig } from '@/ecs/components';
@@ -40,22 +47,15 @@ class PlayerBuilder {
         throw new Error(`Sprite model not found for character: ${character.name}`);
       }
 
-      characterSprites.forEach(({ isSpritesheet, spriteName }) => {
+      characterSprites.forEach(({ spriteName }) => {
         const key = `${character.name}_${spriteName}_${character.skin}`;
         const url = `${this.baseCharacterSpritesPath}/${character.name}/${character.skin}/${spriteName}.png`;
 
         if (this.scene.textures.exists(key)) return;
 
-        if (isSpritesheet) {
-          return this.scene.load.spritesheet(key, url, {
-            frameWidth: PLAYER_DIMENSIONS.WIDTH,
-            frameHeight: PLAYER_DIMENSIONS.HEIGHT,
-          });
-        }
-
-        return this.scene.load.image({
-          key,
-          url,
+        return this.scene.load.spritesheet(key, url, {
+          frameWidth: PLAYER_DIMENSIONS.WIDTH,
+          frameHeight: PLAYER_DIMENSIONS.HEIGHT,
         });
       });
     });
@@ -109,9 +109,10 @@ class PlayerBuilder {
         name: character.name,
         skin: character.skin,
       },
-      keymap: defaultKeymap({ player: character.playerRef }),
       input: defaultInput(),
+      animation: defaultPlayerAnimation({ character }),
       movement: defaultMovement({ entityType: 'player' }),
+      keymap: defaultKeymap({ player: character.playerRef }),
     };
   }
 }
