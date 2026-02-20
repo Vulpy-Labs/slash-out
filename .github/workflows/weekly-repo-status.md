@@ -44,8 +44,10 @@ Create an upbeat weekly status report for the repo as a GitHub issue.
 
 ## Style
 
+- The title should follow this pattern "Weekly Status Report #1 - Week of February 17-23, 2026"
 - Be positive, encouraging, and helpful 🌟
-- Use emojis moderately for engagement. Each emoji should follow this format: ":emoji: | text"
+- Use emojis moderately for engagement. 
+- If you use emoji at the beginning of a sentence, it should follow this format: ":emoji: | text".
 - Keep it concise - adjust length based on actual activity
 
 ## Process
