@@ -40,7 +40,7 @@ jobs:
 
               return pr_diff.data;
             } catch (error) {
-              throw new Error('Error fetching PR Diff:', error);
+              throw new Error('Error fetching PR Diff: ${error.message}');
             };
 
       - name: Generate PR Summary
@@ -73,9 +73,9 @@ jobs:
                 pull_number: context.issue.number,
               });
               const body = data.body || '';
-              const doesSummaryPlaceholderExists = body.includes(env.SUMMARY_PLACEHOLDER);
+              const doesSummaryPlaceholderExists = body.includes(process.env.SUMMARY_PLACEHOLDER);
 
-              if (doesSummaryPlaceholderExists) {
+              if (doesSummaryPlaceholderExist) {
                 const newBody = body.replace(process.env.SUMMARY_PLACEHOLDER, process.env.NEW_SUMMARY);
 
                 const updated_pull_request = await github.rest.pulls.update({
