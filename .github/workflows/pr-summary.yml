@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-slim
 
     permissions:
-      contents: read
       models: read
+      contents: read
       pull-requests: write
 
     steps:
@@ -39,9 +39,18 @@ jobs:
               throw new Error('Error fetching PR Diff:', error);
             };
 
-      - name: Test AI Inference Access
+      - name: Generate PR Summary
+        id: inference-summary
         uses: actions/ai-inference@v2.0.6
         with:
           token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           model: openai/gpt-4o
-          prompt: "Say hello"
+          prompt-file: "./.github/workflows/prompts/pr-summary.prompt.md"
+          input: |
+            PR_DIFF: ${{ steps.fetch-pr-diff.outputs.result }}
+
+      - name: Save Summary In A Local File
+        run: |
+          echo "Response saved to: ${{ steps.inference-summary.outputs.response-file }}"
+          cat "${{ steps.inference-summary.outputs.response-file }}"
+          ls -la
