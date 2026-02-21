@@ -70,6 +70,9 @@ jobs:
 
               console.log('\n Body type:', typeof data.body);
               console.log('\n Data.body:', data.body);
+
+              const doesSummaryExists = body.includes('_"beep beep boop boop"_');
+              console.log('\n\n doesSummaryExists', doesSummaryExists);
               
             } catch (error) {
               throw new Error('Error updating description:', error.message); 
