@@ -10,7 +10,9 @@ Your task is to analyze the provided Git diff and generate a clear, structured, 
 
 You will receive:
 
-- The complete unified Git diff of the pull request.
+- The complete unified Git diff of the pull request:
+
+{{ PR_DIFF }}
 
 ---
 

@@ -8,7 +8,8 @@ on:
 
 jobs:
   generate-summary:
-    runs-on: ubuntu-slim
+    # Test with slim later
+    runs-on: ubuntu-latest
 
     permissions:
       models: read
@@ -52,5 +53,6 @@ jobs:
       - name: Save Summary In A Local File
         run: |
           echo "Response saved to: ${{ steps.inference-summary.outputs.response-file }}"
+          echo "response: " 
           cat "${{ steps.inference-summary.outputs.response-file }}"
           ls -la
