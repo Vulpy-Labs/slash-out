@@ -6,6 +6,9 @@ on:
 
   workflow_dispatch:
 
+env:
+  SUMMARY_PLACEHOLDER: '_"beep beep boop boop"_'
+
 jobs:
   generate-summary:
     # Test with slim later
@@ -59,7 +62,7 @@ jobs:
 
       - name: Update PR Description
         env:
-          SUMMARY: ${{ steps.inference-summary.outputs.response }}
+          NEW_SUMMARY: ${{ steps.inference-summary.outputs.response }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -70,11 +73,10 @@ jobs:
                 pull_number: context.issue.number,
               });
               const body = data.body || '';
-              const doesSummaryPlaceholderExists = body.includes('_"beep beep boop boop"_');
+              const doesSummaryPlaceholderExists = body.includes(env.SUMMARY_PLACEHOLDER);
 
               if (doesSummaryPlaceholderExists) {
-                const summary = process.env.SUMMARY;
-                const newBody = body.replace('_"beep beep boop boop"_', summary);
+                const newBody = body.replace(process.env.SUMMARY_PLACEHOLDER, process.env.NEW_SUMMARY);
 
                 const updated_pull_request = await github.rest.pulls.update({
                   owner: context.repo.owner,
