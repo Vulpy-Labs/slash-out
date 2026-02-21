@@ -70,18 +70,11 @@ jobs:
                 pull_number: context.issue.number,
               });
               const body = data.body || '';
-
-              console.log('\n Body type:', typeof body);
-              console.log('\n body:', body);
-
               const doesSummaryPlaceholderExists = body.includes('_"beep beep boop boop"_');
-              console.log('\n\n doesSummaryPlaceholderExists', doesSummaryPlaceholderExists);
 
               if (doesSummaryPlaceholderExists) {
                 const summary = process.env.SUMMARY;
                 const newBody = body.replace('_"beep beep boop boop"_', summary);
-
-                console.log('\n\n newBody', newBody);
 
                 const updated_pull_request = await github.rest.pulls.update({
                   owner: context.repo.owner,
@@ -89,6 +82,8 @@ jobs:
                   pull_number: context.issue.number,
                   body: newBody
                 });
+              } else {
+                console.log('Summary already exists.') 
               }
               
             } catch (error) {
