@@ -12,8 +12,8 @@ jobs:
 
     permissions:
       contents: read
-      pull-requests: write
       models: read
+      pull-requests: write
 
     steps:
       - name: Checkout To PR Code
@@ -42,6 +42,6 @@ jobs:
       - name: Test AI Inference Access
         uses: actions/ai-inference@v2.0.6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           model: openai/gpt-4o
           prompt: "Say hello"
