@@ -1,0 +1,15 @@
+name: Create PR Summary
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+  workflow_dispatch:
+
+jobs:
+  prepare-branch:
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v4
