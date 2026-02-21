@@ -72,11 +72,12 @@ jobs:
               console.log('\n Data.body:', data.body);
 
               const doesSummaryExists = body.includes('_"beep beep boop boop"_');
+              console.log('\n\n doesSummaryExists', doesSummaryExists);
 
               if (!doesSummaryExists) {
-                const newBody = body.replace('_"beep beep boop boop"_', ${{ steps.inference-summary.outputs.response }});
+                # const newBody = body.replace('_"beep beep boop boop"_', ${{ steps.inference-summary.outputs.response }});
 
-                console.log('\n\n newBody', newBody);
+                # console.log('\n\n newBody', newBody);
 
                 # const updated_pull_request = await github.rest.pulls.update({
                 #   owner: context.repo.owner,
