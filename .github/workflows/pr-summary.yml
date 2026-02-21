@@ -41,11 +41,9 @@ jobs:
             };
 
       - name: Generate Summary
+        env:
+          PR_DIFF: ${{ steps.fetch-pr-diff.outputs.result }}
         uses: actions/github-script@v7
         with:
           script: |
-            const first_output = steps['fetch-pr-diff'].outputs.result;
-            const second_output = steps?.fetch-pr-diff?.outputs?.result || null;
-
-            console.log('first_output:', first_output);
-            console.log('second_output:', second_output);
+            console.log('process.env.PR_DIFF:', process.env.PR_DIFF);
