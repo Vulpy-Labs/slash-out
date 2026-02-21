@@ -67,9 +67,10 @@ jobs:
                 repo: context.repo.repo,
                 pull_number: context.issue.number,
               });
+              const body = data.body || '';
 
-              console.log('\n Body type:', typeof data.body);
-              console.log('\n Data.body:', data.body);
+              console.log('\n Body type:', typeof body);
+              console.log('\n body:', body);
 
               const doesSummaryExists = body.includes('_"beep beep boop boop"_');
               console.log('\n\n doesSummaryExists', doesSummaryExists);
