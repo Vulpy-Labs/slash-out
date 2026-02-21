@@ -44,8 +44,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const string_output = `${{ steps.fetch-pr-diff.outputs.result }}`;
             const direct_output = steps?.fetch-pr-diff?.outputs?.result || null;
-            const string_output = `${{steps.fetch-pr-diff.outputs.result}}`;
 
             console.log('direct_output:', direct_output);
             console.log('string_output:', string_output);
