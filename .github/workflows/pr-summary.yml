@@ -43,4 +43,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           model: gpt-4o-mini
+          endpoint: https://api.githubcopilot.com
           prompt: "Say hello"
