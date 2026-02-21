@@ -24,4 +24,16 @@ jobs:
               pull_number: context.issue.number
             });
 
-            console.log('pr:', pr)
+            console.log('pr:', pr);
+
+            try {
+              const response = await fetch(pr.diff_url);
+
+              if (!response.ok) console.log('No PR Diff found', response);
+
+              const pr_diff = await response.json();
+
+              console.log('pr_diff', pr_diff);
+            } catch (error) {
+                throw new Error('Error fetching PR Diff:', error.message);
+             }
