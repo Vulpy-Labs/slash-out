@@ -39,5 +39,5 @@ jobs:
 
               console.log('pr_diff', pr_diff);
             } catch (error) {
-                throw new Error('Error fetching PR Diff:', error.message);
+                throw new Error('Error fetching PR Diff:', error);
              }
