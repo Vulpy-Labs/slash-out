@@ -49,6 +49,7 @@ jobs:
         with:
           token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           model: openai/gpt-4o
+          max-tokens: 4096
           system-prompt-file: "./.github/workflows/prompts/pr-summary.prompt.md"
           prompt: |
             Here is the PR Diff to analyse: ${{ steps.fetch-pr-diff.outputs.result }}
