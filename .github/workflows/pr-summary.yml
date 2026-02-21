@@ -31,7 +31,10 @@ jobs:
             console.log('pr.data.diff_url:', pr.data.diff_url);
 
             try {
-              const response = await fetch(pr.data.diff_url);
+              const response = await fetch(pr.data.diff_url, {
+                method: 'GET',
+                'Accept': 'application/vnd.github.diff'
+              });
 
               if (!response.ok) console.log('No PR Diff found', response);
 
