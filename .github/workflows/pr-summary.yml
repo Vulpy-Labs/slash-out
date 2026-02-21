@@ -42,6 +42,7 @@ jobs:
         id: inference-summary
         uses: actions/ai-inference@v2.0.6
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           model: openai/gpt-4o
           prompt-file: "./.github/workflows/prompts/pr-summary.prompt.md"
           input: |
