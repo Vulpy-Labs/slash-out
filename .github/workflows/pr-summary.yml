@@ -50,9 +50,26 @@ jobs:
           prompt: |
             Here is the PR Diff to analyse: ${{ steps.fetch-pr-diff.outputs.result }}
 
-      - name: Save Summary In A Local File
+      - name: Print Results
         run: |
           echo "Response saved to: ${{ steps.inference-summary.outputs.response-file }}"
           echo "response: " 
           cat "${{ steps.inference-summary.outputs.response-file }}"
           ls -la
+
+      - name: Update PR Description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const pr = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              });
+
+              console.log('/n PR:', pr);
+              console.log('\n PR Data:', pr.data);
+            } catch (error) {
+              throw new Error('Error updating description:', error.message); 
+            };
