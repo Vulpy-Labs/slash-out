@@ -58,6 +58,8 @@ jobs:
           ls -la
 
       - name: Update PR Description
+        env:
+          SUMMARY: ${{ steps.inference-summary.outputs.response }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -76,7 +78,8 @@ jobs:
               console.log('\n\n doesSummaryPlaceholderExists', doesSummaryPlaceholderExists);
 
               if (doesSummaryPlaceholderExists) {
-                const newBody = body.replace('_"beep beep boop boop"_', ${{ steps.inference-summary.outputs.response }});
+                const summary = process.env.SUMMARY;
+                const newBody = body.replace('_"beep beep boop boop"_', summary);
 
                 console.log('\n\n newBody', newBody);
 
