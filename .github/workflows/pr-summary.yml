@@ -41,7 +41,6 @@ jobs:
       - name: Test AI Inference Access
         uses: actions/ai-inference@v2.0.6
         with:
-          token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-          model: gpt-4o-mini
-          endpoint: https://api.githubcopilot.com
+          token: ${{ secrets.GITHUB_TOKEN }}
+          model: openai/gpt-4o
           prompt: "Say hello"
