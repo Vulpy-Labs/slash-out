@@ -62,14 +62,30 @@ jobs:
         with:
           script: |
             try {
-              const pr = await github.rest.pulls.get({
+              const { data } = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: context.issue.number,
               });
 
-              console.log('/n PR:', pr);
-              console.log('\n PR Data:', pr.data);
+              console.log('\n Body type:', typeof data.body);
+              console.log('\n Data.body:', data.body);
+
+              const doesSummaryExists = body.includes('_"beep beep boop boop"_');
+
+              if (!doesSummaryExists) {
+                const newBody = body.replace('_"beep beep boop boop"_', ${{ steps.inference-summary.outputs.response }});
+
+                console.log('\n\n newBody', newBody);
+
+                # const updated_pull_request = await github.rest.pulls.update({
+                #   owner: context.repo.owner,
+                #   repo: context.repo.repo,
+                #   pull_number: context.issue.number,
+                #   body: newBody;
+                # });
+              }
+              
             } catch (error) {
               throw new Error('Error updating description:', error.message); 
             };
