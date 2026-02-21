@@ -32,7 +32,7 @@ jobs:
                 }
               });
 
-              console.log('pr_diff', pr_diff);
+              console.log('PR Diff', pr_diff.data);
             } catch (error) {
               throw new Error('Error fetching PR Diff:', error);
             }
