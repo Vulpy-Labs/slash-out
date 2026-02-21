@@ -33,17 +33,22 @@ jobs:
                 }
               });
 
-              console.log('PR Diff', pr_diff.data);
-
               return pr_diff.data;
             } catch (error) {
               throw new Error('Error fetching PR Diff:', error);
             };
 
-      - name: Generate Summary
-        env:
-          PR_DIFF: ${{ steps.fetch-pr-diff.outputs.result }}
-        uses: actions/github-script@v7
+      - name: Generate PR Summary
+        id: inference-summary
+        uses: actions/ai-inference@v2.0.6
         with:
-          script: |
-            console.log('process.env.PR_DIFF:', process.env.PR_DIFF);
+          model: openai/gpt-4o
+          prompt-file: "./prompts/pr-summary.prompt.md"
+          input: |
+            PR_DIFF: ${{ steps.fetch-pr-diff.outputs.result }}
+
+      - name: Save Summary In A Local File
+        run: |
+          echo "Response saved to: ${{ steps.inference-summary.outputs.response-file }}"
+          cat "${{ steps.inference-summary.outputs.response-file }}"
+          ls -la
