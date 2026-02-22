@@ -48,12 +48,12 @@ jobs:
           script: |
             try {
               const { body }= ${{ steps.fetch-pr.outputs.result }};
-              const hasPlaceholder = body.includes(process.env.SUMMARY_PLACEHOLDER);
+              const hasSummary = !body.includes(process.env.SUMMARY_PLACEHOLDER);
 
               console.log('body', body);
-              console.log('hasPlaceholder', hasPlaceholder);
+              console.log('hasSummary', hasSummary);
 
-              if (!hasPlaceholder) {
+              if (hasSummary) {
                 console.log('PR Summary already exists. Finishing workflow execution...');
 
                 process.exit(0);
