@@ -41,6 +41,7 @@ jobs:
             }
 
       - name: Check If Needs To Create Summary
+        id: check-pr-description
         uses: actions/github-script@v7
         with:
           script: |
@@ -49,13 +50,19 @@ jobs:
               const hasSummary = !body.includes(process.env.SUMMARY_PLACEHOLDER);
 
               if (hasSummary) {
-                console.log('PR Summary already exists. Finishing workflow execution...');
+                console.log('PR Summary already exists.');
 
-                process.exit(0);
+                core.setOutput('should-skip', 'true');
               }
             } catch (error) {
                console.log(`Error while searching for placeholder: ${error.message}`);
             }
+
+      - name: Exiting Workflow If Needed
+        if: steps.check-pr-description.outputs.should-skip == 'true'
+        run: |
+          echo "Finishing workflow execution..."
+          exit 0
 
       - name: Fetch PR Diff
         id: fetch-pr-diff
@@ -86,7 +93,7 @@ jobs:
           max-tokens: 4096
           system-prompt-file: "./.github/workflows/prompts/pr-summary.prompt.md"
           prompt: |
-            Here is the PR Diff to analyse: ${{ steps.fetch-pr-diff.outputs.result }}
+            Here is the PR Diff to analyze: ${{ steps.fetch-pr-diff.outputs.result }}
 
       - name: Print Results
         run: |
@@ -101,6 +108,7 @@ jobs:
         with:
           script: |
             try {
+              const { body } = ${{ steps.fetch-pr.outputs.result }};
               const newBody = body.replace(process.env.SUMMARY_PLACEHOLDER, process.env.NEW_SUMMARY);
 
               await github.rest.pulls.update({
