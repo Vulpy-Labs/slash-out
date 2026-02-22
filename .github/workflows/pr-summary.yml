@@ -36,9 +36,18 @@ jobs:
               });
 
               console.log('\n data:', data);
+
+              return data;
             } catch (error) {
-              throw new error(`Error fetching pull request: ${error.message}`);
+              throw new Error(`Error fetching pull request: ${error.message}`);
             }
+
+      - name: Check If Needs To Create Summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pull_request = ${{ steps.fetch-pr.outputs.result }};
+            console.log('pull_request', pull_request);
 
       # - name: Fetch PR Diff
       #   id: fetch-pr-diff
