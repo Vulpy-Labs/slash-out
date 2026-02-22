@@ -11,7 +11,6 @@ env:
 
 jobs:
   check-if-needs-summary:
-    # Test with slim later
     runs-on: ubuntu-slim
 
     permissions:
