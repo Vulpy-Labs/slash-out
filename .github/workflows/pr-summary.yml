@@ -62,7 +62,7 @@ jobs:
               console.log('Placeholder found. Summary needs to be created.')
               return true;
             } catch (error) {
-               console.log(`Error while searching for placeholder: ${error.message}`);
+               throw new Error(`Error while searching for placeholder: ${error.message}`);
             }
 
   generate-summary:
