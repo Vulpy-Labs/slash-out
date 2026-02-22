@@ -47,11 +47,8 @@ jobs:
         with:
           script: |
             try {
-              const { body }= ${{ steps.fetch-pr.outputs.result }};
+              const { body } = ${{ steps.fetch-pr.outputs.result }};
               const hasSummary = !body.includes(process.env.SUMMARY_PLACEHOLDER);
-
-              console.log('body', body);
-              console.log('hasSummary', hasSummary);
 
               if (hasSummary) {
                 console.log('PR Summary already exists. Finishing workflow execution...');
