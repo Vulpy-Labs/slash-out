@@ -84,6 +84,7 @@ jobs:
         id: fetch-pr-diff
         uses: actions/github-script@v7
         with:
+          result-encoding: string
           script: |
             try {
               const { data = "" } = await github.rest.pulls.get({
@@ -95,7 +96,7 @@ jobs:
                 }
               });
 
-              return JSON.parse(data);
+              return data;
             } catch (error) {
               throw new Error(`Error fetching PR Diff: ${error.message}`);
             };
