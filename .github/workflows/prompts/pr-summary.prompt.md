@@ -67,7 +67,7 @@ Ignore trivial changes such as formatting, whitespace, or comments unless they m
 
 ## Output Format (Strictly Follow This Structure)
 
-1. A **two sentences** overview of what the PR accomplishes.
+1. A **two-sentence** overview of what the PR accomplishes.
 2. Grouped bullet points with **bold headers** for each theme.
 3. No extra commentary outside the summary.
 
