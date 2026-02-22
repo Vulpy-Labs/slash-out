@@ -10,7 +10,7 @@ env:
   SUMMARY_PLACEHOLDER: '[Summary Placeholder: _"beep beep boop boop"_]'
 
 jobs:
-  generate-summary:
+  check-if-needs-summary:
     # Test with slim later
     runs-on: ubuntu-latest
 
@@ -18,6 +18,10 @@ jobs:
       models: read
       contents: read
       pull-requests: write
+
+    outputs:
+      PR_DATA: ${{ steps.fetch-pr.outputs.result }}
+      NEEDS_SUMMARY: ${{ steps.needs-summary.outputs.result }}
 
     steps:
       - name: Checkout To PR Code
@@ -41,38 +45,41 @@ jobs:
             }
 
       - name: Check If Needs To Create Summary
-        id: check-pr-description
+        id: needs-summary
         env:
           PR_DATA: ${{ steps.fetch-pr.outputs.result }}
         uses: actions/github-script@v7
         with:
           script: |
             try {
-              const { body } = JSON.parse(process.env.PR_DATA);
+              const { body = "" } = JSON.parse(process.env.PR_DATA);
               const hasSummary = !body.includes(process.env.SUMMARY_PLACEHOLDER);
 
               if (hasSummary) {
                 console.log('PR Summary already exists.');
 
-                core.setOutput('should-skip', 'true');
+                return false;
               }
+              
+              return true;
             } catch (error) {
                console.log(`Error while searching for placeholder: ${error.message}`);
             }
 
-      - name: Exiting Workflow If Needed
-        if: steps.check-pr-description.outputs.should-skip == 'true'
-        run: |
-          echo "Finishing workflow execution..."
-          exit 0
+  generate-summary:
+    needs: check-if-needs-summary
+    if: needs.check-if-needs-summary.outputs.NEEDS_SUMMARY == 'true'
 
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Fetch PR Diff
         id: fetch-pr-diff
         uses: actions/github-script@v7
         with:
           script: |
             try {
-              const pr_diff = await github.rest.pulls.get({
+              const { data = "" } = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: context.issue.number,
@@ -81,7 +88,7 @@ jobs:
                 }
               });
 
-              return pr_diff.data;
+              return data;
             } catch (error) {
               throw new Error(`Error fetching PR Diff: ${error.message}`);
             };
@@ -105,13 +112,13 @@ jobs:
 
       - name: Update PR Description
         env:
-          PR_DATA: ${{ steps.fetch-pr.outputs.result }}
+          PR_DATA: ${{ needs.check-if-needs-summary.outputs.PR_DATA }}
           NEW_SUMMARY: ${{ steps.inference-summary.outputs.response }}
         uses: actions/github-script@v7
         with:
           script: |
             try {
-              const { body } = JSON.parse(process.env.PR_DATA);
+              const { body = "" } = JSON.parse(process.env.PR_DATA);
               const newBody = body.replace(process.env.SUMMARY_PLACEHOLDER, process.env.NEW_SUMMARY);
 
               await github.rest.pulls.update({
