@@ -12,7 +12,7 @@ env:
 jobs:
   check-if-needs-summary:
     # Test with slim later
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     permissions:
       models: read
@@ -71,7 +71,7 @@ jobs:
     needs: check-if-needs-summary
     if: needs.check-if-needs-summary.outputs.NEEDS_SUMMARY == 'true'
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     steps:
       - name: Checkout Code
