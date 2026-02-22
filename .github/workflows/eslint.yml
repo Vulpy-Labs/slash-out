@@ -1,9 +1,8 @@
 name: Client - Validate ESLint
 
-# Todo: () => revert to types: [opened, synchronize, reopened]
 on:
   pull_request:
-    types: [opened]
+    types: [opened, synchronize, reopened]
 
 defaults:
   run:
