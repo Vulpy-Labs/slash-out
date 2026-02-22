@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  SUMMARY_PLACEHOLDER: '_"beep beep boop boop"_'
+  SUMMARY_PLACEHOLDER: '[Summary Placeholder: _"beep beep boop boop"_]'
 
 jobs:
   generate-summary:
@@ -46,8 +46,17 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const pull_request = ${{ steps.fetch-pr.outputs.result }};
-            console.log('pull_request', pull_request);
+            const { body }= ${{ steps.fetch-pr.outputs.result }};
+            const hasPlaceholder = body.includes(process.env.SUMMARY_PLACEHOLDER);
+
+            console.log('body', body);
+            console.log('hasPlaceholder', hasPlaceholder);
+
+            if (!hasPlaceholder) {
+              console.log('PR Summary already exists. Finishing workflow execution...');
+
+              exit 0;
+            }
 
       # - name: Fetch PR Diff
       #   id: fetch-pr-diff
