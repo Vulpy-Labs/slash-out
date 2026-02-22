@@ -53,8 +53,6 @@ jobs:
               const { body = "" } = JSON.parse(process.env.PR_DATA);
               const hasSummary = !body.includes(process.env.SUMMARY_PLACEHOLDER);
               
-              console.log('\n\n body', body);
-              
               if (hasSummary) {
                 console.log('PR Summary already exists.');
 
