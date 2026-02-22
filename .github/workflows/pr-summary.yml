@@ -56,7 +56,7 @@ jobs:
               if (!hasPlaceholder) {
                 console.log('PR Summary already exists. Finishing workflow execution...');
 
-                exit 0;
+                process.exit(0);
               }
             } catch (error) {
                console.log(`Error while searching for placeholder: ${error.message}`);
