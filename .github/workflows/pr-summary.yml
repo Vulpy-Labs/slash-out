@@ -95,7 +95,7 @@ jobs:
                 }
               });
 
-              return data;
+              return JSON.parse(data);
             } catch (error) {
               throw new Error(`Error fetching PR Diff: ${error.message}`);
             };
