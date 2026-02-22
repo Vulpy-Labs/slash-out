@@ -1,9 +1,6 @@
 name: Deploy PR Preview
 
-# Todo: () => remove the type
-on:
-  pull_request:
-    types: [opened]
+on: pull_request
 
 defaults:
   run:
