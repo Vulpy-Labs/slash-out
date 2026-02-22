@@ -14,9 +14,8 @@ jobs:
     runs-on: ubuntu-slim
 
     permissions:
-      models: read
       contents: read
-      pull-requests: write
+      pull-requests: read
 
     outputs:
       PR_DATA: ${{ steps.fetch-pr.outputs.result }}
@@ -71,6 +70,11 @@ jobs:
     if: needs.check-if-needs-summary.outputs.NEEDS_SUMMARY == 'true'
 
     runs-on: ubuntu-slim
+
+    permissions:
+      models: read
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout Code
