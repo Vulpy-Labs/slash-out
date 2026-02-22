@@ -113,12 +113,6 @@ jobs:
           prompt: |
             Here is the PR Diff to analyze: ${{ steps.fetch-pr-diff.outputs.result }}
 
-      - name: Print Results
-        run: |
-          echo "Response saved to: ${{ steps.inference-summary.outputs.response-file }}"
-          echo "response: "
-          cat "${{ steps.inference-summary.outputs.response-file }}"
-
       - name: Update PR Description
         env:
           PR_DATA: ${{ needs.check-if-needs-summary.outputs.PR_DATA }}
