@@ -46,16 +46,20 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { body }= ${{ steps.fetch-pr.outputs.result }};
-            const hasPlaceholder = body.includes(process.env.SUMMARY_PLACEHOLDER);
+            try {
+              const { body }= ${{ steps.fetch-pr.outputs.result }};
+              const hasPlaceholder = body.includes(process.env.SUMMARY_PLACEHOLDER);
 
-            console.log('body', body);
-            console.log('hasPlaceholder', hasPlaceholder);
+              console.log('body', body);
+              console.log('hasPlaceholder', hasPlaceholder);
 
-            if (!hasPlaceholder) {
-              console.log('PR Summary already exists. Finishing workflow execution...');
+              if (!hasPlaceholder) {
+                console.log('PR Summary already exists. Finishing workflow execution...');
 
-              exit 0;
+                exit 0;
+              }
+            } catch (error) {
+               console.log(`Error while searching for placeholder: ${error.message}`);
             }
 
       # - name: Fetch PR Diff
