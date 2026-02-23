@@ -14,7 +14,7 @@ _“Let there be light, and there was light." 💡_
 🤖| Summary	</summary>
 <br />
 
-_"beep beep boop boop"_
+[Summary Placeholder: _"beep beep boop boop"_]
 	
 </details>
 

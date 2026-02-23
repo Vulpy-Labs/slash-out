@@ -1,0 +1,135 @@
+name: Create PR Summary
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+  workflow_dispatch:
+
+env:
+  SUMMARY_PLACEHOLDER: '[Summary Placeholder: _"beep beep boop boop"_]'
+
+jobs:
+  check-if-needs-summary:
+    runs-on: ubuntu-slim
+
+    permissions:
+      contents: read
+      pull-requests: read
+
+    outputs:
+      PR_DATA: ${{ steps.fetch-pr.outputs.result }}
+      NEEDS_SUMMARY: ${{ steps.needs-summary.outputs.result }}
+
+    steps:
+      - name: Checkout To PR Code
+        uses: actions/checkout@v4
+
+      - name: Fetch PR
+        id: fetch-pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const { data } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              });
+
+              return data;
+            } catch (error) {
+              throw new Error(`Error fetching pull request: ${error.message}`);
+            }
+
+      - name: Check If Needs To Create Summary
+        id: needs-summary
+        env:
+          PR_DATA: ${{ steps.fetch-pr.outputs.result }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const { body = "" } = JSON.parse(process.env.PR_DATA);
+              const hasSummary = !body.includes(process.env.SUMMARY_PLACEHOLDER);
+              
+              if (hasSummary) {
+                console.log('PR Summary already exists.');
+
+                return false;
+              }
+              
+              console.log('Placeholder found. Summary needs to be created.')
+              return true;
+            } catch (error) {
+               throw new Error(`Error while searching for placeholder: ${error.message}`);
+            }
+
+  generate-summary:
+    needs: check-if-needs-summary
+    if: needs.check-if-needs-summary.outputs.NEEDS_SUMMARY == 'true'
+
+    runs-on: ubuntu-slim
+
+    permissions:
+      models: read
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Fetch PR Diff
+        id: fetch-pr-diff
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            try {
+              const { data = "" } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                mediaType: {
+                  format: 'diff'
+                }
+              });
+
+              return data;
+            } catch (error) {
+              throw new Error(`Error fetching PR Diff: ${error.message}`);
+            };
+
+      - name: Generate PR Summary
+        id: inference-summary
+        uses: actions/ai-inference@v2.0.6
+        with:
+          token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          model: openai/gpt-4o
+          max-tokens: 4096
+          system-prompt-file: "./.github/workflows/prompts/pr-summary.prompt.md"
+          prompt: |
+            Here is the PR Diff to analyze: ${{ steps.fetch-pr-diff.outputs.result }}
+
+      - name: Update PR Description
+        env:
+          PR_DATA: ${{ needs.check-if-needs-summary.outputs.PR_DATA }}
+          NEW_SUMMARY: ${{ steps.inference-summary.outputs.response }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const { body = "" } = JSON.parse(process.env.PR_DATA);
+              const newBody = body.replace(process.env.SUMMARY_PLACEHOLDER, process.env.NEW_SUMMARY);
+
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                body: newBody
+              });
+
+            } catch (error) {
+              throw new Error(`Error updating description: ${error.message}`);
+            };
