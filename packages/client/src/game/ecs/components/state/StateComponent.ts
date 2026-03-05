@@ -1,9 +1,9 @@
-import { Action, AliveState, CharacterState, Mobility } from '@/config/constants';
+import { InputAction, AliveState, CharacterState, Mobility } from '@/config/constants';
 
 interface StateComponent {
   characterState: CharacterState;
   mobility: Mobility;
-  action: Action;
+  inputAction: InputAction;
   aliveState: AliveState;
 }
 
