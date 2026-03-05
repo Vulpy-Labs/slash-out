@@ -4,6 +4,7 @@ import {
   InputComponent,
   KeymapComponent,
   MovementComponent,
+  StateComponent,
 } from '@/ecs/components';
 import { BaseEntity } from '../base';
 
@@ -13,6 +14,7 @@ interface PlayerEntity extends BaseEntity {
   movement: MovementComponent;
   character: CharacterComponent;
   animation: AnimationComponent;
+  state: StateComponent;
   sprite: Phaser.Physics.Matter.Sprite;
 }
 
