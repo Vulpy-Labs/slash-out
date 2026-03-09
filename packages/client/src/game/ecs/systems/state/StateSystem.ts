@@ -1,14 +1,21 @@
-import { ALIVE_STATE } from '@/config/constants';
-import { StateSystemProp, StateSystemUpdateProp, StateSystemIsPlayerAliveProp } from './types.p';
-import { DeadHandler } from './handlers';
+import { ALIVE_STATE, MOBILITY, PLAYER_MOVEMENT } from '@/config/constants';
+import {
+  StateSystemProp,
+  StateSystemUpdateProp,
+  StateSystemIsPlayerAliveProp,
+  StateSystemUpdatePostureProp,
+} from './types.p';
+import { DeadHandler, GroundedHandler } from './handlers';
 
 class StateSystem {
   private deadHandler: DeadHandler;
+  private groundedHandler: GroundedHandler;
 
   constructor({ scene }: StateSystemProp) {
     if (!scene) throw new Error('scene parameter is missing or invalid');
 
     this.deadHandler = new DeadHandler();
+    this.groundedHandler = new GroundedHandler();
   }
 
   update({ entities }: StateSystemUpdateProp) {
@@ -23,11 +30,27 @@ class StateSystem {
         this.deadHandler.resolve({ state });
         return;
       }
+
+      this.updatePosture({ state, sprite });
+
+      if (state.mobility === MOBILITY.GROUNDED) {
+        this.groundedHandler.resolve({ state, input });
+      }
     });
   }
 
   private isPlayerAlive({ state }: StateSystemIsPlayerAliveProp) {
     return state.aliveState === ALIVE_STATE.ALIVE;
+  }
+
+  private updatePosture({ state, sprite }: StateSystemUpdatePostureProp): void {
+    const body = sprite.body as MatterJS.BodyType;
+    const vy = body.velocity.y;
+    const isGrounded = Math.abs(vy) < PLAYER_MOVEMENT.GROUND.GROUNDED_VELOCITY_THRESHOLD;
+
+    if (isGrounded) {
+      state.mobility = MOBILITY.GROUNDED;
+    }
   }
 }
 
