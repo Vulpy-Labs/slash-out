@@ -54,6 +54,8 @@ class StateSystem {
 
     if (isGrounded) {
       state.mobility = MOBILITY.GROUNDED;
+    } else {
+      state.mobility = MOBILITY.AIRBORNE;
     }
   }
 }
