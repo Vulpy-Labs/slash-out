@@ -5,17 +5,19 @@ import {
   StateSystemIsPlayerAliveProp,
   StateSystemUpdatePostureProp,
 } from './types.p';
-import { DeadHandler, GroundedHandler } from './handlers';
+import { DeadHandler, GroundedHandler, AirborneHandler } from './handlers';
 
 class StateSystem {
   private deadHandler: DeadHandler;
   private groundedHandler: GroundedHandler;
+  private airborneHandler: AirborneHandler;
 
   constructor({ scene }: StateSystemProp) {
     if (!scene) throw new Error('scene parameter is missing or invalid');
 
     this.deadHandler = new DeadHandler();
     this.groundedHandler = new GroundedHandler();
+    this.airborneHandler = new AirborneHandler();
   }
 
   update({ entities }: StateSystemUpdateProp) {
@@ -35,6 +37,8 @@ class StateSystem {
 
       if (state.mobility === MOBILITY.GROUNDED) {
         this.groundedHandler.resolve({ state, input });
+      } else if (state.mobility === MOBILITY.AIRBORNE) {
+        this.airborneHandler.resolve({ state, input });
       }
     });
   }
