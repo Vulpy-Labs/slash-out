@@ -6,6 +6,7 @@ const PLAYER_MOVEMENT = {
   GROUND: {
     FRICTION: 0.21,
     SPEED: 2,
+    GROUNDED_VELOCITY_THRESHOLD: 0.5,
   },
 } as const;
 
