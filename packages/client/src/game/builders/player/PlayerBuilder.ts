@@ -5,6 +5,7 @@ import {
   defaultKeymap,
   defaultMovement,
   defaultPlayerAnimation,
+  defaultState,
 } from '@/utils/factories/ecs/components';
 
 import { GlobalEntityMap } from '@/scenes/game';
@@ -113,6 +114,7 @@ class PlayerBuilder {
       animation: defaultPlayerAnimation({ character }),
       movement: defaultMovement({ entityType: 'player' }),
       keymap: defaultKeymap({ player: character.playerRef }),
+      state: defaultState(),
     };
   }
 }
