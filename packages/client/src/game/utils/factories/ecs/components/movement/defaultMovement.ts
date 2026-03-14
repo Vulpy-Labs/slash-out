@@ -3,14 +3,7 @@ import { MovementComponent } from '@/ecs/components';
 import { DefaultMovementProp } from './type.p';
 
 function defaultMovement({ entityType }: DefaultMovementProp): MovementComponent {
-  const config = MOVEMENT_MAPPING[entityType];
-  const entityMovement = config ?? MOVEMENT_MAPPING.fallback;
-
-  if (!config) {
-    console.warn(
-      `No config was found to build the default movement for the entity: ${entityType}. Using fallback...`
-    );
-  }
+  const entityMovement = MOVEMENT_MAPPING[entityType];
 
   return {
     intent: {
