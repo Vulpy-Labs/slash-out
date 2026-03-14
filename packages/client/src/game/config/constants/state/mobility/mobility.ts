@@ -1,0 +1,7 @@
+const MOBILITY = {
+  GROUNDED: 'GROUNDED',
+  AIRBORNE: 'AIRBORNE',
+  WALL_SLIDING: 'WALL_SLIDING',
+} as const;
+
+export { MOBILITY };

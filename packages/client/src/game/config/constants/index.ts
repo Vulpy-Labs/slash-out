@@ -5,3 +5,4 @@ export * from './physics';
 export * from './depth';
 export * from './character';
 export * from './dimensions';
+export * from './state';
