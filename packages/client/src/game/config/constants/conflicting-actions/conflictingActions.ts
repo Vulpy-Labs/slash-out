@@ -1,4 +1,4 @@
-import { ConflictingActionsMap } from './type.t';
+import { ConflictingActionsMap } from './type.i';
 
 const CONFLICTING_ACTIONS: ConflictingActionsMap = [
   { actionA: 'up', actionB: 'down' },
