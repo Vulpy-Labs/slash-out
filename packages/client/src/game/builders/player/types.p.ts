@@ -1,11 +1,14 @@
-import { GlobalEntityMap } from '@/scenes/game';
-import { MatchConfig, MatchConfigCharacter } from '@/ecs/components';
-import { BaseEntity } from '@/ecs/entities';
+import { MatchConfigPlayers, MatchConfigCharacter } from '@/ecs/components';
+import { BaseEntity, GlobalEntity } from '@/ecs/entities';
+
+type PlayerIds = Set<string>;
+
+type OnEntityCreatedCallback = (entity: GlobalEntity) => void;
 
 type PlayerBuilderProp = {
   scene: Phaser.Scene;
-  matchConfig: MatchConfig;
-  entities: GlobalEntityMap;
+  playersConfig: MatchConfigPlayers;
+  onEntityCreated: OnEntityCreatedCallback;
 };
 
 type CreatePlayerSpriteProp = {
@@ -19,4 +22,10 @@ type MountPlayerEntityProp = BaseEntity & {
   sprite: Phaser.Physics.Matter.Sprite;
 };
 
-export type { PlayerBuilderProp, CreatePlayerSpriteProp, MountPlayerEntityProp };
+export type {
+  PlayerIds,
+  PlayerBuilderProp,
+  MountPlayerEntityProp,
+  CreatePlayerSpriteProp,
+  OnEntityCreatedCallback,
+};
