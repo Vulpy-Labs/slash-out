@@ -14,14 +14,14 @@ import { MatchConfig } from '@/ecs/components';
 import { CreatePlayerSpriteProp, MountPlayerEntityProp, PlayerBuilderProp } from './types.p';
 
 class PlayerBuilder {
-  private scene: Phaser.Scene;
-  private matchConfig: MatchConfig;
-  private entities: GlobalEntityMap;
+  private readonly scene: Phaser.Scene;
+  private readonly matchConfig: MatchConfig;
+  private readonly entities: GlobalEntityMap;
 
-  private baseCharacterSpritesPath = 'assets/sprites/characters';
+  private readonly baseCharacterSpritesPath = 'assets/sprites/characters';
 
   // ! Remove after the implementation of the respawn system
-  private tempSpawnPoints = {
+  private readonly tempSpawnPoints = {
     x: 100,
     y: 100,
   };
