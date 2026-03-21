@@ -1,10 +1,12 @@
 import { MatchConfigCharacter } from './character-config';
 
+type MatchConfigPlayers = {
+  characters: MatchConfigCharacter[];
+};
+
 interface MatchConfig {
   mapName: string;
-  players: {
-    characters: MatchConfigCharacter[];
-  };
+  players: MatchConfigPlayers;
 }
 
-export type { MatchConfig };
+export type { MatchConfig, MatchConfigPlayers };
