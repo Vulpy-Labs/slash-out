@@ -8,15 +8,22 @@ import {
   defaultState,
 } from '@/utils/factories/ecs/components';
 
-import { GlobalEntityMap } from '@/scenes/game';
 import { PlayerEntity } from '@/ecs/entities';
-import { MatchConfig } from '@/ecs/components';
-import { CreatePlayerSpriteProp, MountPlayerEntityProp, PlayerBuilderProp } from './types.p';
+import { MatchConfigPlayers } from '@/ecs/components';
+import {
+  PlayerIds,
+  PlayerBuilderProp,
+  MountPlayerEntityProp,
+  CreatePlayerSpriteProp,
+  OnEntityCreatedCallback,
+} from './types.p';
 
 class PlayerBuilder {
   private readonly scene: Phaser.Scene;
   private readonly playersConfig: MatchConfigPlayers;
-  private readonly entities: GlobalEntityMap;
+  private readonly onEntityCreated: OnEntityCreatedCallback;
+
+  private readonly playerIds: PlayerIds = new Set();
 
   private readonly baseCharacterSpritesPath = 'assets/sprites/characters';
 
@@ -26,10 +33,10 @@ class PlayerBuilder {
     y: 100,
   };
 
-  constructor({ scene, playersConfig }: PlayerBuilderProp) {
+  constructor({ scene, playersConfig, onEntityCreated }: PlayerBuilderProp) {
     this.scene = scene;
     this.playersConfig = playersConfig;
-    this.entities = entities;
+    this.onEntityCreated = onEntityCreated;
   }
 
   load() {
@@ -63,12 +70,7 @@ class PlayerBuilder {
   }
 
   private getPlayerId() {
-    let playerCount = 0;
-
-    this.entities.forEach(({ entityId }) =>
-      entityId.startsWith('player_') ? playerCount++ : null
-    );
-
+    const playerCount = this.playerIds.size;
     return `player_0${playerCount + 1}`;
   }
 
@@ -82,7 +84,8 @@ class PlayerBuilder {
         sprite: playerSprite,
       });
 
-      this.entities.set(playerEntity.entityId, playerEntity);
+      this.playerIds.add(playerEntity.entityId);
+      this.onEntityCreated(playerEntity);
     });
   }
 
