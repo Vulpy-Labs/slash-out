@@ -15,7 +15,7 @@ import { CreatePlayerSpriteProp, MountPlayerEntityProp, PlayerBuilderProp } from
 
 class PlayerBuilder {
   private readonly scene: Phaser.Scene;
-  private readonly matchConfig: MatchConfig;
+  private readonly playersConfig: MatchConfigPlayers;
   private readonly entities: GlobalEntityMap;
 
   private readonly baseCharacterSpritesPath = 'assets/sprites/characters';
@@ -26,9 +26,9 @@ class PlayerBuilder {
     y: 100,
   };
 
-  constructor({ scene, matchConfig, entities }: PlayerBuilderProp) {
+  constructor({ scene, playersConfig }: PlayerBuilderProp) {
     this.scene = scene;
-    this.matchConfig = matchConfig;
+    this.playersConfig = playersConfig;
     this.entities = entities;
   }
 
@@ -41,7 +41,7 @@ class PlayerBuilder {
   }
 
   private loadCharacterSprites() {
-    this.matchConfig.players.characters.forEach(character => {
+    this.playersConfig.characters.forEach(character => {
       const characterSprites = CHARACTERS_SPRITES_MODEL[character.name];
 
       if (!characterSprites) {
@@ -73,7 +73,7 @@ class PlayerBuilder {
   }
 
   private createPlayers() {
-    this.matchConfig.players.characters.forEach(character => {
+    this.playersConfig.characters.forEach(character => {
       const playerId = this.getPlayerId();
       const playerSprite = this.createPlayerSprite({ character, options: { friction: 0 } });
       const playerEntity = this.mountPlayerEntity({
