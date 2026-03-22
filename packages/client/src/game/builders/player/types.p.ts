@@ -1,7 +1,5 @@
 import { MatchConfigPlayers, MatchConfigCharacter } from '@/ecs/components';
-import { BaseEntity, GlobalEntity } from '@/ecs/entities';
-
-type PlayerIds = Set<string>;
+import { GlobalEntity } from '@/ecs/entities';
 
 type OnEntityCreatedCallback = (entity: GlobalEntity) => void;
 
@@ -17,13 +15,12 @@ type CreatePlayerSpriteProp = {
   options?: Phaser.Types.Physics.Matter.MatterBodyConfig;
 };
 
-type MountPlayerEntityProp = BaseEntity & {
+type MountPlayerEntityProp = {
   character: MatchConfigCharacter;
   sprite: Phaser.Physics.Matter.Sprite;
 };
 
 export type {
-  PlayerIds,
   PlayerBuilderProp,
   MountPlayerEntityProp,
   CreatePlayerSpriteProp,

@@ -64,12 +64,25 @@ class EntityManager {
     });
   }
 
+  private createPlayerId() {
+    let playerCount = this.players.size + 1;
+
+    while (this.players.has(`player_0${playerCount}`)) {
+      playerCount++;
+    }
+
+    return `player_0${playerCount}`;
+  }
+
   private registerEntity({ entity, options }: RegisterEntityProp) {
     const { isPlayer = false } = options || {};
 
-    this.entities.set(entity.entityId, entity);
+    if (isPlayer) {
+      entity.entityId = this.createPlayerId();
+      this.players.set(entity.entityId, entity);
+    }
 
-    if (isPlayer) this.players.set(entity.entityId, entity);
+    this.entities.set(entity.entityId, entity);
   }
 }
 

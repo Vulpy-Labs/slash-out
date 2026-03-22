@@ -11,7 +11,6 @@ import {
 import { PlayerEntity } from '@/ecs/entities';
 import { MatchConfigPlayers } from '@/ecs/components';
 import {
-  PlayerIds,
   PlayerBuilderProp,
   MountPlayerEntityProp,
   CreatePlayerSpriteProp,
@@ -22,8 +21,6 @@ class PlayerBuilder {
   private readonly scene: Phaser.Scene;
   private readonly playersConfig: MatchConfigPlayers;
   private readonly onEntityCreated: OnEntityCreatedCallback;
-
-  private readonly playerIds: PlayerIds = new Set();
 
   private readonly baseCharacterSpritesPath = 'assets/sprites/characters';
 
@@ -69,22 +66,14 @@ class PlayerBuilder {
     });
   }
 
-  private getPlayerId() {
-    const playerCount = this.playerIds.size;
-    return `player_0${playerCount + 1}`;
-  }
-
   private createPlayers() {
     this.playersConfig.characters.forEach(character => {
-      const playerId = this.getPlayerId();
       const playerSprite = this.createPlayerSprite({ character, options: { friction: 0 } });
       const playerEntity = this.mountPlayerEntity({
-        entityId: playerId,
         character,
         sprite: playerSprite,
       });
 
-      this.playerIds.add(playerEntity.entityId);
       this.onEntityCreated(playerEntity);
     });
   }
@@ -105,9 +94,9 @@ class PlayerBuilder {
     return sprite;
   }
 
-  private mountPlayerEntity({ entityId, character, sprite }: MountPlayerEntityProp): PlayerEntity {
+  private mountPlayerEntity({ character, sprite }: MountPlayerEntityProp): PlayerEntity {
     return {
-      entityId,
+      entityId: '', // This will be set by the EntityManager when registering the entity
       sprite,
       character: {
         name: character.name,
