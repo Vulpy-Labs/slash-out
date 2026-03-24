@@ -1,4 +1,5 @@
-import { PlayerBuilder, MapBuilder } from '@/builders';
+import { MapBuilder } from '@/builders';
+import { EntityManager } from '@/managers';
 import { MatchConfig } from '@/ecs/components';
 import {
   AnimationSystem,
@@ -15,8 +16,9 @@ export class MatchScene extends Phaser.Scene {
 
   private entities: GlobalEntityMap = new Map();
 
+  private entityManager: EntityManager;
+
   private mapBuilder: MapBuilder;
-  private playerBuilder: PlayerBuilder;
 
   private keymapSystem: KeymapSystem;
   private inputSystem: InputSystem;
@@ -32,11 +34,13 @@ export class MatchScene extends Phaser.Scene {
     this.matchConfig = data;
 
     this.initializeInstances();
+    this.initializeEntities();
   }
 
   initializeInstances() {
     this.initializeSystems();
     this.initializeBuilders();
+    this.initializeManagers();
   }
 
   initializeSystems() {
@@ -49,16 +53,22 @@ export class MatchScene extends Phaser.Scene {
 
   initializeBuilders() {
     this.mapBuilder = new MapBuilder({ scene: this, mapName: this.matchConfig.mapName });
-    this.playerBuilder = new PlayerBuilder({
+  }
+
+  initializeManagers() {
+    this.entityManager = new EntityManager({
       scene: this,
       matchConfig: this.matchConfig,
-      entities: this.entities,
     });
+  }
+
+  initializeEntities() {
+    this.entities = this.entityManager.getAll();
   }
 
   preload() {
     this.mapBuilder.load();
-    this.playerBuilder.load();
+    this.entityManager.load();
   }
 
   create() {
@@ -73,7 +83,7 @@ export class MatchScene extends Phaser.Scene {
   }
 
   createPlayers() {
-    this.playerBuilder.build();
+    this.entityManager.createPlayers();
   }
 
   createKeyboardInputs() {
