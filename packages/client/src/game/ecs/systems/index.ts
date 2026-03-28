@@ -3,3 +3,4 @@ export * from './input';
 export * from './movement';
 export * from './velocity';
 export * from './animation';
+export * from './state';
