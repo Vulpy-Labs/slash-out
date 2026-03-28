@@ -8,28 +8,32 @@ import {
   defaultState,
 } from '@/utils/factories/ecs/components';
 
-import { GlobalEntityMap } from '@/scenes/game';
 import { PlayerEntity } from '@/ecs/entities';
-import { MatchConfig } from '@/ecs/components';
-import { CreatePlayerSpriteProp, MountPlayerEntityProp, PlayerBuilderProp } from './types.p';
+import { MatchConfigPlayers } from '@/ecs/components';
+import {
+  PlayerBuilderProp,
+  MountPlayerEntityProp,
+  CreatePlayerSpriteProp,
+  OnEntityCreatedCallback,
+} from './types.p';
 
 class PlayerBuilder {
-  private scene: Phaser.Scene;
-  private matchConfig: MatchConfig;
-  private entities: GlobalEntityMap;
+  private readonly scene: Phaser.Scene;
+  private readonly playersConfig: MatchConfigPlayers;
+  private readonly onEntityCreated: OnEntityCreatedCallback;
 
-  private baseCharacterSpritesPath = 'assets/sprites/characters';
+  private readonly baseCharacterSpritesPath = 'assets/sprites/characters';
 
   // ! Remove after the implementation of the respawn system
-  private tempSpawnPoints = {
+  private readonly tempSpawnPoints = {
     x: 100,
     y: 100,
   };
 
-  constructor({ scene, matchConfig, entities }: PlayerBuilderProp) {
+  constructor({ scene, playersConfig, onEntityCreated }: PlayerBuilderProp) {
     this.scene = scene;
-    this.matchConfig = matchConfig;
-    this.entities = entities;
+    this.playersConfig = playersConfig;
+    this.onEntityCreated = onEntityCreated;
   }
 
   load() {
@@ -41,7 +45,7 @@ class PlayerBuilder {
   }
 
   private loadCharacterSprites() {
-    this.matchConfig.players.characters.forEach(character => {
+    this.playersConfig.characters.forEach(character => {
       const characterSprites = CHARACTERS_SPRITES_MODEL[character.name];
 
       if (!characterSprites) {
@@ -62,27 +66,15 @@ class PlayerBuilder {
     });
   }
 
-  private getPlayerId() {
-    let playerCount = 0;
-
-    this.entities.forEach(({ entityId }) =>
-      entityId.startsWith('player_') ? playerCount++ : null
-    );
-
-    return `player_0${playerCount + 1}`;
-  }
-
   private createPlayers() {
-    this.matchConfig.players.characters.forEach(character => {
-      const playerId = this.getPlayerId();
+    this.playersConfig.characters.forEach(character => {
       const playerSprite = this.createPlayerSprite({ character, options: { friction: 0 } });
       const playerEntity = this.mountPlayerEntity({
-        entityId: playerId,
         character,
         sprite: playerSprite,
       });
 
-      this.entities.set(playerEntity.entityId, playerEntity);
+      this.onEntityCreated(playerEntity);
     });
   }
 
@@ -102,9 +94,9 @@ class PlayerBuilder {
     return sprite;
   }
 
-  private mountPlayerEntity({ entityId, character, sprite }: MountPlayerEntityProp): PlayerEntity {
+  private mountPlayerEntity({ character, sprite }: MountPlayerEntityProp): PlayerEntity {
     return {
-      entityId,
+      entityId: '', // This will be set by the EntityManager when registering the entity
       sprite,
       character: {
         name: character.name,
