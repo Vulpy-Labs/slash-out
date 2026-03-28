@@ -1,20 +1,22 @@
-import { PLAYER_MOVEMENT } from '@/config/constants';
+import { MOVEMENT_MAPPING } from '@/config/constants';
 import { MovementComponent } from '@/ecs/components';
 import { DefaultMovementProp } from './type.p';
 
 function defaultMovement({ entityType }: DefaultMovementProp): MovementComponent {
-  const MOVEMENT_CONSTANT = {
-    player: PLAYER_MOVEMENT,
-  };
+  const entityMovement = MOVEMENT_MAPPING[entityType];
 
   return {
+    intent: {
+      moveX: 0,
+      moveY: 0,
+    },
     air: {
-      speed: MOVEMENT_CONSTANT[entityType].AIR.SPEED,
-      friction: MOVEMENT_CONSTANT[entityType].AIR.FRICTION,
+      speed: entityMovement.AIR.SPEED,
+      friction: entityMovement.AIR.FRICTION,
     },
     ground: {
-      speed: MOVEMENT_CONSTANT[entityType].GROUND.SPEED,
-      friction: MOVEMENT_CONSTANT[entityType].GROUND.FRICTION,
+      speed: entityMovement.GROUND.SPEED,
+      friction: entityMovement.GROUND.FRICTION,
     },
   };
 }

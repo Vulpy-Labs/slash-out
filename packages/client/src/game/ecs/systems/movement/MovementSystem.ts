@@ -1,41 +1,16 @@
-import { MovementSystemProp, MovementSystemUpdateProp } from './types.p';
+import { MovementSystemUpdateProp } from './types.p';
 
 class MovementSystem {
-  private scene: Phaser.Scene;
-
-  constructor({ scene }: MovementSystemProp) {
-    this.scene = scene;
-  }
-
   update({ entities }: MovementSystemUpdateProp) {
-    entities.forEach(({ input, movement, sprite }) => {
-      if (!input || !movement || !sprite?.body) return;
+    entities.forEach(({ input, movement }) => {
+      if (!input || !movement) return;
 
-      const wantsToMoveHorizontally = input.left || input.right;
-      const wantsToJump = input.jump;
+      movement.intent.moveX = 0;
+      movement.intent.moveY = 0;
 
-      let vx = 0;
-      let vy = sprite.body.velocity.y;
-
-      if (wantsToMoveHorizontally) {
-        if (input.left) {
-          vx = -movement.ground.speed;
-          sprite.setFlipX(true);
-        }
-        if (input.right) {
-          vx = movement.ground.speed;
-          sprite.setFlipX(false);
-        }
-      }
-
-      if (wantsToJump) {
-        vy = -movement.air.speed;
-      }
-
-      this.scene.matter.body.setVelocity(sprite.body as MatterJS.BodyType, {
-        x: vx,
-        y: vy,
-      });
+      if (input.jump) movement.intent.moveY = -1;
+      if (input.left) movement.intent.moveX = -1;
+      if (input.right) movement.intent.moveX = 1;
     });
   }
 }

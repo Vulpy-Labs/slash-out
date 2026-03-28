@@ -1,12 +1,15 @@
-import { PlayerBuilder, MapBuilder } from '@/builders';
+import { MapBuilder } from '@/builders';
+import { EntityManager } from '@/managers';
 import { MatchConfig } from '@/ecs/components';
 import {
   AnimationSystem,
   InputSystem,
   KeymapSystem,
   MovementSystem,
+  VelocitySystem,
   StateSystem,
 } from '@/ecs/systems';
+
 import { GlobalEntityMap } from './type.i';
 
 export class MatchScene extends Phaser.Scene {
@@ -14,13 +17,15 @@ export class MatchScene extends Phaser.Scene {
 
   private entities: GlobalEntityMap = new Map();
 
+  private entityManager: EntityManager;
+
   private mapBuilder: MapBuilder;
-  private playerBuilder: PlayerBuilder;
 
   private keymapSystem: KeymapSystem;
   private inputSystem: InputSystem;
   private stateSystem: StateSystem;
   private movementSystem: MovementSystem;
+  private velocitySystem: VelocitySystem;
   private animationSystem: AnimationSystem;
 
   constructor() {
@@ -31,33 +36,44 @@ export class MatchScene extends Phaser.Scene {
     this.matchConfig = data;
 
     this.initializeInstances();
+    this.initializeEntities();
   }
 
   initializeInstances() {
     this.initializeSystems();
     this.initializeBuilders();
+    this.initializeManagers();
   }
 
   initializeSystems() {
+    this.inputSystem = new InputSystem();
+    this.movementSystem = new MovementSystem();
     this.keymapSystem = new KeymapSystem({ scene: this });
-    this.inputSystem = new InputSystem({ scene: this });
+    this.inputSystem = new InputSystem();
     this.stateSystem = new StateSystem({ scene: this });
-    this.movementSystem = new MovementSystem({ scene: this });
+    this.movementSystem = new MovementSystem();
+    this.velocitySystem = new VelocitySystem({ scene: this });
     this.animationSystem = new AnimationSystem({ scene: this });
   }
 
   initializeBuilders() {
     this.mapBuilder = new MapBuilder({ scene: this, mapName: this.matchConfig.mapName });
-    this.playerBuilder = new PlayerBuilder({
+  }
+
+  initializeManagers() {
+    this.entityManager = new EntityManager({
       scene: this,
       matchConfig: this.matchConfig,
-      entities: this.entities,
     });
+  }
+
+  initializeEntities() {
+    this.entities = this.entityManager.getAll();
   }
 
   preload() {
     this.mapBuilder.load();
-    this.playerBuilder.load();
+    this.entityManager.load();
   }
 
   create() {
@@ -72,7 +88,7 @@ export class MatchScene extends Phaser.Scene {
   }
 
   createPlayers() {
-    this.playerBuilder.build();
+    this.entityManager.createPlayers();
   }
 
   createKeyboardInputs() {
@@ -87,6 +103,7 @@ export class MatchScene extends Phaser.Scene {
     this.inputSystem.update({ entities: this.entities });
     this.stateSystem.update({ entities: this.entities });
     this.movementSystem.update({ entities: this.entities });
+    this.velocitySystem.update({ entities: this.entities });
     this.animationSystem.update({ entities: this.entities });
   }
 }
