@@ -24,7 +24,6 @@ function defaultPlayerAnimation({ character }: DefaultPlayerAnimationProp): Anim
 
   return {
     animations,
-    currentState: 'IDLE',
   };
 }
 
