@@ -21,6 +21,7 @@ class PlayerBuilder {
   private readonly scene: Phaser.Scene;
   private readonly onEntityCreated: OnEntityCreatedCallback;
 
+  private readonly loadingSpritesKeys: Set<string> = new Set();
   private readonly baseCharacterSpritesPath = 'assets/sprites/characters';
 
   // ! Remove after the implementation of the respawn system
@@ -54,6 +55,9 @@ class PlayerBuilder {
       const url = `${this.baseCharacterSpritesPath}/${character.name}/${character.skin}/${spriteName}.png`;
 
       if (this.scene.textures.exists(key)) return;
+      if (this.loadingSpritesKeys.has(key)) return;
+
+      this.loadingSpritesKeys.add(key);
 
       return this.scene.load.spritesheet(key, url, {
         frameWidth: PLAYER_DIMENSIONS.WIDTH,
