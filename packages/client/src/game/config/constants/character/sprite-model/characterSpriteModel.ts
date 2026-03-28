@@ -40,8 +40,8 @@ const BASE_CHARACTER_SPRITES: SpriteConfig[] = [
     spriteName: 'spr_jump',
     frameRate: 12,
     repeat: false,
-    start: 1,
-    end: 2,
+    start: 2,
+    end: 3,
   },
   {
     key: CHARACTER_STATE.SLICE,
