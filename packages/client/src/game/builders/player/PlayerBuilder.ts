@@ -62,7 +62,7 @@ class PlayerBuilder {
     });
   }
 
-  private createPlayer({ character }: CreatePlayerSpriteProp) {
+  private createPlayer({ character }: PlayerBuilderPayloadProp) {
     const playerSprite = this.createPlayerSprite({ character, options: { friction: 0 } });
     const playerEntity = this.mountPlayerEntity({
       character,
