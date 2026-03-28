@@ -59,7 +59,11 @@ class PlayerBuilder {
 
       this.loadingSpritesKeys.add(key);
 
-      return this.scene.load.spritesheet(key, url, {
+      this.scene.load.once(`filecomplete-spritesheet-${key}`, () => {
+        this.loadingSpritesKeys.delete(key);
+      });
+
+      this.scene.load.spritesheet(key, url, {
         frameWidth: PLAYER_DIMENSIONS.WIDTH,
         frameHeight: PLAYER_DIMENSIONS.HEIGHT,
       });
