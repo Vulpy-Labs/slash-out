@@ -44,14 +44,14 @@ class AnimationSystem {
   }
 
   update({ entities }: AnimationSystemPayloadProp) {
-    entities.forEach(({ animation, sprite }) => {
-      if (!animation || !sprite) return;
+    entities.forEach(({ animation, sprite, state }) => {
+      if (!animation || !sprite || !state) return;
 
       if (typeof animation.flipX === 'boolean') {
         sprite.setFlipX(animation.flipX);
       }
 
-      const targetAnimKey = animation.animations[animation.currentState];
+      const targetAnimKey = animation.animations[state.characterState];
 
       if (!targetAnimKey?.key) return;
 
