@@ -21,11 +21,13 @@ class EntityManager {
   }
 
   load() {
-    this.playerBuilder.load();
+    this.loadPlayers();
   }
 
   createPlayers() {
-    this.playerBuilder.build();
+    this.matchConfig.players.characters.forEach(character => {
+      this.playerBuilder.build({ character });
+    });
   }
 
   getAll() {
@@ -59,8 +61,13 @@ class EntityManager {
   private initializeBuilders() {
     this.playerBuilder = new PlayerBuilder({
       scene: this.scene,
-      playersConfig: this.matchConfig.players,
       onEntityCreated: entity => this.registerEntity({ entity, options: { isPlayer: true } }),
+    });
+  }
+
+  private loadPlayers() {
+    this.matchConfig.players.characters.forEach(character => {
+      this.playerBuilder.load({ character });
     });
   }
 
