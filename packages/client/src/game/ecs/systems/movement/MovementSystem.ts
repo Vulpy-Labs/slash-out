@@ -1,9 +1,10 @@
 import { MovementSystemUpdateProp } from './types.p';
+import { ALIVE_STATE } from '@/config/constants';
 
 class MovementSystem {
   update({ entities }: MovementSystemUpdateProp) {
-    entities.forEach(({ input, movement }) => {
-      if (!input || !movement) return;
+    entities.forEach(({ input, movement, state }) => {
+      if (!input || !movement || !state || state.aliveState !== ALIVE_STATE.ALIVE) return;
 
       movement.intent.moveX = 0;
       movement.intent.moveY = 0;
