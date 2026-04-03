@@ -12,10 +12,6 @@ class StateSystem {
   }
 
   update({ entities }: StateSystemUpdateProp) {
-    if (!(entities instanceof Map)) {
-      throw new Error(`Entities is not a Map: ${typeof entities}`);
-    }
-
     entities.forEach(({ state, input, animation, sprite }) => {
       if (!state || !input || !animation || !sprite?.body) return;
 
