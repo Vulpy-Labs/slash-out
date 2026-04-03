@@ -7,7 +7,7 @@ class StateSystem {
 
   constructor({ scene }: StateSystemProp) {
     if (!scene) throw new Error('scene parameter is missing or invalid');
-
+  constructor() {
     this.deadHandler = new DeadHandler();
   }
 
