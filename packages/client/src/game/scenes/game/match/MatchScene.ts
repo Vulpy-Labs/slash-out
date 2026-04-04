@@ -101,9 +101,9 @@ export class MatchScene extends Phaser.Scene {
 
   update() {
     this.inputSystem.update({ entities: this.entities });
-    this.stateSystem.update({ entities: this.entities });
     this.movementSystem.update({ entities: this.entities });
     this.velocitySystem.update({ entities: this.entities });
+    this.stateSystem.update({ entities: this.entities });
     this.animationSystem.update({ entities: this.entities });
   }
 }
