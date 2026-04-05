@@ -12,6 +12,12 @@ class GroundedHandler {
       return;
     }
 
+    if (input.dash) {
+      state.inputAction = INPUT_ACTION.DASH;
+      state.characterState = CHARACTER_STATE.SLICE;
+      return;
+    }
+
     if (input.left || input.right) {
       state.inputAction = INPUT_ACTION.RUN;
       state.characterState = CHARACTER_STATE.RUN;
