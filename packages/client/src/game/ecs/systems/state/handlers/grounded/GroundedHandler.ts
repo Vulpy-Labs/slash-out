@@ -13,19 +13,19 @@ class GroundedHandler {
     }
 
     if (input.left || input.right) {
-      state.inputAction = INPUT_ACTION.RUNNING;
+      state.inputAction = INPUT_ACTION.RUN;
       state.characterState = CHARACTER_STATE.RUN;
       return;
     }
 
     if (input.up) {
-      state.inputAction = INPUT_ACTION.LOOKING_UP;
+      state.inputAction = INPUT_ACTION.LOOK_UP;
       state.characterState = CHARACTER_STATE.LOOK_UP;
       return;
     }
 
     if (input.down) {
-      state.inputAction = INPUT_ACTION.LOOKING_DOWN;
+      state.inputAction = INPUT_ACTION.LOOK_DOWN;
       state.characterState = CHARACTER_STATE.LOOK_DOWN;
       return;
     }
