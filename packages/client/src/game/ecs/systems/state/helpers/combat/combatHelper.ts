@@ -3,7 +3,6 @@ import { CombatHelperResolveProp, CombatHelperResolveResult } from './types.p';
 
 function resolveCombat({ input }: CombatHelperResolveProp): CombatHelperResolveResult | null {
   const ATTACK_MAPPING = {
-    // as an external constant to avoid hardcoding the logic
     sword: {
       up: INPUT_ACTION.SHORT_ATTACK_UP,
       down: INPUT_ACTION.SHORT_ATTACK_DOWN,
