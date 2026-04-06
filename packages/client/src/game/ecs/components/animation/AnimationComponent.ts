@@ -13,7 +13,6 @@ type Animation = {
 
 interface AnimationComponent {
   flipX?: boolean;
-  currentState: AnimationState;
   animations: Partial<Record<AnimationState, Animation>>;
 }
 
