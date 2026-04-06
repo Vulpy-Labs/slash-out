@@ -1,6 +1,5 @@
 import { ALIVE_STATE, MOBILITY, PLAYER_MOVEMENT } from '@/config/constants';
 import {
-  StateSystemProp,
   StateSystemUpdateProp,
   StateSystemIsPlayerAliveProp,
   StateSystemUpdatePostureProp,
@@ -12,21 +11,15 @@ class StateSystem {
   private groundedHandler: GroundedHandler;
   private airborneHandler: AirborneHandler;
 
-  constructor({ scene }: StateSystemProp) {
-    if (!scene) throw new Error('scene parameter is missing or invalid');
-
+  constructor() {
     this.deadHandler = new DeadHandler();
     this.groundedHandler = new GroundedHandler();
     this.airborneHandler = new AirborneHandler();
   }
 
   update({ entities }: StateSystemUpdateProp) {
-    if (!(entities instanceof Map)) {
-      throw new Error(`Entities is not a Map: ${typeof entities}`);
-    }
-
-    entities.forEach(({ state, input, animation, sprite }) => {
-      if (!state || !input || !animation || !sprite?.body) return;
+    entities.forEach(({ state, input, sprite }) => {
+      if (!state || !input || !sprite) return;
 
       if (!this.isPlayerAlive({ state })) {
         this.deadHandler.resolve({ state });
