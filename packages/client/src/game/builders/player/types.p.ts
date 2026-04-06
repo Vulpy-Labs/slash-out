@@ -1,12 +1,15 @@
-import { MatchConfigPlayers, MatchConfigCharacter } from '@/ecs/components';
+import { MatchConfigCharacter } from '@/ecs/components';
 import { GlobalEntity } from '@/ecs/entities';
 
 type OnEntityCreatedCallback = (entity: GlobalEntity) => void;
 
 type PlayerBuilderProp = {
   scene: Phaser.Scene;
-  playersConfig: MatchConfigPlayers;
   onEntityCreated: OnEntityCreatedCallback;
+};
+
+type PlayerBuilderPayloadProp = {
+  character: MatchConfigCharacter;
 };
 
 type CreatePlayerSpriteProp = {
@@ -25,4 +28,5 @@ export type {
   MountPlayerEntityProp,
   CreatePlayerSpriteProp,
   OnEntityCreatedCallback,
+  PlayerBuilderPayloadProp,
 };
