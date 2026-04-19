@@ -7,3 +7,4 @@ export * from './depth';
 export * from './character';
 export * from './dimensions';
 export * from './state';
+export * from './entity-types';
