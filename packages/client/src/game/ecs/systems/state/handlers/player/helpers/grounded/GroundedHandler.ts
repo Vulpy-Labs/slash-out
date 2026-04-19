@@ -7,26 +7,26 @@ class GroundedHandler {
     const combat = resolveCombat({ input });
 
     if (combat) {
-      state.characterState = combat.characterState;
+      state.current = combat.characterState;
       return;
     }
 
     if (input.left || input.right) {
-      state.characterState = CHARACTER_STATE.RUN;
+      state.current = CHARACTER_STATE.RUN;
       return;
     }
 
     if (input.up) {
-      state.characterState = CHARACTER_STATE.LOOK_UP;
+      state.current = CHARACTER_STATE.LOOK_UP;
       return;
     }
 
     if (input.down) {
-      state.characterState = CHARACTER_STATE.LOOK_DOWN;
+      state.current = CHARACTER_STATE.LOOK_DOWN;
       return;
     }
 
-    state.characterState = CHARACTER_STATE.IDLE;
+    state.current = CHARACTER_STATE.IDLE;
   }
 }
 
