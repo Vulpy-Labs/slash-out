@@ -1,3 +1,4 @@
+import { CharacterState } from '@/config/constants';
 import { InputComponent } from '@/ecs/components';
 
 type CombatHelperResolveProp = {
@@ -5,7 +6,7 @@ type CombatHelperResolveProp = {
 };
 
 type CombatHelperResolveResult = {
-  characterState: string;
+  characterState: CharacterState;
 };
 
 export type { CombatHelperResolveProp, CombatHelperResolveResult };
