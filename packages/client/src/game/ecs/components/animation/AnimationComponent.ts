@@ -9,7 +9,7 @@ type Animation = {
 
 interface AnimationComponent {
   flipX?: boolean;
-  animations: Record<string, Animation>;
+  animations: Partial<Record<string, Animation>>;
 }
 
 export type { AnimationComponent };
