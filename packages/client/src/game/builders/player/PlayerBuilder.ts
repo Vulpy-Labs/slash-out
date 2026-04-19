@@ -113,7 +113,7 @@ class PlayerBuilder {
       input: defaultInput(),
       state: defaultState(),
       animation: defaultPlayerAnimation({ character }),
-      movement: defaultMovement({ entityType: 'player' }),
+      movement: defaultMovement({ entityType: 'PLAYER' }),
       keymap: defaultKeymap({ player: character.playerRef }),
     };
   }
