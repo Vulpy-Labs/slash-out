@@ -1,4 +1,4 @@
-import { EntityTypes } from '@/config/constants';
+import type { EntityTypes } from '@/config/constants';
 
 interface BaseEntity {
   entityId: string;
