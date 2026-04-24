@@ -1,4 +1,9 @@
-import { CHARACTERS_SPRITES_MODEL, DEPTH, PLAYER_DIMENSIONS } from '@/config/constants';
+import {
+  CHARACTERS_SPRITES_MODEL,
+  DEPTH,
+  ENTITY_TYPES,
+  PLAYER_DIMENSIONS,
+} from '@/config/constants';
 
 import {
   defaultInput,
@@ -99,6 +104,7 @@ class PlayerBuilder {
   private mountPlayerEntity({ character, sprite }: MountPlayerEntityProp): PlayerEntity {
     return {
       entityId: '', // This will be set by the EntityManager when registering the entity
+      entityType: ENTITY_TYPES.PLAYER,
       sprite,
       character: {
         name: character.name,
@@ -107,7 +113,7 @@ class PlayerBuilder {
       input: defaultInput(),
       state: defaultState(),
       animation: defaultPlayerAnimation({ character }),
-      movement: defaultMovement({ entityType: 'player' }),
+      movement: defaultMovement({ entityType: ENTITY_TYPES.PLAYER }),
       keymap: defaultKeymap({ player: character.playerRef }),
     };
   }

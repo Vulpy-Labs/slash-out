@@ -47,6 +47,8 @@ export class MatchScene extends Phaser.Scene {
 
   initializeSystems() {
     this.keymapSystem = new KeymapSystem({ scene: this });
+    this.inputSystem = new InputSystem();
+    this.movementSystem = new MovementSystem();
     this.velocitySystem = new VelocitySystem({ scene: this });
     this.stateSystem = new StateSystem();
     this.animationSystem = new AnimationSystem({ scene: this });
