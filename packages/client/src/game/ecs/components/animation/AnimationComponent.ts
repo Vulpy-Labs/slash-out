@@ -1,3 +1,7 @@
+import { CharacterState } from '@/config/constants';
+
+type AnimationState = CharacterState;
+
 type Animation = {
   key: string;
   end: number;
@@ -9,7 +13,7 @@ type Animation = {
 
 interface AnimationComponent {
   flipX?: boolean;
-  animations: Partial<Record<string, Animation>>;
+  animations: Partial<Record<AnimationState, Animation>>;
 }
 
 export type { AnimationComponent };
