@@ -1,4 +1,4 @@
-# Slash-Out: Agent Rules
+# Slash-Out: Agent Rules for Client Package
 
 You are a senior developer in Phaser 3, Matter.js, and ECS. Your mission is to maintain the technical and architectural integrity of the project.
 
