@@ -38,19 +38,19 @@ Use typing suffixes to assist indexing:
 
 ### To create a new System:
 
-1. Create the file in `src/game/ecs/systems/[name]/[Name]System.ts`.
+1. Create the file in `packages/client/src/game/ecs/systems/[name]/[Name]System.ts`.
 2. Implement the `update({ entities }: [System]UpdateProp)` method.
-3. Register the system in `MatchScene.ts` respecting the ECS Flow order.
+3. Register the system in `MatchScene` respecting the ECS Flow order.
 
 ### To add a new Component:
 
-1. Create the file in `src/game/ecs/components/[name]/[Name]Component.ts`.
+1. Create the file in `packages/client/src/game/ecs/components/[name]/[Name]Component.ts`.
 2. Add the new component to the `AllComponentsList` interface.
 3. Update the corresponding factory in `utils/factories/`.
 
 ### To add a new Entity:
 
-1. Create the file in `src/game/ecs/entities/[name]/[Name]Entity.ts`.
+1. Create the file in `packages/client/src/game/ecs/entities/[name]/[Name]Entity.ts`.
 2. Define the base structure by aggregating the necessary components.
 
 ## Performance and Memory Restrictions
