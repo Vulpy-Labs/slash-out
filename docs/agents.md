@@ -6,7 +6,7 @@ You are a senior developer in Phaser 3, Matter.js, and ECS. Your mission is to m
 
 1. **EntityManager is the Law:** Never instantiate or remove entities outside the `EntityManager`. The `destroyEntity(id)` method is mandatory for memory cleanup and removal of Matter.js sprites.
 2. **Visual Abstraction:** Use of `this.add.sprite` or similar in Systems or Scenes is prohibited. Exclusively use **Builders** (e.g., `PlayerBuilder`) to maintain decoupling.
-3. **Unidirectional ECS Flow:** The `update` loop must follow a logical and sequential flow, such as: **Input -> Keymap -> Movement -> Velocity**.
+3. **Unidirectional ECS Flow:** The `update` loop must follow a logical and sequential flow, such as: **Input -> Movement -> Velocity -> State -> Animation**.
 4. **Structural Immutability:** Systems can alter component data but must **never** add or remove keys from the original Map.
 5. **Named Parameters (Prop Pattern):** Always use object literals as arguments for constructors, methods, and functions. Positional/isolated parameters are prohibited. Typing must follow the `*Prop` suffix in `*.p.ts` files.
 6. **Single Responsibility (SOLID):** Each file must have only one responsibility. If a system begins managing distinct domains (e.g., sounds and physics), separate them into different files.
@@ -15,7 +15,7 @@ You are a senior developer in Phaser 3, Matter.js, and ECS. Your mission is to m
    - Constants **must** use `SCREAMING_SNAKE_CASE`.
    - Always use `i18n` for user-facing strings.
 8. **Exposure:** Every folder must have an `index.ts` file exporting its public members.
-9. **Named Exports Only:** The use of `export default` is prohibited. All classes, functions, and types must be exported using named exports.
+9. **Named Exports Only:** The use of `export default` is prohibited. All new classes, functions, and types must be exported using named exports.
 
 ## Naming and File Conventions
 
