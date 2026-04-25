@@ -7,11 +7,11 @@ class AirborneHandler {
     const combat = resolveCombat({ input });
 
     if (combat) {
-      state.characterState = combat.characterState;
+      state.current = combat.characterState;
       return;
     }
 
-    state.characterState = CHARACTER_STATE.JUMP;
+    state.current = CHARACTER_STATE.JUMP;
   }
 }
 

@@ -1,3 +1,2 @@
-export * from './dead';
-export * from './grounded';
-export * from './airborne';
+export * from './player';
+export * from './types.i';
