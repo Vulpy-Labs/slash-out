@@ -1,1 +1,1 @@
-Follow the guidelines outlined in `./docs/agents.md` **strictly**.
+Follow the guidelines outlined in `docs/agents.md` **strictly**.
