@@ -58,3 +58,25 @@ Use typing suffixes to assist indexing:
 - **Zero Garbage Collection:** Creation of `{}` or `[]` objects inside `update` loops is prohibited. Reuse existing references if necessary.
 - **Preload Safety:** Always validate `this.scene.textures.exists(key)` or similar before calling the loader.
 - **Async Tracking:** When loading assets dynamically, use a temporary `Set` to track keys currently loading and clear it on `filecomplete`.
+
+## Commit Convention
+
+Follow this strict pattern for all commit messages. Non-compliant commits will be rejected by git-hooks.
+
+### Rules:
+
+1. **Lowercase Only:** Never start the message with a capital letter.
+2. **No Punctuation:** Do not add a period at the end of the message.
+3. **No Extras:** Do not include branch names, emojis, or manual tags in the description.
+4. **Specific Types:** Use only the identifiers mapped in `packages/scripts/git-hooks/commit-msg` (e.g., `feat`, `fix`, `refac`, `anim`, `chore`, `doc`).
+
+### Format:
+
+`<type>: <description>`
+
+### Examples:
+
+- `refac: remove unnecessary code`
+- `feat: add conflicting actions constant`
+- `anim: add player sword attack animation`
+- `fix: prioritize the last conflicting key pressed`
