@@ -45,15 +45,19 @@ class AnimationSystem {
 
   update({ entities }: AnimationSystemPayloadProp) {
     entities.forEach(({ animation, sprite, state }) => {
-      if (!animation || !sprite || !state) return;
+      if (!animation || !sprite) return;
+
+      let targetAnimKey;
 
       if (typeof animation.flipX === 'boolean') {
         sprite.setFlipX(animation.flipX);
       }
 
-      const targetAnimKey = animation.animations[state.characterState];
-
-      if (!targetAnimKey?.key) return;
+      if (state) {
+        targetAnimKey = animation.animations[state.current];
+      } else {
+        targetAnimKey = Object.values(animation.animations)[0];
+      }
 
       const isCurrentAnimation = sprite.anims.currentAnim?.key === targetAnimKey.key;
 

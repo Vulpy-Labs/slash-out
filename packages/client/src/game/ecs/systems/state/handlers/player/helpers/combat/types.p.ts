@@ -1,4 +1,4 @@
-import { InputAction, CharacterState } from '@/config/constants';
+import { CharacterState } from '@/config/constants';
 import { InputComponent } from '@/ecs/components';
 
 type CombatHelperResolveProp = {
@@ -6,7 +6,6 @@ type CombatHelperResolveProp = {
 };
 
 type CombatHelperResolveResult = {
-  inputAction: InputAction;
   characterState: CharacterState;
 };
 
