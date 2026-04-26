@@ -1,7 +1,7 @@
 import { MOBILITY } from '@/config/constants';
 import { GlobalEntity } from '@/ecs/entities';
 import { getMobility } from '@/utils/physics';
-import { GroundedHandler, AirborneHandler } from './helpers';
+import { GroundedHandler, AirborneHandler, resolveCombat } from './helpers';
 
 import { IEntityStateHandler } from '../types.i';
 import { PlayerStateHandlerUpdateProp, ValidPlayerEntity } from './types.p';
@@ -19,6 +19,13 @@ class PlayerStateHandler implements IEntityStateHandler {
     if (!this.isValidPlayer(entity)) return;
 
     const { state, input, sprite } = entity;
+
+    const combat = resolveCombat({ input });
+    if (combat) {
+      state.current = combat.characterState;
+      return;
+    }
+
     const mobility = getMobility(sprite);
 
     if (mobility === MOBILITY.GROUNDED) {
