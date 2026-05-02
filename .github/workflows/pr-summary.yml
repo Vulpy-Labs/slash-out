@@ -20,6 +20,7 @@ jobs:
     outputs:
       PR_DATA: ${{ steps.fetch-pr.outputs.result }}
       NEEDS_SUMMARY: ${{ steps.needs-summary.outputs.result }}
+      SKIP_SUMMARY: ${{ steps.check-skip-files.outputs.result }}
 
     steps:
       - name: Checkout To PR Code
@@ -65,9 +66,38 @@ jobs:
                throw new Error(`Error while searching for placeholder: ${error.message}`);
             }
 
+      - name: Check If PR Only Has Skippable Files
+        id: check-skip-files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const SKIPPABLE_EXTENSIONS = ['.excalidraw'];
+
+            try {
+              const { data: files } = await github.rest.pulls.listFiles({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              });
+
+              const allSkippable = files.every(({ filename }) =>
+                SKIPPABLE_EXTENSIONS.some((ext) => filename.endsWith(ext))
+              );
+
+              if (allSkippable) {
+                console.log('PR only contains skippable files. Skipping summary.');
+                return true;
+              }
+
+              console.log('PR contains non-skippable files. Proceeding with summary.');
+              return false;
+            } catch (error) {
+              throw new Error(`Error fetching PR files: ${error.message}`);
+            }
+
   generate-summary:
     needs: check-if-needs-summary
-    if: needs.check-if-needs-summary.outputs.NEEDS_SUMMARY == 'true'
+    if: needs.check-if-needs-summary.outputs.NEEDS_SUMMARY == 'true' && needs.check-if-needs-summary.outputs.SKIP_SUMMARY == 'false'
 
     runs-on: ubuntu-slim
 
