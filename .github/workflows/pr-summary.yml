@@ -9,7 +9,6 @@ on:
       pull_number:
         description: Pull request number to summarize
         required: true
-        type: number
 
 env:
   PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.pull_number || github.event.pull_request.number }}
