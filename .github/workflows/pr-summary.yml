@@ -5,8 +5,14 @@ on:
     types: [opened, reopened, synchronize]
 
   workflow_dispatch:
+    inputs:
+      pull_number:
+        description: Pull request number to summarize
+        required: true
+        type: number
 
 env:
+  PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.pull_number || github.event.pull_request.number }}
   SUMMARY_PLACEHOLDER: '[Summary Placeholder: _"beep beep boop boop"_]'
 
 jobs:
@@ -19,8 +25,7 @@ jobs:
 
     outputs:
       PR_DATA: ${{ steps.fetch-pr.outputs.result }}
-      NEEDS_SUMMARY: ${{ steps.needs-summary.outputs.result }}
-      SKIP_SUMMARY: ${{ steps.check-skip-files.outputs.result }}
+      SHOULD_SUMMARIZE: ${{ steps.should-summarize.outputs.result }}
 
     steps:
       - name: Checkout To PR Code
@@ -35,7 +40,7 @@ jobs:
               const { data } = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: context.issue.number,
+                pull_number: Number(process.env.PR_NUMBER),
               });
 
               return data;
@@ -43,47 +48,34 @@ jobs:
               throw new Error(`Error fetching pull request: ${error.message}`);
             }
 
-      - name: Check If Needs To Create Summary
-        id: needs-summary
+      - name: Check If Should Create Summary
+        id: should-summarize
         env:
           PR_DATA: ${{ steps.fetch-pr.outputs.result }}
-        uses: actions/github-script@v7
-        with:
-          script: |
-            try {
-              const { body = "" } = JSON.parse(process.env.PR_DATA);
-              const hasSummary = !body.includes(process.env.SUMMARY_PLACEHOLDER);
-              
-              if (hasSummary) {
-                console.log('PR Summary already exists.');
-
-                return false;
-              }
-              
-              console.log('Placeholder found. Summary needs to be created.')
-              return true;
-            } catch (error) {
-               throw new Error(`Error while searching for placeholder: ${error.message}`);
-            }
-
-      - name: Check If PR Only Has Skippable Files
-        id: check-skip-files
-        if: steps.needs-summary.outputs.result == 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const SKIPPABLE_EXTENSIONS = ['.excalidraw'];
 
             try {
+              const { body = "" } = JSON.parse(process.env.PR_DATA);
+              const hasPlaceholder = body.includes(process.env.SUMMARY_PLACEHOLDER);
+              
+              if (!hasPlaceholder) {
+                console.log('Placeholder not found. PR summary might already exist.');
+
+                return false;
+              }
+
               const files = await github.paginate(github.rest.pulls.listFiles, {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: context.issue.number,
+                pull_number: Number(process.env.PR_NUMBER),
                 per_page: 100,
               });
 
               if (files.length === 0) {
-                console.log('No files returned. Treating as non-skippable.');
+                console.log('PR has no changed files. Skipping summary.');
                 return false;
               }
 
@@ -93,18 +85,18 @@ jobs:
 
               if (allSkippable) {
                 console.log('PR only contains skippable files. Skipping summary.');
-                return true;
+                return false;
               }
 
-              console.log('PR contains non-skippable files. Proceeding with summary.');
-              return false;
+              console.log('Placeholder found and PR has non-skippable files. Summary will be created.');
+              return true;
             } catch (error) {
-              throw new Error(`Error fetching PR files: ${error.message}`);
+              throw new Error(`Error while deciding if summary should be created: ${error.message}`);
             }
 
   generate-summary:
     needs: check-if-needs-summary
-    if: needs.check-if-needs-summary.outputs.NEEDS_SUMMARY == 'true' && needs.check-if-needs-summary.outputs.SKIP_SUMMARY == 'false'
+    if: needs.check-if-needs-summary.outputs.SHOULD_SUMMARIZE == 'true'
 
     runs-on: ubuntu-slim
 
@@ -127,7 +119,7 @@ jobs:
               const { data = "" } = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: context.issue.number,
+                pull_number: Number(process.env.PR_NUMBER),
                 mediaType: {
                   format: 'diff'
                 }
@@ -163,7 +155,7 @@ jobs:
               await github.rest.pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: context.issue.number,
+                pull_number: Number(process.env.PR_NUMBER),
                 body: newBody
               });
 
