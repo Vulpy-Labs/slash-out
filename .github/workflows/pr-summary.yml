@@ -5,9 +5,15 @@ on:
     types: [opened, reopened, synchronize]
 
   workflow_dispatch:
+    inputs:
+      pull_number:
+        description: Pull request number to summarize
+        required: true
 
 env:
+  PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.pull_number || github.event.pull_request.number }}
   SUMMARY_PLACEHOLDER: '[Summary Placeholder: _"beep beep boop boop"_]'
+  SKIPPABLE_EXTENSIONS: '[".excalidraw"]'
 
 jobs:
   check-if-needs-summary:
@@ -19,7 +25,8 @@ jobs:
 
     outputs:
       PR_DATA: ${{ steps.fetch-pr.outputs.result }}
-      NEEDS_SUMMARY: ${{ steps.needs-summary.outputs.result }}
+      PR_FILES: ${{ steps.should-summarize.outputs.files }}
+      SHOULD_SUMMARIZE: ${{ steps.should-summarize.outputs.result }}
 
     steps:
       - name: Checkout To PR Code
@@ -30,11 +37,16 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const pullNumber = Number(process.env.PR_NUMBER);
+            if (!Number.isInteger(pullNumber) || pullNumber <= 0) {
+              throw new Error(`Invalid PR number: "${process.env.PR_NUMBER}". Must be a positive integer.`);
+            }
+
             try {
               const { data } = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: context.issue.number,
+                pull_number: pullNumber,
               });
 
               return data;
@@ -42,32 +54,57 @@ jobs:
               throw new Error(`Error fetching pull request: ${error.message}`);
             }
 
-      - name: Check If Needs To Create Summary
-        id: needs-summary
+      - name: Check If Should Create Summary
+        id: should-summarize
         env:
           PR_DATA: ${{ steps.fetch-pr.outputs.result }}
         uses: actions/github-script@v7
         with:
           script: |
+            const skippableExtensions = JSON.parse(process.env.SKIPPABLE_EXTENSIONS);
+
             try {
               const { body = "" } = JSON.parse(process.env.PR_DATA);
-              const hasSummary = !body.includes(process.env.SUMMARY_PLACEHOLDER);
-              
-              if (hasSummary) {
-                console.log('PR Summary already exists.');
+              const hasPlaceholder = body.includes(process.env.SUMMARY_PLACEHOLDER);
+
+              if (!hasPlaceholder) {
+                console.log('Placeholder not found. PR summary might already exist.');
 
                 return false;
               }
-              
-              console.log('Placeholder found. Summary needs to be created.')
+
+              const files = await github.paginate(github.rest.pulls.listFiles, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: Number(process.env.PR_NUMBER),
+                per_page: 100,
+              });
+
+              if (files.length === 0) {
+                console.log('PR has no changed files. Skipping summary.');
+                return false;
+              }
+
+              const allSkippable = files.every(({ filename }) =>
+                skippableExtensions.some((ext) => filename.endsWith(ext))
+              );
+
+              if (allSkippable) {
+                console.log('PR only contains skippable files. Skipping summary.');
+                return false;
+              }
+
+              const trimmedFiles = files.map(({ filename, patch }) => ({ filename, patch }));
+              core.setOutput('files', JSON.stringify(trimmedFiles));
+              console.log('Placeholder found and PR has non-skippable files. Summary will be created.');
               return true;
             } catch (error) {
-               throw new Error(`Error while searching for placeholder: ${error.message}`);
+              throw new Error(`Error while deciding if summary should be created: ${error.message}`);
             }
 
   generate-summary:
     needs: check-if-needs-summary
-    if: needs.check-if-needs-summary.outputs.NEEDS_SUMMARY == 'true'
+    if: needs.check-if-needs-summary.outputs.SHOULD_SUMMARIZE == 'true'
 
     runs-on: ubuntu-slim
 
@@ -82,24 +119,35 @@ jobs:
 
       - name: Fetch PR Diff
         id: fetch-pr-diff
+        env:
+          PR_FILES: ${{ needs.check-if-needs-summary.outputs.PR_FILES }}
         uses: actions/github-script@v7
         with:
           result-encoding: string
           script: |
-            try {
-              const { data = "" } = await github.rest.pulls.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.issue.number,
-                mediaType: {
-                  format: 'diff'
-                }
-              });
+            const skippableExtensions = JSON.parse(process.env.SKIPPABLE_EXTENSIONS);
+            const isSkippable = (file) => skippableExtensions.some(ext => file.filename.endsWith(ext));
 
-              return data;
-            } catch (error) {
-              throw new Error(`Error fetching PR Diff: ${error.message}`);
-            };
+            const files = JSON.parse(process.env.PR_FILES);
+
+            const skipped = files.filter(isSkippable).map(f => f.filename);
+            const diff = files
+              .filter(f => !isSkippable(f))
+              .map(f => {
+                if (!f.patch) {
+                  console.warn(`No patch available for ${f.filename} — it may be binary or too large. Skipping.`);
+                  return '';
+                }
+                return `--- a/${f.filename}\n+++ b/${f.filename}\n${f.patch}`;
+              })
+              .join('\n');
+
+            const skippedNote = skipped.length > 0
+              ? `The following files were skipped because their type is not supported for analysis:\n${skipped.join('\n')}`
+              : '';
+
+            core.setOutput('skipped-note', skippedNote);
+            return diff;
 
       - name: Generate PR Summary
         id: inference-summary
@@ -111,6 +159,7 @@ jobs:
           system-prompt-file: "./.github/workflows/prompts/pr-summary.prompt.md"
           prompt: |
             Here is the PR Diff to analyze: ${{ steps.fetch-pr-diff.outputs.result }}
+            ${{ steps.fetch-pr-diff.outputs.skipped-note }}
 
       - name: Update PR Description
         env:
@@ -126,7 +175,7 @@ jobs:
               await github.rest.pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: context.issue.number,
+                pull_number: Number(process.env.PR_NUMBER),
                 body: newBody
               });
 
