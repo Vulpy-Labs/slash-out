@@ -12,7 +12,8 @@ on:
 
 env:
   PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.pull_number || github.event.pull_request.number }}
-  SUMMARY_PLACEHOLDER: '[Summary Placeholder: _"beep beep boop boop"_]'
+  AI_SUMMARY_START: '<!-- AI-SUMMARY-START -->'
+  AI_SUMMARY_END: '<!-- AI-SUMMARY-END -->'
   SKIPPABLE_EXTENSIONS: '[".excalidraw"]'
 
 jobs:
@@ -65,11 +66,10 @@ jobs:
 
             try {
               const { body = "" } = JSON.parse(process.env.PR_DATA);
-              const hasPlaceholder = body.includes(process.env.SUMMARY_PLACEHOLDER);
+              const hasSentinels = body.includes(process.env.AI_SUMMARY_START) && body.includes(process.env.AI_SUMMARY_END);
 
-              if (!hasPlaceholder) {
-                console.log('Placeholder not found. PR summary might already exist.');
-
+              if (!hasSentinels) {
+                console.log('Summary sentinels not found. Skipping.');
                 return false;
               }
 
@@ -96,7 +96,7 @@ jobs:
 
               const trimmedFiles = files.map(({ filename, patch }) => ({ filename, patch }));
               core.setOutput('files', JSON.stringify(trimmedFiles));
-              console.log('Placeholder found and PR has non-skippable files. Summary will be created.');
+              console.log('Sentinels found and PR has non-skippable files. Summary will be created.');
               return true;
             } catch (error) {
               throw new Error(`Error while deciding if summary should be created: ${error.message}`);
@@ -170,7 +170,14 @@ jobs:
           script: |
             try {
               const { body = "" } = JSON.parse(process.env.PR_DATA);
-              const newBody = body.replace(process.env.SUMMARY_PLACEHOLDER, process.env.NEW_SUMMARY);
+              const summary = process.env.NEW_SUMMARY
+                .replaceAll(process.env.AI_SUMMARY_START, '')
+                .replaceAll(process.env.AI_SUMMARY_END, '');
+
+              const newBody = body.replace(
+                new RegExp(`${process.env.AI_SUMMARY_START}[\\s\\S]*?${process.env.AI_SUMMARY_END}`),
+                () => `${process.env.AI_SUMMARY_START}\n${summary}\n${process.env.AI_SUMMARY_END}`
+              );
 
               await github.rest.pulls.update({
                 owner: context.repo.owner,
