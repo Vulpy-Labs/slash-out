@@ -172,7 +172,7 @@ jobs:
               const { body = "" } = JSON.parse(process.env.PR_DATA);
               const newBody = body.replace(
                 new RegExp(`${process.env.AI_SUMMARY_START}[\\s\\S]*?${process.env.AI_SUMMARY_END}`),
-                `${process.env.AI_SUMMARY_START}\n${process.env.NEW_SUMMARY}\n${process.env.AI_SUMMARY_END}`
+                () => `${process.env.AI_SUMMARY_START}\n${process.env.NEW_SUMMARY}\n${process.env.AI_SUMMARY_END}`
               );
 
               await github.rest.pulls.update({
