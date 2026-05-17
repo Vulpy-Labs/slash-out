@@ -29,7 +29,6 @@ safe-outputs:
     required-labels: [weekly-status]
     required-title-prefix: "[repo-status] "
     max: 10
-    state-reason: "not_planned"
   create-issue:
     title-prefix: "[repo-status] "
     labels: [report, weekly-status]
