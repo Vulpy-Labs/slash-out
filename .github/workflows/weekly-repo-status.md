@@ -24,6 +24,11 @@ tools:
     lockdown: false
 
 safe-outputs:
+  close-issue:
+    target: "*"
+    required-labels: [weekly-status]
+    required-title-prefix: "[repo-status] "
+    max: 10
   create-issue:
     title-prefix: "[repo-status] "
     labels: [report, weekly-status]
@@ -52,6 +57,7 @@ Create an upbeat weekly status report for the repo as a GitHub issue.
 
 ## Process
 
-1. Gather recent activity from the repository
-2. Study the repository, its issues and its pull requests
-3. Create a new GitHub issue with your findings and insights
+1. Close any previously open weekly status issues (label: `weekly-status`, title prefix: `[repo-status]`)
+2. Gather recent activity from the repository
+3. Study the repository, its issues and its pull requests
+4. Create a new GitHub issue with your findings and insights
