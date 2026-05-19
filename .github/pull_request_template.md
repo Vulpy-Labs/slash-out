@@ -14,8 +14,12 @@ _“Let there be light, and there was light." 💡_
 🤖| Summary	</summary>
 <br />
 
+<!-- AI-SUMMARY-START -->
+
 [Summary Placeholder: _"beep beep boop boop"_]
-	
+
+<!-- AI-SUMMARY-END -->
+
 </details>
 
 ---
