@@ -1,0 +1,11 @@
+{
+  "settings": {
+    "title": "Settings",
+    "options": {
+      "language": {
+        "en": "English",
+        "pt": "Portuguese"
+      }
+    }
+  }
+}
