@@ -1,0 +1,27 @@
+{
+  "name": "slash-out",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^25.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.52.0",
+    "@typescript-eslint/parser": "^8.52.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^17.6.0",
+    "prettier": "^3.7.4",
+    "tsx": "^4.19.0",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.52.0"
+  },
+  "scripts": {
+    "prepare": "node packages/scripts/src/git-hooks/setup-hooks.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "lint": "eslint . --ext .ts,.js"
+  }
+}
