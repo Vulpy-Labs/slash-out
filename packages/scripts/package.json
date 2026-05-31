@@ -1,6 +1,9 @@
 {
   "name": "@slash-out/scripts",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "setup:hooks": "node src/git-hooks/setup-hooks.js"
   },
