@@ -21,4 +21,4 @@ jobs:
         run: npm ci
 
       - name: ESLint Validation
-        run: npm run lint -w @slash-out/client
+        run: npm run lint
