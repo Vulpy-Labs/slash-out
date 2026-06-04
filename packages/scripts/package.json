@@ -2,7 +2,7 @@
   "name": "@slash-out/scripts",
   "private": true,
   "engines": {
-    "node": "22.x"
+    "node": ">=22.13.0 <23"
   },
   "scripts": {
     "setup:hooks": "node src/git-hooks/setup-hooks.js"

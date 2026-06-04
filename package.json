@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": "22.x"
+    "node": ">=22.13.0 <23"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
