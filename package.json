@@ -24,7 +24,7 @@
   },
   "scripts": {
     "prepare": "node packages/scripts/src/git-hooks/setup-hooks.js",
-    "lint:fix": "eslint . --ext .ts,.js --fix",
-    "lint": "eslint . --ext .ts,.js"
+    "lint:fix": "eslint . --ext .ts,.js,.mjs,.cjs --fix",
+    "lint": "eslint . --ext .ts,.js,.mjs,.cjs"
   }
 }
