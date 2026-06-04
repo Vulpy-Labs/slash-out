@@ -4,10 +4,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-defaults:
-  run:
-    working-directory: ./packages/client
-
 jobs:
   validate-eslint:
     runs-on: ubuntu-latest
@@ -25,4 +21,4 @@ jobs:
         run: npm ci
 
       - name: ESLint Validation
-        run: npm run lint
+        run: npm run lint -w @slash-out/client
