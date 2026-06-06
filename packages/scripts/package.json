@@ -5,7 +5,8 @@
     "node": ">=22.13.0 <23"
   },
   "scripts": {
-    "setup:hooks": "node src/git-hooks/setup-hooks.js"
+    "setup:hooks": "node src/git-hooks/setup-hooks.js",
+    "docs:update": "tsx src/update-docs/index.ts"
   },
   "dependencies": {
     "simple-git": "^3.36.0",

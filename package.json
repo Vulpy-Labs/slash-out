@@ -24,6 +24,7 @@
   },
   "scripts": {
     "prepare": "node packages/scripts/src/git-hooks/setup-hooks.js",
+    "docs:update": "tsx packages/scripts/src/update-docs/index.ts",
     "lint:fix": "eslint . --ext .ts,.js,.mjs,.cjs --fix",
     "lint": "eslint . --ext .ts,.js,.mjs,.cjs"
   }
