@@ -15,7 +15,7 @@ Provide a high-level summary of the file's purpose. Explain _why_ this exists an
 
 ## Responsibilities
 
-Describe the responsabilities of this file.
+Describe the responsibilities of this file.
 
 - [Primary responsibility: e.g., "Calculating velocity based on input"]
 - [Secondary responsibility: e.g., "Updating spatial hash for collision"]
