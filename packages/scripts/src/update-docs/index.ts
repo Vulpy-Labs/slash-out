@@ -69,15 +69,36 @@ async function main() {
 }
 
 async function getChangedFiles(): Promise<ChangedFile[]> {
-  const diff = await git.diffSummary(['HEAD~1']);
+  const [diff, nameStatus] = await Promise.all([
+    git.diffSummary(['HEAD~1..HEAD']),
+    git.raw(['diff', '--name-status', 'HEAD~1..HEAD']),
+  ]);
+
+  const statusByPath = new Map(
+    nameStatus
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map(line => {
+        const [code, ...paths] = line.split('\t');
+
+        const index = paths.length - 1;
+        const filePath = paths[index];
+        const statusType = code[0];
+        const status =
+          {
+            A: 'ADDED',
+            D: 'DELETED',
+          }[statusType] || 'MODIFIED';
+
+        return [filePath, status];
+      })
+  );
 
   return diff.files.map(diffFile => {
     const file = diffFile as DiffResultTextFile;
 
-    const isAdded = file.insertions > 0 && file.deletions === 0;
-    const isDeleted = file.deletions > 0 && file.insertions === 0;
-
-    const status = isAdded ? 'ADDED' : isDeleted ? 'DELETED' : 'MODIFIED';
+    const status = (statusByPath.get(file.file) || 'MODIFIED') as ChangedFile['status'];
 
     return {
       status,
