@@ -1,8 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
-
-import { execSync } from 'child_process';
+import { execFileSync } from 'node:child_process';
 
 import simpleGit, { DiffResultTextFile } from 'simple-git';
 import { Project } from 'ts-morph';
@@ -218,15 +217,22 @@ async function removeDeletedDocs({ files }: ChangedFileListProp) {
 }
 
 function runAider({ docPaths }: DocumentationFilePathsProp) {
-  const files = docPaths.join(' ');
+  const args = [
+    ...docPaths,
+    '--read',
+    'docs/agents.md',
+    '--read',
+    'docs/templates/client-documentation.md',
+    '--message-file',
+    'docs/prompts/ai-documentation-architect.md',
+    '--edit-format=diff',
+    '--chat-language=en',
+    '--yes-always',
+    '--architect',
+    '--no-pretty',
+  ];
 
-  const agentInstructions = '--read docs/agents.md --read docs/templates/client-documentation.md';
-  const messageFile = '--message-file docs/prompts/ai-documentation-architect.md';
-  const options = '--edit-format=diff --chat-language=en --yes-always --architect --no-pretty';
-
-  const command = `aider ${files} ${agentInstructions} ${messageFile} ${options}`;
-
-  execSync(command, {
+  execFileSync('aider', args, {
     stdio: 'inherit',
     cwd: ROOT_PATH,
   });
