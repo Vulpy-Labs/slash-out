@@ -55,6 +55,11 @@ async function main() {
 
   const analyses = getAnalyzedFiles({ files: relevantFiles });
 
+  if (!analyses.length) {
+    console.log('⚠️ No relevant client source files found.');
+    return;
+  }
+
   console.log('\n🔍 Analyzed Files:\n', analyses);
 
   await removeDeletedDocs({ files: relevantFiles });
