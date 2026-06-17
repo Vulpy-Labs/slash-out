@@ -4,3 +4,4 @@ export * from './movement';
 export * from './velocity';
 export * from './animation';
 export * from './state';
+export * from './combat';

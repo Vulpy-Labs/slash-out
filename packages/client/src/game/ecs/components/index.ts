@@ -7,6 +7,8 @@ export * from './tiled';
 export * from './character';
 export * from './animation';
 export * from './state';
+export * from './damage';
+export * from './equipment';
 
 // ! This should always come last
 export * from './all';

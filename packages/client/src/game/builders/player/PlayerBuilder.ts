@@ -1,3 +1,5 @@
+import { EntityBuilder } from '../types';
+import type { EntityManager } from '@/managers/entity/EntityManager';
 import {
   CHARACTERS_SPRITES_MODEL,
   DEPTH,
@@ -13,18 +15,18 @@ import {
   defaultState,
 } from '@/utils/factories/ecs/components';
 
-import { PlayerEntity } from '@/ecs/entities';
-import {
+import type { PlayerEntity, GlobalEntity } from '@/ecs/entities';
+import type {
   PlayerBuilderProp,
   MountPlayerEntityProp,
   CreatePlayerSpriteProp,
-  OnEntityCreatedCallback,
   PlayerBuilderPayloadProp,
+  LoadCharacterSpritesProp,
 } from './types.p';
 
-class PlayerBuilder {
+class PlayerBuilder implements EntityBuilder {
+  private readonly manager: EntityManager;
   private readonly scene: Phaser.Scene;
-  private readonly onEntityCreated: OnEntityCreatedCallback;
 
   private readonly loadingSpritesKeys: Set<string> = new Set();
   private readonly baseCharacterSpritesPath = 'assets/sprites/characters';
@@ -35,20 +37,62 @@ class PlayerBuilder {
     y: 100,
   };
 
-  constructor({ scene, onEntityCreated }: PlayerBuilderProp) {
-    this.scene = scene;
-    this.onEntityCreated = onEntityCreated;
+  constructor({ manager }: PlayerBuilderProp) {
+    this.manager = manager;
+    this.scene = manager.scene;
   }
 
-  load({ character }: PlayerBuilderPayloadProp) {
-    this.loadCharacterSprites({ character });
+  load() {
+    this.manager.matchConfig.players.forEach(({ character }) => {
+      this.loadCharacterSprites({ character });
+    });
   }
 
-  build({ character }: PlayerBuilderPayloadProp) {
-    this.createPlayer({ character });
+  build() {
+    this.manager.matchConfig.players.forEach(({ character, equipment }) => {
+      const playerEntity = this.createPlayer({ character, equipment });
+
+      this.manager.registerEntity({ entity: playerEntity });
+    });
   }
 
-  private loadCharacterSprites({ character }: PlayerBuilderPayloadProp) {
+  generateId(): string {
+    const players = this.getPlayers();
+    let playerCount = players.length + 1;
+
+    while (players.some(p => p.entityId === `${ENTITY_TYPES.PLAYER}_0${playerCount}`)) {
+      playerCount++;
+    }
+
+    return `${ENTITY_TYPES.PLAYER}_0${playerCount}`;
+  }
+
+  destroy(entity: GlobalEntity) {
+    this.manager.getAll().forEach(ent => {
+      const isOwnedByDestroyedPlayer =
+        'ownerEntityId' in ent && ent.ownerEntityId === entity.entityId;
+      if (isOwnedByDestroyedPlayer) {
+        const builder = this.manager.getBuilderByType({ entityType: ent.entityType });
+        if (builder) {
+          builder.destroy(ent);
+        }
+      }
+    });
+
+    if (entity.sprite) {
+      entity.sprite.destroy();
+    }
+
+    this.manager.getAll().delete(entity.entityId);
+  }
+
+  getPlayers(): PlayerEntity[] {
+    return Array.from(this.manager.getAll().values()).filter(
+      (entity): entity is PlayerEntity => entity.entityType === ENTITY_TYPES.PLAYER
+    );
+  }
+
+  private loadCharacterSprites({ character }: LoadCharacterSpritesProp) {
     const characterSprites = CHARACTERS_SPRITES_MODEL[character.name];
 
     if (!characterSprites) {
@@ -75,14 +119,15 @@ class PlayerBuilder {
     });
   }
 
-  private createPlayer({ character }: PlayerBuilderPayloadProp) {
+  private createPlayer({ character, equipment }: PlayerBuilderPayloadProp): PlayerEntity {
     const playerSprite = this.createPlayerSprite({ character, options: { friction: 0 } });
     const playerEntity = this.mountPlayerEntity({
       character,
+      equipment,
       sprite: playerSprite,
     });
 
-    this.onEntityCreated(playerEntity);
+    return playerEntity;
   }
 
   private createPlayerSprite({ character, frame, options }: CreatePlayerSpriteProp) {
@@ -101,7 +146,7 @@ class PlayerBuilder {
     return sprite;
   }
 
-  private mountPlayerEntity({ character, sprite }: MountPlayerEntityProp): PlayerEntity {
+  private mountPlayerEntity({ character, equipment, sprite }: MountPlayerEntityProp): PlayerEntity {
     return {
       entityId: '', // This will be set by the EntityManager when registering the entity
       entityType: ENTITY_TYPES.PLAYER,
@@ -115,6 +160,7 @@ class PlayerBuilder {
       animation: defaultPlayerAnimation({ character }),
       movement: defaultMovement({ entityType: ENTITY_TYPES.PLAYER }),
       keymap: defaultKeymap({ player: character.playerRef }),
+      equipment,
     };
   }
 }

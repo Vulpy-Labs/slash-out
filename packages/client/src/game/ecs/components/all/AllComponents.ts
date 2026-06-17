@@ -6,6 +6,8 @@ import type { MatchConfig } from '../match';
 import type { MovementComponent } from '../movement';
 import type { StateComponent } from '../state';
 import type { VelocityComponent } from '../velocity';
+import type { DamageComponent } from '../damage';
+import type { EquipmentComponent } from '../equipment';
 
 interface AllComponentsList {
   matchConfig?: MatchConfig;
@@ -16,6 +18,8 @@ interface AllComponentsList {
   character?: CharacterComponent;
   animation?: AnimationComponent;
   state?: StateComponent;
+  damage?: DamageComponent;
+  equipment?: EquipmentComponent;
 }
 
 export type { AllComponentsList };

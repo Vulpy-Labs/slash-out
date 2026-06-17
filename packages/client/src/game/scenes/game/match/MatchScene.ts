@@ -8,6 +8,7 @@ import {
   MovementSystem,
   VelocitySystem,
   StateSystem,
+  CombatSystem,
 } from '@/ecs/systems';
 
 import { GlobalEntityMap } from './type.i';
@@ -24,6 +25,7 @@ export class MatchScene extends Phaser.Scene {
   private keymapSystem: KeymapSystem;
   private inputSystem: InputSystem;
   private stateSystem: StateSystem;
+  private combatSystem: CombatSystem;
   private movementSystem: MovementSystem;
   private velocitySystem: VelocitySystem;
   private animationSystem: AnimationSystem;
@@ -51,6 +53,7 @@ export class MatchScene extends Phaser.Scene {
     this.movementSystem = new MovementSystem();
     this.velocitySystem = new VelocitySystem({ scene: this });
     this.stateSystem = new StateSystem();
+    this.combatSystem = new CombatSystem({ scene: this });
     this.animationSystem = new AnimationSystem({ scene: this });
   }
 
@@ -79,6 +82,8 @@ export class MatchScene extends Phaser.Scene {
     this.createPlayers();
     this.createKeyboardInputs();
     this.createAnimations();
+
+    console.log(this.entities);
   }
 
   createMap() {
@@ -86,7 +91,7 @@ export class MatchScene extends Phaser.Scene {
   }
 
   createPlayers() {
-    this.entityManager.createPlayers();
+    this.entityManager.build();
   }
 
   createKeyboardInputs() {
@@ -102,6 +107,7 @@ export class MatchScene extends Phaser.Scene {
     this.movementSystem.update({ entities: this.entities });
     this.velocitySystem.update({ entities: this.entities });
     this.stateSystem.update({ entities: this.entities });
+    this.combatSystem.update({ entities: this.entities });
     this.animationSystem.update({ entities: this.entities });
   }
 }

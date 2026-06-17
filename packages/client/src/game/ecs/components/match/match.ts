@@ -1,8 +1,10 @@
 import { MatchConfigCharacter } from './character-config';
+import { EquipmentComponent } from '../equipment';
 
 type MatchConfigPlayers = {
-  characters: MatchConfigCharacter[];
-};
+  character: MatchConfigCharacter;
+  equipment: EquipmentComponent;
+}[];
 
 interface MatchConfig {
   mapName: string;

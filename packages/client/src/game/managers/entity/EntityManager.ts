@@ -1,17 +1,22 @@
-import { PlayerBuilder } from '@/builders';
-
-import { GlobalEntityMap } from '@/scenes/game';
-import { MatchConfig } from '@/ecs/components';
-import { DestroyEntityProp, EntityManagerProp, RegisterEntityProp } from './types.p';
+import { PlayerBuilder, WeaponBuilder } from '@/builders';
+import type { EntityBuilder } from '@/builders/types';
+import type { GlobalEntityMap } from '@/scenes/game';
+import type { MatchConfig } from '@/ecs/components';
+import { ENTITY_TYPES } from '@/config/constants';
+import type {
+  DestroyEntityProp,
+  EntityManagerProp,
+  RegisterEntityProp,
+  GetBuilderByTypeProp,
+  GetEntityByIdProp,
+} from './types.p';
 
 class EntityManager {
-  private readonly scene: Phaser.Scene;
-  private readonly matchConfig: MatchConfig;
+  public readonly scene: Phaser.Scene;
+  public readonly matchConfig: MatchConfig;
 
   private readonly entities: GlobalEntityMap = new Map();
-  private readonly players: GlobalEntityMap = new Map();
-
-  private playerBuilder: PlayerBuilder;
+  private readonly builders: Map<string, EntityBuilder> = new Map();
 
   constructor({ scene, matchConfig }: EntityManagerProp) {
     this.scene = scene;
@@ -21,24 +26,22 @@ class EntityManager {
   }
 
   load() {
-    this.loadPlayers();
+    this.builders.forEach(EntityBuilder => EntityBuilder.load());
   }
 
-  createPlayers() {
-    this.matchConfig.players.characters.forEach(character => {
-      this.playerBuilder.build({ character });
-    });
+  build() {
+    this.builders.forEach(EntityBuilder => EntityBuilder.build());
   }
 
   getAll() {
     return this.entities;
   }
 
-  getPlayers() {
-    return this.players;
+  getEntityById({ id }: GetEntityByIdProp) {
+    return this.entities.get(id);
   }
 
-  destroyEntity({ id }: DestroyEntityProp) {
+  destroyEntityById({ id }: DestroyEntityProp) {
     const entity = this.entities.get(id);
 
     if (!entity) {
@@ -46,12 +49,31 @@ class EntityManager {
       return;
     }
 
-    if (entity.sprite) {
-      entity.sprite.destroy();
+    const entityBuilder = this.getBuilderByType({ entityType: entity.entityType });
+    if (!entityBuilder) {
+      throw new Error(`Builder not found for entity type: ${entity.entityType}`);
     }
 
-    this.players.delete(id);
-    this.entities.delete(id);
+    entityBuilder.destroy(entity);
+  }
+
+  registerEntity({ entity }: RegisterEntityProp) {
+    const entityBuilder = this.getBuilderByType({ entityType: entity.entityType });
+    if (!entityBuilder) {
+      throw new Error(`Builder not found for entity type: ${entity.entityType}`);
+    }
+
+    entity.entityId = entityBuilder.generateId();
+
+    if (entity.sprite) {
+      entity.sprite.setData('entityId', entity.entityId);
+    }
+
+    this.entities.set(entity.entityId, entity);
+  }
+
+  getBuilderByType({ entityType }: GetBuilderByTypeProp): EntityBuilder | undefined {
+    return this.builders.get(entityType);
   }
 
   private initializeInstances() {
@@ -59,37 +81,8 @@ class EntityManager {
   }
 
   private initializeBuilders() {
-    this.playerBuilder = new PlayerBuilder({
-      scene: this.scene,
-      onEntityCreated: entity => this.registerEntity({ entity, options: { isPlayer: true } }),
-    });
-  }
-
-  private loadPlayers() {
-    this.matchConfig.players.characters.forEach(character => {
-      this.playerBuilder.load({ character });
-    });
-  }
-
-  private createPlayerId() {
-    let playerCount = this.players.size + 1;
-
-    while (this.players.has(`player_0${playerCount}`)) {
-      playerCount++;
-    }
-
-    return `player_0${playerCount}`;
-  }
-
-  private registerEntity({ entity, options }: RegisterEntityProp) {
-    const { isPlayer = false } = options || {};
-
-    if (isPlayer) {
-      entity.entityId = this.createPlayerId();
-      this.players.set(entity.entityId, entity);
-    }
-
-    this.entities.set(entity.entityId, entity);
+    this.builders.set(ENTITY_TYPES.PLAYER, new PlayerBuilder({ manager: this }));
+    this.builders.set(ENTITY_TYPES.SWORD, new WeaponBuilder({ manager: this }));
   }
 }
 

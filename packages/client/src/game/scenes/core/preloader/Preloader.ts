@@ -1,4 +1,5 @@
 import { MatchConfig } from '@/ecs/components';
+import { defaultEquipment } from '@/utils/factories/ecs/components';
 import { Scene } from 'phaser';
 
 export class Preloader extends Scene {
@@ -37,12 +38,16 @@ export class Preloader extends Scene {
     //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
     const matchConfig: MatchConfig = {
       mapName: 'canyon',
-      players: {
-        characters: [
-          { playerRef: '01', name: 'otomo', skin: 'v1' },
-          { playerRef: '02', name: 'kurosawa', skin: 'v1' },
-        ],
-      },
+      players: [
+        {
+          character: { playerRef: '01', name: 'otomo', skin: 'v1' },
+          equipment: defaultEquipment(),
+        },
+        {
+          character: { playerRef: '02', name: 'kurosawa', skin: 'v1' },
+          equipment: defaultEquipment(),
+        },
+      ],
     };
 
     this.scene.start('MatchScene', matchConfig);

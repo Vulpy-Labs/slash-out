@@ -8,3 +8,4 @@ export * from './character';
 export * from './dimensions';
 export * from './state';
 export * from './entity-types';
+export * from './weapon/weapons';

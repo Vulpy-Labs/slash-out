@@ -3,6 +3,7 @@ import { MatchConfig } from '@/ecs/components';
 
 type RegisterEntityOptionsProp = {
   isPlayer?: boolean;
+  type?: string;
 };
 
 type EntityManagerProp = {
@@ -19,4 +20,18 @@ type DestroyEntityProp = {
   id: string;
 };
 
-export type { EntityManagerProp, RegisterEntityProp, DestroyEntityProp };
+type GetBuilderByTypeProp = {
+  entityType: string;
+};
+
+type GetEntityByIdProp = {
+  id: string;
+};
+
+export type {
+  EntityManagerProp,
+  RegisterEntityProp,
+  DestroyEntityProp,
+  GetBuilderByTypeProp,
+  GetEntityByIdProp,
+};
