@@ -1,2 +1,2 @@
+export * from './characterStates'
 export * from './type.t';
-export * from './characterStates';

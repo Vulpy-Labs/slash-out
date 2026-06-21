@@ -1,3 +1,4 @@
+// PR - 6
 import { PlayerBuilder, WeaponBuilder } from '@/builders';
 import type { EntityBuilder } from '@/builders/types';
 import type { GlobalEntityMap } from '@/scenes/game';
@@ -25,6 +26,15 @@ class EntityManager {
     this.initializeInstances();
   }
 
+  private initializeInstances() {
+    this.initializeBuilders();
+  }
+
+  private initializeBuilders() {
+    this.builders.set(ENTITY_TYPES.PLAYER, new PlayerBuilder({ manager: this }));
+    this.builders.set(ENTITY_TYPES.SWORD, new WeaponBuilder({ manager: this }));
+  }
+
   load() {
     this.builders.forEach(EntityBuilder => EntityBuilder.load());
   }
@@ -33,7 +43,11 @@ class EntityManager {
     this.builders.forEach(EntityBuilder => EntityBuilder.build());
   }
 
-  getAll() {
+  getBuilderByType({ entityType }: GetBuilderByTypeProp): EntityBuilder | undefined {
+    return this.builders.get(entityType);
+  }
+
+  getAllEntities(): GlobalEntityMap {
     return this.entities;
   }
 
@@ -70,19 +84,6 @@ class EntityManager {
     }
 
     this.entities.set(entity.entityId, entity);
-  }
-
-  getBuilderByType({ entityType }: GetBuilderByTypeProp): EntityBuilder | undefined {
-    return this.builders.get(entityType);
-  }
-
-  private initializeInstances() {
-    this.initializeBuilders();
-  }
-
-  private initializeBuilders() {
-    this.builders.set(ENTITY_TYPES.PLAYER, new PlayerBuilder({ manager: this }));
-    this.builders.set(ENTITY_TYPES.SWORD, new WeaponBuilder({ manager: this }));
   }
 }
 

@@ -1,3 +1,4 @@
+// PR - 2
 import { MatchConfigCharacter } from './character-config';
 import { EquipmentComponent } from '../equipment';
 

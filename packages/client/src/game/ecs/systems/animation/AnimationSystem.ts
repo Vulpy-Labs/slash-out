@@ -17,14 +17,15 @@ class AnimationSystem {
           return;
         }
 
+        // console.log(this.scene.anims.exists(anim.key));
         if (this.scene.anims.exists(anim.key)) return;
 
         const frames = anim.frames?.length
           ? anim.frames
           : this.scene.anims.generateFrameNumbers(anim.key, {
-              start: anim.start,
-              end: anim.end,
-            });
+            start: anim.start,
+            end: anim.end,
+          });
 
         if (!frames?.length) {
           console.warn(
@@ -44,7 +45,7 @@ class AnimationSystem {
   }
 
   update({ entities }: AnimationSystemPayloadProp) {
-    entities.forEach(({ animation, sprite, state }) => {
+    entities.forEach(({ animation, sprite, state, entityId }) => {
       if (!animation || !sprite) return;
 
       let targetAnimKey;
@@ -53,13 +54,18 @@ class AnimationSystem {
         sprite.setFlipX(animation.flipX);
       }
 
+      // console.log(`${entityId} ${JSON.stringify(animation.animations)}`);
       if (state) {
-        targetAnimKey = animation.animations[state.current];
+        targetAnimKey = animation.animations[state.current as keyof typeof animation.animations];
       } else {
         targetAnimKey = Object.values(animation.animations)[0];
       }
 
+      // console.log(`targetAnimKey`, targetAnimKey);
+      if (!targetAnimKey) return;
+
       const isCurrentAnimation = sprite.anims.currentAnim?.key === targetAnimKey.key;
+      // console.log(`isCurrentAnimation`, isCurrentAnimation);
 
       if (!isCurrentAnimation) {
         sprite.anims.play(targetAnimKey.key, true);

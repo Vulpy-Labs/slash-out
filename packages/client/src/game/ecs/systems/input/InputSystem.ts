@@ -3,8 +3,10 @@ import { InputSystemUpdateProps } from './types.p';
 
 class InputSystem {
   update({ entities }: InputSystemUpdateProps) {
-    entities.forEach(({ keymap, input }) => {
+    entities.forEach(({ keymap, input, entityId }) => {
       if (!keymap || !input) return;
+
+      // console.log(`entityId`, entityId);
 
       for (const [action, actionKeyListener] of Object.entries(keymap.listeners)) {
         if (!actionKeyListener) continue;

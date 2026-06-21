@@ -1,3 +1,4 @@
+// PR - 4
 import { EntityBuilder } from '../types';
 import type { EntityManager } from '@/managers/entity/EntityManager';
 import {
@@ -42,57 +43,15 @@ class PlayerBuilder implements EntityBuilder {
     this.scene = manager.scene;
   }
 
-  load() {
-    this.manager.matchConfig.players.forEach(({ character }) => {
-      this.loadCharacterSprites({ character });
-    });
+  load({ character }: PlayerBuilderPayloadProp) {
+    this.loadCharacterSprites({ character });
   }
 
-  build() {
-    this.manager.matchConfig.players.forEach(({ character, equipment }) => {
-      const playerEntity = this.createPlayer({ character, equipment });
-
-      this.manager.registerEntity({ entity: playerEntity });
-    });
+  build({ character }: PlayerBuilderPayloadProp) {
+    this.createPlayer({ character });
   }
 
-  generateId(): string {
-    const players = this.getPlayers();
-    let playerCount = players.length + 1;
-
-    while (players.some(p => p.entityId === `${ENTITY_TYPES.PLAYER}_0${playerCount}`)) {
-      playerCount++;
-    }
-
-    return `${ENTITY_TYPES.PLAYER}_0${playerCount}`;
-  }
-
-  destroy(entity: GlobalEntity) {
-    this.manager.getAll().forEach(ent => {
-      const isOwnedByDestroyedPlayer =
-        'ownerEntityId' in ent && ent.ownerEntityId === entity.entityId;
-      if (isOwnedByDestroyedPlayer) {
-        const builder = this.manager.getBuilderByType({ entityType: ent.entityType });
-        if (builder) {
-          builder.destroy(ent);
-        }
-      }
-    });
-
-    if (entity.sprite) {
-      entity.sprite.destroy();
-    }
-
-    this.manager.getAll().delete(entity.entityId);
-  }
-
-  getPlayers(): PlayerEntity[] {
-    return Array.from(this.manager.getAll().values()).filter(
-      (entity): entity is PlayerEntity => entity.entityType === ENTITY_TYPES.PLAYER
-    );
-  }
-
-  private loadCharacterSprites({ character }: LoadCharacterSpritesProp) {
+  private loadCharacterSprites({ character }: PlayerBuilderPayloadProp) {
     const characterSprites = CHARACTERS_SPRITES_MODEL[character.name];
 
     if (!characterSprites) {
@@ -156,7 +115,7 @@ class PlayerBuilder implements EntityBuilder {
         skin: character.skin,
       },
       input: defaultInput(),
-      state: defaultState(),
+      state: defaultState({ entityType: ENTITY_TYPES.PLAYER }),
       animation: defaultPlayerAnimation({ character }),
       movement: defaultMovement({ entityType: ENTITY_TYPES.PLAYER }),
       keymap: defaultKeymap({ player: character.playerRef }),

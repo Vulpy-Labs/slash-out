@@ -1,6 +1,6 @@
 import { StateSystemUpdateProp } from './types.p';
-import { IEntityStateHandler, PlayerStateHandler } from './handlers';
-import { ENTITY_TYPES, EntityTypes } from '@/config/constants';
+import { IEntityStateHandler, PlayerStateHandler, SwordStateHandler } from './handlers';
+import { ENTITY_TYPES, EntityTypes } from '@/config/constants';;
 
 class StateSystem {
   private handlers: Map<EntityTypes, IEntityStateHandler>;
@@ -8,6 +8,7 @@ class StateSystem {
   constructor() {
     this.handlers = new Map<EntityTypes, IEntityStateHandler>([
       [ENTITY_TYPES.PLAYER, new PlayerStateHandler()],
+      [ENTITY_TYPES.SWORD, new SwordStateHandler()],
     ]);
   }
 

@@ -1,3 +1,4 @@
+// PR - 6
 import { MapBuilder } from '@/builders';
 import { EntityManager } from '@/managers';
 import { MatchConfig } from '@/ecs/components';
@@ -69,7 +70,7 @@ export class MatchScene extends Phaser.Scene {
   }
 
   initializeEntities() {
-    this.entities = this.entityManager.getAll();
+    this.entities = this.entityManager.getAllEntities();
   }
 
   preload() {
@@ -107,7 +108,7 @@ export class MatchScene extends Phaser.Scene {
     this.movementSystem.update({ entities: this.entities });
     this.velocitySystem.update({ entities: this.entities });
     this.stateSystem.update({ entities: this.entities });
-    this.combatSystem.update({ entities: this.entities });
+    // this.combatSystem.update({ entities: this.entities });
     this.animationSystem.update({ entities: this.entities });
   }
 }

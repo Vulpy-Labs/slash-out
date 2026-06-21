@@ -1,6 +1,6 @@
-import { CharacterState } from '@/config/constants';
+import { CharacterState, SwordState } from '@/config/constants';
 
-type AnimationState = CharacterState;
+type AnimationState = CharacterState | SwordState;
 
 type Animation = {
   key: string;
