@@ -18,6 +18,7 @@ import {
   ChangedFileListProp,
   FilterFilesByStatusProp,
   DocumentationFilePathsProp,
+  DocumentationFilesPathsProp,
 } from './types.p';
 
 const FILE_PATH = fileURLToPath(import.meta.url);
@@ -65,10 +66,11 @@ async function main() {
   await removeDeletedDocs({ files: relevantFiles });
 
   const docPaths = analyses.map(analysis => getDocumentationPath({ filePath: analysis.filePath }));
+  const sourcePaths = analyses.map(analysis => path.join(ROOT_PATH, analysis.filePath));
 
   ensureDocumentationFiles({ docPaths });
 
-  runAider({ docPaths });
+  runAider({ docPaths, sourcePaths });
 
   console.log('\n✅ AI Docs Update Finished\n');
 }
@@ -224,13 +226,15 @@ async function removeDeletedDocs({ files }: ChangedFileListProp) {
   }
 }
 
-function runAider({ docPaths }: DocumentationFilePathsProp) {
+function runAider({ docPaths, sourcePaths }: DocumentationFilesPathsProp) {
+  const sourceArgs = sourcePaths.flatMap(sourcePath => ['--read', sourcePath]);
   const args = [
     ...docPaths,
     '--read',
     'docs/agents.md',
     '--read',
     'docs/templates/client-documentation.md',
+    ...sourceArgs,
     '--message-file',
     'docs/prompts/ai-documentation-architect.md',
     '--edit-format=diff',
