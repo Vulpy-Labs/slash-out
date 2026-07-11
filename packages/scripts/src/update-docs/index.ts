@@ -33,7 +33,8 @@ const project = new Project({
   tsConfigFilePath: path.join(CLIENT_ROOT, 'tsconfig.json'),
 });
 
-const excludedTypes = ['INDEX', 'TYPE', 'COMPONENT', 'ENTITY'] as FileType[];
+const onlyIncludeTypes: FileType[] = [];
+const excludedTypes: FileType[] = ['INDEX', 'TYPE', 'CONFIG', 'CONSTANT'];
 
 async function main() {
   console.log('\n🚀 AI Docs Update Started\n');
@@ -132,6 +133,7 @@ function filterRelevantFiles({ files }: ChangedFileListProp): ChangedFile[] {
 }
 
 function filterRelevantFileByType({ file }: FileAnalysisProp): boolean {
+  if (onlyIncludeTypes.length) return !!file && onlyIncludeTypes.includes(file.fileType);
   return !!file && !excludedTypes.includes(file.fileType);
 }
 
