@@ -1,4 +1,4 @@
-# [FileName] Documentation
+# [File Name] Documentation
 
 ## Overview
 
@@ -8,8 +8,8 @@ Provide a high-level summary of the file's purpose. Explain _why_ this exists an
 
 ## Technical Identity
 
-- **Type:** (e.g., "System")
-- **Domain:** (e.g., "Physics")
+- **Type:** (e.g., "System", "Scene", "Manager", "Builder", "Helper", "Utility", etc.)
+- **Domain:** (Use concise domains, e.g., "Physics", "Input", "Animation", "UI", etc.)
 
 ---
 
@@ -30,12 +30,15 @@ Critical for ECS. Detail which data structures this file interacts with.
 
 - **Reads:**
   - `[ComponentName]`: (Reason for reading)
+  - or `N/A`
 - **Writes:**
   - `[ComponentName]`: (What changes are applied)
+  - or `N/A`
 
 ### Configuration Props
 
-- `[PropName]` (`*.p.ts`): (Describe the role of these properties)
+- `[PropName]`: (Describe the role of this config or type)
+- If not applicable, use `N/A`
 
 ---
 
@@ -68,17 +71,19 @@ Describe the "End-to-End" flow.
 
 ## Dependencies & Relationships
 
-- **Core Dependencies:** `(e.g., Phaser.Scene, MatterJS.Engine)`
+- **Core Dependencies:** `(e.g., Phaser.Scene, Phaser.Physics.Matter.Sprite, MatterJS.BodyType, CONFLICTING_ACTIONS)`
 - **Related Systems:**
   - `[SystemName]`: (Reason for the relationship)
+  - or `N/A`
 - **Events Consumed/Emitted:**
   - `[EventName]`: (Context)
+  - or `N/A`
 
 ---
 
 ## Maintenance Notes
 
-Warning: Keep this section for specific technical "gotchas" or performance considerations.
+Warning: Keep this section for specific technical "gotchas" or performance considerations. Add notes if this file runs in the main `update` loop or if it makes heavy allocations. Otherwise, add N/A.
 
-> [!WARNING]
-> **Performance:** This system runs on the `update` loop. Avoid heavy allocations or `O(n^2)` operations here.
+> [!WARNING]  
+> **Performance:** This file runs on the `update` loop. Avoid heavy allocations or `O(n^2)` operations here.
