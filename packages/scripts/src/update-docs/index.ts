@@ -171,6 +171,12 @@ function inferFileType({ filePath }: FilePathProp): FileType {
   const pathsMap: PathsMap = {
     INDEX: ['/index'],
     TYPE: ['/type.', '/types.'],
+    CONSTANT: ['/constants/'],
+    CONFIG: ['/config/'],
+    HELPER: ['/helpers/'],
+    FACTORY: ['/factories/'],
+    UTILS: ['/utils/'],
+    HANDLER: ['/handlers/'],
     UI: ['/ui/'],
     SCENE: ['/scenes/'],
     SYSTEM: ['/systems/'],
