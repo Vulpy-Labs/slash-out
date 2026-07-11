@@ -1,13 +1,19 @@
 type FileType =
   | 'BUILDER'
   | 'COMPONENT'
+  | 'CONFIG'
+  | 'CONSTANT'
   | 'ENTITY'
+  | 'FACTORY'
+  | 'HANDLER'
+  | 'HELPER'
   | 'INDEX'
   | 'MANAGER'
   | 'SCENE'
   | 'SYSTEM'
   | 'TYPE'
   | 'UI'
+  | 'UTILS'
   | 'OTHER';
 
 type DiffStatus = 'ADDED' | 'MODIFIED' | 'DELETED';
@@ -27,6 +33,8 @@ type FileAnalysisProp = { file: FileAnalysis | null };
 type ChangedFileListProp = { files: ChangedFile[] };
 
 type DocumentationFilePathsProp = { docPaths: string[] };
+
+type DocumentationFilesPathsProp = { docPaths: string[]; sourcePaths: string[] };
 
 type FilterFilesByStatusProp = {
   file: ChangedFile | null;
@@ -57,4 +65,5 @@ export type {
   ChangedFileListProp,
   FilterFilesByStatusProp,
   DocumentationFilePathsProp,
+  DocumentationFilesPathsProp,
 };
