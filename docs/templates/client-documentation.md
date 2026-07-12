@@ -29,16 +29,16 @@ Critical for ECS. Detail which data structures this file interacts with.
 ### Manipulated Components
 
 - **Reads:**
-  - `[ComponentName]`: (Reason for reading)
-  - or `N/A`
+  - `[ComponentName]`: (Reason for reading)  
+    (If none, use `N/A`)
 - **Writes:**
-  - `[ComponentName]`: (What changes are applied)
-  - or `N/A`
+  - `[ComponentName]`: (What changes are applied)  
+    (If none, use `N/A`)
 
 ### Configuration Props
 
-- `[PropName]`: (Describe the role of this config or type)
-- If not applicable, use `N/A`
+- `[PropName]`: (Describe the role of this config or type)  
+  If not applicable, use `N/A`.
 
 ---
 
