@@ -18,7 +18,7 @@ import {
   ChangedFileListProp,
   FilterFilesByStatusProp,
   DocumentationFilePathsProp,
-  DocumentationFilesPathsProp,
+  DocumentationFilePathsWithSourcesProp,
 } from './types.p';
 
 const FILE_PATH = fileURLToPath(import.meta.url);
@@ -226,7 +226,7 @@ async function removeDeletedDocs({ files }: ChangedFileListProp) {
   }
 }
 
-function runAider({ docPaths, sourcePaths }: DocumentationFilesPathsProp) {
+function runAider({ docPaths, sourcePaths }: DocumentationFilePathsWithSourcesProp) {
   const sourceArgs = sourcePaths.flatMap(sourcePath => ['--read', sourcePath]);
   const args = [
     ...docPaths,

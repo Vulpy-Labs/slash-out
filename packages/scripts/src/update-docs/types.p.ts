@@ -34,7 +34,7 @@ type ChangedFileListProp = { files: ChangedFile[] };
 
 type DocumentationFilePathsProp = { docPaths: string[] };
 
-type DocumentationFilesPathsProp = { docPaths: string[]; sourcePaths: string[] };
+type DocumentationFilePathsWithSourcesProp = { docPaths: string[]; sourcePaths: string[] };
 
 type FilterFilesByStatusProp = {
   file: ChangedFile | null;
@@ -65,5 +65,5 @@ export type {
   ChangedFileListProp,
   FilterFilesByStatusProp,
   DocumentationFilePathsProp,
-  DocumentationFilesPathsProp,
+  DocumentationFilePathsWithSourcesProp,
 };
