@@ -134,7 +134,7 @@ Use descriptive branches or branch names linked to task IDs:
 
 ### Commit Convention
 
-The project uses a `git-hook` to validate and format commits. Adopt the following format:
+The project uses a `git-hook` to validate and format commits. Write the commit message in the following format:
 
 ```text
 <type>: <description>
@@ -143,7 +143,7 @@ The project uses a `git-hook` to validate and format commits. Adopt the followin
 - **Rules:**
   - All lowercase
   - No trailing period
-  - No emojis
+  - No emojis or manual prefixes (the hook will add formatting automatically)
   - Use types approved by [git-hooks](packages/scripts/src/git-hooks/commit-msg#21)
 
 ---
