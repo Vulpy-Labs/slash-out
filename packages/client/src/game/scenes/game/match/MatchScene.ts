@@ -80,8 +80,6 @@ export class MatchScene extends Phaser.Scene {
     this.createPlayers();
     this.createKeyboardInputs();
     this.createAnimations();
-
-    console.log('entities', this.entities);
   }
 
   createMap() {

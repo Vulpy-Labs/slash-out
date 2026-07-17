@@ -33,7 +33,6 @@ class EntityManager {
       this.playerBuilder.build({ character, spawnPoint });
     });
 
-    // Todo: () => remover a conexão entre jogador e armas. Carregar ambos de forma independete.
     this.players.forEach(player => {
       if (player.sprite) {
         const swordX = player.sprite.x + SWORD.CONFIG.OFFSET;
