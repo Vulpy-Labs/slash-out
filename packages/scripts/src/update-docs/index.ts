@@ -18,6 +18,7 @@ import {
   ChangedFileListProp,
   FilterFilesByStatusProp,
   DocumentationFilePathsProp,
+  DocumentationFilePathsWithSourcesProp,
 } from './types.p';
 
 const FILE_PATH = fileURLToPath(import.meta.url);
@@ -33,7 +34,8 @@ const project = new Project({
   tsConfigFilePath: path.join(CLIENT_ROOT, 'tsconfig.json'),
 });
 
-const excludedTypes = ['INDEX', 'TYPE', 'COMPONENT', 'ENTITY'] as FileType[];
+const onlyIncludeTypes: FileType[] = [];
+const excludedTypes: FileType[] = ['INDEX', 'TYPE', 'CONFIG', 'CONSTANT'];
 
 async function main() {
   console.log('\n🚀 AI Docs Update Started\n');
@@ -64,10 +66,11 @@ async function main() {
   await removeDeletedDocs({ files: relevantFiles });
 
   const docPaths = analyses.map(analysis => getDocumentationPath({ filePath: analysis.filePath }));
+  const sourcePaths = analyses.map(analysis => path.join(ROOT_PATH, analysis.filePath));
 
   ensureDocumentationFiles({ docPaths });
 
-  runAider({ docPaths });
+  runAider({ docPaths, sourcePaths });
 
   console.log('\n✅ AI Docs Update Finished\n');
 }
@@ -132,6 +135,7 @@ function filterRelevantFiles({ files }: ChangedFileListProp): ChangedFile[] {
 }
 
 function filterRelevantFileByType({ file }: FileAnalysisProp): boolean {
+  if (onlyIncludeTypes.length) return !!file && onlyIncludeTypes.includes(file.fileType);
   return !!file && !excludedTypes.includes(file.fileType);
 }
 
@@ -171,6 +175,12 @@ function inferFileType({ filePath }: FilePathProp): FileType {
   const pathsMap: PathsMap = {
     INDEX: ['/index'],
     TYPE: ['/type.', '/types.'],
+    CONSTANT: ['/constants/'],
+    CONFIG: ['/config/'],
+    HELPER: ['/helpers/'],
+    FACTORY: ['/factories/'],
+    UTILS: ['/utils/'],
+    HANDLER: ['/handlers/'],
     UI: ['/ui/'],
     SCENE: ['/scenes/'],
     SYSTEM: ['/systems/'],
@@ -216,13 +226,15 @@ async function removeDeletedDocs({ files }: ChangedFileListProp) {
   }
 }
 
-function runAider({ docPaths }: DocumentationFilePathsProp) {
+function runAider({ docPaths, sourcePaths }: DocumentationFilePathsWithSourcesProp) {
+  const sourceArgs = sourcePaths.flatMap(sourcePath => ['--read', sourcePath]);
   const args = [
     ...docPaths,
     '--read',
     'docs/agents.md',
     '--read',
     'docs/templates/client-documentation.md',
+    ...sourceArgs,
     '--message-file',
     'docs/prompts/ai-documentation-architect.md',
     '--edit-format=diff',
