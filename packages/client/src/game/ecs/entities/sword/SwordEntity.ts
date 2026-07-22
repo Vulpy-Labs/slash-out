@@ -1,4 +1,4 @@
-import { InputComponent, KeymapComponent, StateComponent } from '@/ecs/components';
+import { AnimationComponent, InputComponent, KeymapComponent, StateComponent } from '@/ecs/components';
 import { BaseEntity } from '../base';
 
 interface SwordEntity extends BaseEntity {
@@ -6,6 +6,7 @@ interface SwordEntity extends BaseEntity {
   input: InputComponent;
   state: StateComponent;
   sprite: Phaser.Physics.Matter.Sprite;
+  animation: AnimationComponent;
 }
 
 export type { SwordEntity };
