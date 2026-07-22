@@ -1,6 +1,7 @@
-import { MOBILITY } from '@/config/constants';
+import { CHARACTER_COMBAT, CHARACTER_STATE, MOBILITY } from '@/config/constants';
 import { GlobalEntity } from '@/ecs/entities';
 import { getMobility } from '@/utils/physics';
+import { decrementStateTicker, isTickerActive } from '@/utils/state';
 import { GroundedHandler, AirborneHandler } from './helpers';
 
 import { IEntityStateHandler } from '../types.i';
@@ -19,6 +20,23 @@ class PlayerStateHandler implements IEntityStateHandler {
     if (!this.isValidPlayer(entity)) return;
 
     const { state, input, sprite } = entity;
+
+    if (isTickerActive({ state })) {
+      decrementStateTicker({ state });
+      return;
+    }
+
+    if (input.sword) {
+      const isAlreadyAttacking =
+        state.current === CHARACTER_STATE.SHORT_ATTACK_FORWARD ||
+        state.current === CHARACTER_STATE.SHORT_ATTACK_UP ||
+        state.current === CHARACTER_STATE.SHORT_ATTACK_DOWN;
+
+      if (!isAlreadyAttacking) {
+        state.ticker = CHARACTER_COMBAT.ATTACK.DURATION_TICKS;
+      }
+    }
+
     const mobility = getMobility(sprite);
 
     if (mobility === MOBILITY.GROUNDED) {
