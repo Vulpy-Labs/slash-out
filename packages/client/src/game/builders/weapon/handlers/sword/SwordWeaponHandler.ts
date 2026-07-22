@@ -1,5 +1,6 @@
-import { DEPTH, ENTITY_TYPES, SWORD } from '@/config/constants';
+import { DEPTH, ENTITY_TYPES, SWORD, SWORD_STATE } from '@/config/constants';
 import { GlobalEntity } from '@/ecs/entities';
+import { defaultInput, defaultKeymap } from '@/utils/factories/ecs/components';
 import { IWeaponHandler } from '../types.i';
 
 export class SwordWeaponHandler implements IWeaponHandler {
@@ -38,11 +39,15 @@ export class SwordWeaponHandler implements IWeaponHandler {
     sprite.setIgnoreGravity(true);
     sprite.setDepth(DEPTH.ENTITIES);
 
+    const playerRef = ownerEntityId.includes('02') ? '02' : '01';
+
     return {
       entityId: `sword_${ownerEntityId}`,
       entityType: ENTITY_TYPES.SWORD,
       sprite,
-      state: { current: 'idle' },
+      state: { current: SWORD_STATE.IDLE },
+      input: defaultInput(),
+      keymap: defaultKeymap({ player: playerRef }),
     };
   }
 }
