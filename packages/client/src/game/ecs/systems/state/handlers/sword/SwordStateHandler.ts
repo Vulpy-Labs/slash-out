@@ -1,5 +1,6 @@
-import { ENTITY_TYPES, SWORD_STATE } from '@/config/constants';
+import { ENTITY_TYPES, SWORD, SWORD_STATE } from '@/config/constants';
 import { GlobalEntity } from '@/ecs/entities';
+import { decrementStateTicker, isTickerActive } from '@/utils/state';
 import { IEntityStateHandler } from '../types.i';
 import { SwordStateHandlerUpdateProp, ValidSwordEntity } from './types.p';
 
@@ -9,8 +10,16 @@ class SwordStateHandler implements IEntityStateHandler {
 
     const { state, input } = entity;
 
+    if (isTickerActive({ state })) {
+      decrementStateTicker({ state });
+      return;
+    }
+
     if (input.sword) {
-      state.current = SWORD_STATE.SLASHING;
+      if (state.current !== SWORD_STATE.SLASHING) {
+        state.current = SWORD_STATE.SLASHING;
+        state.ticker = SWORD.ATTACK.DURATION_TICKS;
+      }
     } else {
       state.current = SWORD_STATE.IDLE;
     }
