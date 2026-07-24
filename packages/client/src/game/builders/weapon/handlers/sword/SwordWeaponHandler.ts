@@ -1,6 +1,10 @@
 import { DEPTH, ENTITY_TYPES, SWORD, SWORD_STATE } from '@/config/constants';
 import { GlobalEntity } from '@/ecs/entities';
-import { defaultInput, defaultKeymap, defaultSwordAnimation } from '@/utils/factories/ecs/components';
+import {
+  defaultInput,
+  defaultKeymap,
+  defaultSwordAnimation,
+} from '@/utils/factories/ecs/components';
 import { IWeaponHandler } from '../types.i';
 
 export class SwordWeaponHandler implements IWeaponHandler {
