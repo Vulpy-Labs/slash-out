@@ -1,4 +1,9 @@
-import { AnimationComponent, InputComponent, KeymapComponent, StateComponent } from '@/ecs/components';
+import {
+  AnimationComponent,
+  InputComponent,
+  KeymapComponent,
+  StateComponent,
+} from '@/ecs/components';
 import { BaseEntity } from '../base';
 
 interface SwordEntity extends BaseEntity {
