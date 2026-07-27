@@ -169,7 +169,10 @@ jobs:
 
             const userPrompt = `Here is the PR Diff to analyze:\n${diffContent}\n${skippedNote}`;
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            // Using the "gemini-flash-latest" alias so this always points to the
+            // current stable Flash model, avoiding manual updates every time
+            // Google deprecates a dated model version.
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
 
             const response = await fetch(url, {
               method: 'POST',
