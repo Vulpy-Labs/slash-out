@@ -153,7 +153,7 @@ jobs:
         id: inference-summary
         uses: actions/ai-inference@v2.0.6
         with:
-          token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           model: openai/gpt-4o
           max-tokens: 4096
           system-prompt-file: "./.github/workflows/prompts/pr-summary.prompt.md"
