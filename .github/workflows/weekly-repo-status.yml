@@ -115,11 +115,11 @@ jobs:
             // Fetch recent commits on main branch
             let recentCommits = [];
             try {
-              const { data: commits } = await github.rest.repos.listCommits({
+              const commits = await github.paginate(github.rest.repos.listCommits, {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 since: sinceISO,
-                per_page: 50
+                per_page: 100,
               });
 
               recentCommits = commits.map(c => ({
@@ -134,11 +134,11 @@ jobs:
             // Fetch open issues count
             let totalOpenIssues = 0;
             try {
-              const { data: openIssues } = await github.rest.issues.listForRepo({
+              const openIssues = await github.paginate(github.rest.issues.listForRepo, {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 state: 'open',
-                per_page: 100
+                per_page: 100,
               });
               totalOpenIssues = openIssues.filter(i => !i.pull_request).length;
             } catch (err) {
