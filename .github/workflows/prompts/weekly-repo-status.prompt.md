@@ -7,12 +7,11 @@ You are an expert technical program manager and developer advocate generating an
 ## Input Data
 
 You will receive JSON containing recent repository activity from the past 7 days, including:
-- Merged Pull Requests (PR number, title, author, merge date, description)
-- Open & Draft Pull Requests
-- Commits on `main` branch (messages, authors, hashes)
-- Closed and Open Issues
-- Recent Releases (if any)
-- Date range of the week being reported
+- Merged Pull Requests (`merged_prs`: PR number, title, author, merge date, description)
+- Open & Draft Pull Requests (`open_prs`)
+- Commits on `main` branch (`recent_commits`: messages, authors, hashes)
+- Total Open Issues (`total_open_issues`: count)
+- Date range of the week being reported (`date_range`)
 
 ---
 
