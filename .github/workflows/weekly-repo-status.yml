@@ -1,0 +1,236 @@
+name: Weekly Repo Status
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  weekly-status:
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Close Previous Weekly Status Reports
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const issues = await github.paginate(github.rest.issues.listForRepo, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: 'weekly-status',
+                per_page: 100,
+              });
+
+              for (const issue of issues) {
+                if (issue.title.startsWith('[repo-status]') || issue.title.includes('Weekly Status Report')) {
+                  console.log(`Closing previous status report issue #${issue.number}...`);
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    body: 'Closing this status report as a new weekly report is being generated. 🤖'
+                  });
+
+                  await github.rest.issues.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    state: 'closed'
+                  });
+                }
+              }
+            } catch (error) {
+              console.warn(`Warning closing old issues: ${error.message}`);
+            }
+
+      - name: Gather Weekly Repository Activity
+        id: gather-activity
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const now = new Date();
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const sinceISO = sevenDaysAgo.toISOString();
+
+            console.log(`Gathering repo activity since ${sinceISO}...`);
+
+            // Fetch merged & open PRs
+            const prs = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              sort: 'updated',
+              direction: 'desc',
+              per_page: 100,
+            });
+
+            const recentMergedPRs = [];
+            const recentOpenPRs = [];
+
+            for (const pr of prs) {
+              const updated = new Date(pr.updated_at);
+              if (updated < sevenDaysAgo) continue;
+
+              if (pr.merged_at && new Date(pr.merged_at) >= sevenDaysAgo) {
+                recentMergedPRs.push({
+                  number: pr.number,
+                  title: pr.title,
+                  author: pr.user?.login || 'unknown',
+                  merged_at: pr.merged_at,
+                  body: (pr.body || '').slice(0, 500)
+                });
+              } else if (pr.state === 'open') {
+                recentOpenPRs.push({
+                  number: pr.number,
+                  title: pr.title,
+                  author: pr.user?.login || 'unknown',
+                  draft: pr.draft,
+                  created_at: pr.created_at
+                });
+              }
+            }
+
+            // Fetch recent commits on main branch
+            let recentCommits = [];
+            try {
+              const { data: commits } = await github.rest.repos.listCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                since: sinceISO,
+                per_page: 50
+              });
+
+              recentCommits = commits.map(c => ({
+                sha: c.sha.slice(0, 7),
+                message: c.commit.message.split('\n')[0],
+                author: c.author?.login || c.commit.author?.name || 'unknown'
+              }));
+            } catch (err) {
+              console.warn(`Error fetching commits: ${err.message}`);
+            }
+
+            // Fetch open issues count
+            let totalOpenIssues = 0;
+            try {
+              const { data: openIssues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                per_page: 100
+              });
+              totalOpenIssues = openIssues.filter(i => !i.pull_request).length;
+            } catch (err) {
+              console.warn(`Error fetching issues: ${err.message}`);
+            }
+
+            const options = { month: 'short', day: 'numeric' };
+            const startDateStr = sevenDaysAgo.toLocaleDateString('en-US', options);
+            const endDateStr = now.toLocaleDateString('en-US', options);
+            const yearStr = now.getFullYear();
+
+            const activityData = {
+              date_range: {
+                start: startDateStr,
+                end: endDateStr,
+                year: yearStr
+              },
+              merged_prs: recentMergedPRs,
+              open_prs: recentOpenPRs,
+              recent_commits: recentCommits,
+              total_open_issues: totalOpenIssues
+            };
+
+            core.setOutput('activity_json', JSON.stringify(activityData));
+            core.setOutput('start_date', startDateStr);
+            core.setOutput('end_date', endDateStr);
+            core.setOutput('year', yearStr);
+
+      - name: Generate Report with Gemini API
+        id: generate-report
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ACTIVITY_JSON: ${{ steps.gather-activity.outputs.activity_json }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const apiKey = process.env.GEMINI_API_KEY;
+            if (!apiKey) {
+              throw new Error('GEMINI_API_KEY secret is missing. Please add GEMINI_API_KEY to your GitHub repository secrets.');
+            }
+
+            const promptPath = './.github/workflows/prompts/weekly-repo-status.prompt.md';
+            const systemPrompt = fs.readFileSync(promptPath, 'utf8');
+            const activityData = process.env.ACTIVITY_JSON || '{}';
+
+            const userPrompt = `Here is the repository activity data for the past 7 days:\n\`\`\`json\n${activityData}\n\`\`\`\nGenerate the weekly status report based on this activity data and system prompt.`;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
+
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                system_instruction: {
+                  parts: [{ text: systemPrompt }]
+                },
+                contents: [
+                  {
+                    parts: [{ text: userPrompt }]
+                  }
+                ],
+                generationConfig: {
+                  maxOutputTokens: 4096,
+                  temperature: 0.3
+                }
+              })
+            });
+
+            if (!response.ok) {
+              const errText = await response.text();
+              throw new Error(`Gemini API error (${response.status}): ${errText}`);
+            }
+
+            const data = await response.json();
+            const reportText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+            if (!reportText) {
+              throw new Error('No report content received from Gemini API.');
+            }
+
+            core.setOutput('report', reportText);
+
+      - name: Publish Weekly Report Issue
+        env:
+          REPORT_BODY: ${{ steps.generate-report.outputs.report }}
+          START_DATE: ${{ steps.gather-activity.outputs.start_date }}
+          END_DATE: ${{ steps.gather-activity.outputs.end_date }}
+          YEAR: ${{ steps.gather-activity.outputs.year }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Weekly Status Report - Week of ${process.env.START_DATE}-${process.env.END_DATE}, ${process.env.YEAR}`;
+            const footer = `\n\n---\n> Generated automatically by [Weekly Repo Status (Gemini API)](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`;
+            const fullBody = `${process.env.REPORT_BODY}${footer}`;
+
+            const newIssue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[repo-status] ${title}`,
+              body: fullBody,
+              labels: ['report', 'weekly-status']
+            });
+
+            console.log(`Successfully created issue #${newIssue.data.number}: ${newIssue.data.html_url}`);
