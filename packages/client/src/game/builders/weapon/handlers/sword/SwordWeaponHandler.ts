@@ -46,6 +46,7 @@ export class SwordWeaponHandler implements IWeaponHandler {
 
     return {
       entityId: `sword_${ownerEntityId}`,
+      ownerEntityId,
       entityType: ENTITY_TYPES.SWORD,
       sprite,
       state: { current: SWORD_STATE.IDLE },

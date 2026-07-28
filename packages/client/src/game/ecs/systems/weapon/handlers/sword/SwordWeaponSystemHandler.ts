@@ -4,6 +4,8 @@ import { IWeaponSystemHandler } from '../types.i';
 import { SwordWeaponSystemHandlerUpdateProp, ValidSwordWeaponEntity } from './types.p';
 
 class SwordWeaponSystemHandler implements IWeaponSystemHandler {
+  private readonly transformTarget = { offsetX: 0, offsetY: 0, angle: 0 };
+
   update({ entity, entities }: SwordWeaponSystemHandlerUpdateProp): void {
     if (!this.isValidSword(entity)) return;
 
@@ -28,7 +30,9 @@ class SwordWeaponSystemHandler implements IWeaponSystemHandler {
 
     if (!entities) return;
 
-    const ownerId = entity.entityId.replace('sword_', '');
+    const ownerId = entity.ownerEntityId;
+    if (!ownerId) return;
+
     const owner = entities.get(ownerId);
 
     if (owner?.sprite) {
@@ -46,22 +50,25 @@ class SwordWeaponSystemHandler implements IWeaponSystemHandler {
     if (!owner.sprite) return;
 
     const isFlipped = owner.animation?.flipX ?? owner.sprite.flipX;
-    const { offsetX, offsetY, angle } = this.calculateOffsetAndAngle({
+    this.populateOffsetAndAngle({
       ownerState: owner.state?.current,
       ownerInput: owner.input,
       isFlipped,
     });
 
-    sword.sprite.setPosition(owner.sprite.x + offsetX, owner.sprite.y + offsetY);
+    sword.sprite.setPosition(
+      owner.sprite.x + this.transformTarget.offsetX,
+      owner.sprite.y + this.transformTarget.offsetY
+    );
     sword.sprite.setFlipX(isFlipped);
-    sword.sprite.setAngle(angle);
+    sword.sprite.setAngle(this.transformTarget.angle);
 
     if (sword.animation) {
       sword.animation.flipX = isFlipped;
     }
   }
 
-  private calculateOffsetAndAngle({
+  private populateOffsetAndAngle({
     ownerState,
     ownerInput,
     isFlipped,
@@ -69,31 +76,27 @@ class SwordWeaponSystemHandler implements IWeaponSystemHandler {
     ownerState?: string;
     ownerInput?: GlobalEntity['input'];
     isFlipped: boolean;
-  }): { offsetX: number; offsetY: number; angle: number } {
+  }): void {
     const isUp = ownerState === CHARACTER_STATE.SHORT_ATTACK_UP || !!ownerInput?.up;
     const isDown = ownerState === CHARACTER_STATE.SHORT_ATTACK_DOWN || !!ownerInput?.down;
 
     if (isUp) {
-      return {
-        offsetX: 0,
-        offsetY: -SWORD.CONFIG.OFFSET,
-        angle: isFlipped ? 90 : -90,
-      };
+      this.transformTarget.offsetX = 0;
+      this.transformTarget.offsetY = -SWORD.CONFIG.OFFSET;
+      this.transformTarget.angle = isFlipped ? 90 : -90;
+      return;
     }
 
     if (isDown) {
-      return {
-        offsetX: 0,
-        offsetY: SWORD.CONFIG.OFFSET,
-        angle: isFlipped ? -90 : 90,
-      };
+      this.transformTarget.offsetX = 0;
+      this.transformTarget.offsetY = SWORD.CONFIG.OFFSET;
+      this.transformTarget.angle = isFlipped ? -90 : 90;
+      return;
     }
 
-    return {
-      offsetX: isFlipped ? -SWORD.CONFIG.OFFSET : SWORD.CONFIG.OFFSET,
-      offsetY: 0,
-      angle: 0,
-    };
+    this.transformTarget.offsetX = isFlipped ? -SWORD.CONFIG.OFFSET : SWORD.CONFIG.OFFSET;
+    this.transformTarget.offsetY = 0;
+    this.transformTarget.angle = 0;
   }
 
   private hideSword({ entity }: { entity: ValidSwordWeaponEntity }): void {
