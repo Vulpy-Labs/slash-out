@@ -67,14 +67,24 @@ jobs:
             console.log(`Gathering repo activity since ${sinceISO}...`);
 
             // Fetch merged & open PRs
-            const prs = await github.paginate(github.rest.pulls.list, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'all',
-              sort: 'updated',
-              direction: 'desc',
-              per_page: 100,
-            });
+            const prs = await github.paginate(
+              github.rest.pulls.list,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'all',
+                sort: 'updated',
+                direction: 'desc',
+                per_page: 100,
+              },
+              (response, done) => {
+                const pageData = response.data;
+                if (pageData.some(pr => new Date(pr.updated_at) < sevenDaysAgo)) {
+                  done();
+                }
+                return pageData;
+              }
+            );
 
             const recentMergedPRs = [];
             const recentOpenPRs = [];
