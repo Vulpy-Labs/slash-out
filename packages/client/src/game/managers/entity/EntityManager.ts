@@ -44,6 +44,13 @@ class EntityManager {
           ownerEntityId: player.entityId,
           entityType: ENTITY_TYPES.SWORD,
         });
+
+        this.weaponBuilder.build({
+          x: swordX,
+          y: swordY,
+          ownerEntityId: player.entityId,
+          entityType: ENTITY_TYPES.GUN,
+        });
       }
     });
   }
