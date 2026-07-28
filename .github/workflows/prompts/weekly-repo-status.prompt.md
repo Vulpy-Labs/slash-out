@@ -30,7 +30,7 @@ You will receive JSON containing recent repository activity from the past 7 days
 
 Your generated Markdown report MUST follow this exact structure:
 
-```markdown
+````markdown
 ## 📊 Repository Activity Summary
 
 :emoji: | **Headline Theme of the Week** - A 1-2 sentence upbeat summary of what the team accomplished this week!
@@ -119,7 +119,7 @@ Kudos to `@contributor` for their contributions this week! :trophy: :rocket:
 ---
 
 *This report covers activity for the week of <START_DATE> to <END_DATE>, <YEAR>. Automatically generated via Google Gemini API.*
-```
+````
 
 ---
 
