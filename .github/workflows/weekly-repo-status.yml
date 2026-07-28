@@ -187,12 +187,13 @@ jobs:
 
             const userPrompt = `Here is the repository activity data for the past 7 days:\n\`\`\`json\n${activityData}\n\`\`\`\nGenerate the weekly status report based on this activity data and system prompt.`;
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
+            const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 
             const response = await fetch(url, {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-goog-api-key': apiKey
               },
               body: JSON.stringify({
                 system_instruction: {
