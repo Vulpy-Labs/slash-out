@@ -2,3 +2,4 @@ export * from './base';
 export * from './global';
 export * from './player';
 export * from './sword';
+export * from './gun';
