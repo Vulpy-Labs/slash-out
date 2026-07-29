@@ -31,5 +31,6 @@ export const BULLET = {
       BASE: 100,
       MULTIPLIER: 1,
     },
+    DURATION_TICKS: 30,
   },
 } as const;
