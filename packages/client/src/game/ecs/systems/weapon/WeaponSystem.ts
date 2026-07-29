@@ -1,5 +1,5 @@
 import { ENTITY_TYPES, EntityTypes } from '@/config/constants';
-import { IWeaponSystemHandler, SwordWeaponSystemHandler } from './handlers';
+import { GunWeaponSystemHandler, IWeaponSystemHandler, SwordWeaponSystemHandler } from './handlers';
 import { WeaponSystemUpdateProp } from './types.p';
 
 class WeaponSystem {
@@ -8,6 +8,7 @@ class WeaponSystem {
   constructor() {
     this.handlers = new Map<EntityTypes, IWeaponSystemHandler>([
       [ENTITY_TYPES.SWORD, new SwordWeaponSystemHandler()],
+      [ENTITY_TYPES.GUN, new GunWeaponSystemHandler()],
     ]);
   }
 
