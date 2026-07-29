@@ -16,8 +16,6 @@ export class GunWeaponHandler implements IWeaponHandler {
 
   build({
     scene,
-    x,
-    y,
     ownerEntityId,
   }: {
     scene: Phaser.Scene;
@@ -25,7 +23,7 @@ export class GunWeaponHandler implements IWeaponHandler {
     y: number;
     ownerEntityId: string;
   }): GlobalEntity {
-    const sprite = scene.matter.add.sprite(x, y, 'spr_bullet_0');
+    const sprite = scene.matter.add.sprite(-9999, -9999, 'spr_bullet_0');
 
     sprite.setDisplaySize(BULLET.CONFIG.WIDTH, BULLET.CONFIG.HEIGHT);
     sprite.setOrigin(BULLET.CONFIG.ORIGIN_X, BULLET.CONFIG.ORIGIN_Y);
@@ -37,6 +35,7 @@ export class GunWeaponHandler implements IWeaponHandler {
 
     sprite.setSensor(true);
     sprite.setIgnoreGravity(true);
+    sprite.setVisible(false);
     sprite.setDepth(DEPTH.ENTITIES);
 
     const playerRef = ownerEntityId.includes('02') ? '02' : '01';
