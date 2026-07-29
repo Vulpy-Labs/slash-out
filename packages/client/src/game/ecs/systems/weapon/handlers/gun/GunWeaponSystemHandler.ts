@@ -25,8 +25,6 @@ class GunWeaponSystemHandler implements IWeaponSystemHandler {
   }): void {
     const { sprite } = entity;
 
-    if (sprite.visible) return;
-
     sprite.setVisible(true);
     sprite.setDepth(DEPTH.ENTITIES + 1);
 
