@@ -35,6 +35,7 @@ class GunStateHandler implements IEntityStateHandler {
   }): void {
     if (input.gun && !state.isAttackSpamming) {
       state.current = GUN_STATE.FIRING;
+      state.shouldPosition = true;
       state.isAttackSpamming = true;
     }
   }

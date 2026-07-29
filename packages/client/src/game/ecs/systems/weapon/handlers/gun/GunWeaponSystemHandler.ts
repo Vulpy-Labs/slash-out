@@ -23,7 +23,9 @@ class GunWeaponSystemHandler implements IWeaponSystemHandler {
     entity: ValidGunWeaponEntity;
     entities?: GunWeaponSystemHandlerUpdateProp['entities'];
   }): void {
-    const { sprite } = entity;
+    const { sprite, state } = entity;
+
+    if (!state.shouldPosition && sprite.visible) return;
 
     sprite.setVisible(true);
     sprite.setDepth(DEPTH.ENTITIES + 1);
@@ -37,6 +39,7 @@ class GunWeaponSystemHandler implements IWeaponSystemHandler {
 
     if (owner?.sprite) {
       this.updateTransform({ gun: entity, owner });
+      state.shouldPosition = false;
     }
   }
 
