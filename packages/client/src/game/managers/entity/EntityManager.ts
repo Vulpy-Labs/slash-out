@@ -71,6 +71,16 @@ class EntityManager {
       return;
     }
 
+    for (const [childId, childEntity] of this.entities.entries()) {
+      if (childEntity.ownerEntityId === id) {
+        if (childEntity.sprite) {
+          childEntity.sprite.destroy();
+        }
+
+        this.entities.delete(childId);
+      }
+    }
+
     if (entity.sprite) {
       entity.sprite.destroy();
     }
