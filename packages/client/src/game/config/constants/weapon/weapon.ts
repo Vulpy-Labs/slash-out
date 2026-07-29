@@ -22,6 +22,7 @@ export const BULLET = {
     ORIGIN_X: 0.5,
     ORIGIN_Y: 0.5,
     ANGLE: 0,
+    OFFSET: 18,
   },
   ATTACK: {
     CLIP_SIZE: 3,
