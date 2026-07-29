@@ -2,6 +2,7 @@ import { InputComponent, KeymapComponent, StateComponent } from '@/ecs/component
 import { BaseEntity } from '../base';
 
 interface GunEntity extends BaseEntity {
+  ownerEntityId: string;
   keymap: KeymapComponent;
   input: InputComponent;
   state: StateComponent;
