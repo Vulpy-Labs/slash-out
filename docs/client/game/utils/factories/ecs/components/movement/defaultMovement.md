@@ -26,7 +26,16 @@ The `defaultMovement` factory creates a `MovementComponent` with default intent 
 ### Manipulated Components
 
 - **Reads:** N/A
-- **Writes:** `MovementComponent`
+- **Writes:** `MovementComponent`:
+  - `intent`: 
+    - `moveX: number`
+    - `moveY: number`
+  - `air`:
+    - `speed: number`
+    - `friction: number`
+  - `ground`:
+    - `speed: number`
+    - `friction: number`
 
 ### Configuration Props
 
@@ -51,9 +60,15 @@ The `defaultMovement` factory creates a `MovementComponent` with default intent 
 **Flow:**
 
 - Reads the movement profile from `MOVEMENT_MAPPING[entityType]`
-- Sets `intent.moveX` and `intent.moveY` to `0`
-- Maps air speed/friction values from constants
-- Maps ground speed/friction values from constants
+- Initializes `intent` with:
+  - `moveX: 0`
+  - `moveY: 0`
+- Maps air movement values:
+  - `speed` from `MOVEMENT_MAPPING[entityType].AIR.SPEED`
+  - `friction` from `MOVEMENT_MAPPING[entityType].AIR.FRICTION`
+- Maps ground movement values:
+  - `speed` from `MOVEMENT_MAPPING[entityType].GROUND.SPEED`
+  - `friction` from `MOVEMENT_MAPPING[entityType].GROUND.FRICTION`
 
 ---
 
@@ -73,3 +88,6 @@ The `defaultMovement` factory creates a `MovementComponent` with default intent 
 
 > [!WARNING]  
 > **Consistency:** Keep `MOVEMENT_MAPPING` synchronized with valid `EntityTypes` to avoid undefined movement profiles.
+
+> [!WARNING]  
+> **Type Safety:** Ensure `entityType` parameter matches the keys in `MOVEMENT_MAPPING` to prevent runtime errors.
