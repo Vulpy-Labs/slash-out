@@ -6,19 +6,24 @@ import { IEntityStateHandler } from '../types.i';
 import { GunStateHandlerUpdateProp, ValidGunEntity } from './types.p';
 
 class GunStateHandler implements IEntityStateHandler {
-  update({ entity }: GunStateHandlerUpdateProp): void {
+  update({ entity, entities }: GunStateHandlerUpdateProp): void {
     if (!this.isValidGun(entity)) return;
 
-    const { state, input } = entity;
+    const { state } = entity;
 
     if (isTickerActive({ state })) {
       decrementStateTicker({ state });
       return;
     }
 
+    const owner = entity.ownerEntityId && entities ? entities.get(entity.ownerEntityId) : undefined;
+    const input = owner?.input;
+
     this.resetExpiredAttackState({ state });
-    this.updateAttackLockState({ state, input });
-    this.resolveGunState({ state, input });
+    if (input) {
+      this.updateAttackLockState({ state, input });
+      this.resolveGunState({ state, input });
+    }
   }
 
   private resetExpiredAttackState({ state }: { state: StateComponent }): void {
@@ -56,7 +61,7 @@ class GunStateHandler implements IEntityStateHandler {
   }
 
   private isValidGun(entity: GlobalEntity): entity is ValidGunEntity {
-    return !!entity.input && !!entity.state && entity.entityType === ENTITY_TYPES.GUN;
+    return !!entity.state && entity.entityType === ENTITY_TYPES.GUN;
   }
 }
 

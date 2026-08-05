@@ -22,7 +22,7 @@ class StateSystem {
     entities.forEach(entity => {
       if (!entity.state) return;
 
-      this.handlers.get(entity.entityType)?.update({ entity });
+      this.handlers.get(entity.entityType)?.update({ entity, entities });
     });
   }
 }

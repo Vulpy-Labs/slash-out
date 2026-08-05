@@ -1,13 +1,14 @@
-import { InputComponent, StateComponent } from '@/ecs/components';
+import { StateComponent } from '@/ecs/components';
 import { GlobalEntity } from '@/ecs/entities';
+import { GlobalEntityMap } from '@/scenes/game';
 
 type GunStateHandlerUpdateProp = {
   entity: GlobalEntity;
+  entities?: GlobalEntityMap;
 };
 
 type ValidGunEntity = GlobalEntity & {
   state: StateComponent;
-  input: InputComponent;
 };
 
 export type { GunStateHandlerUpdateProp, ValidGunEntity };
