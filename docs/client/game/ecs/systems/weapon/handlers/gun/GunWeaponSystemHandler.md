@@ -2,23 +2,22 @@
 
 ## Overview
 
-The `GunWeaponSystemHandler` manages the firing and flight behavior of gun entities, including bullet positioning and movement.
+The `GunWeaponSystemHandler` manages the visual representation and positioning of gun entities during firing states.
 
 ---
 
 ## Technical Identity
 
 - **Type:** Handler
-- **Domain:** Weapon Behavior
+- **Domain:** Weapon System
 
 ---
 
 ## Responsibilities
 
-- Handles bullet firing logic
-- Manages bullet positioning relative to owner
-- Controls bullet movement during flight
-- Updates bullet state transitions
+- Positions gun sprite relative to owner
+- Manages gun visibility
+- Handles sprite transformations
 
 ---
 
@@ -27,23 +26,24 @@ The `GunWeaponSystemHandler` manages the firing and flight behavior of gun entit
 ### Manipulated Components
 
 - **Reads:**
-  - `StateComponent`: Checks current gun state
-  - `InputComponent`: Determines firing direction
-  - `AnimationComponent`: Checks owner flip state
+  - `StateComponent`: Checks current state
+  - `Sprite`: Accesses sprite properties
 - **Writes:**
-  - `MovementComponent`: Sets bullet movement intent
-  - `Phaser.Physics.Matter.Sprite`: Updates position and visibility
+  - `Sprite`: Updates position, visibility, and depth
 
 ### Configuration Props
 
-- `GunWeaponSystemHandlerUpdateProp` (`*.p.ts`): Takes entity and entities map
+- `GunWeaponSystemHandlerUpdateProp` (`*.p.ts`): Contains entity and optional entities map
 
 ---
 
 ## Lifecycle & Execution Flow
 
-1. **Initialization:** Creates transform target object
-2. **Update Loop:** Processes firing and flight each frame
+1. **Initialization:** N/A
+2. **Update Loop:**
+   - Validates entity
+   - Positions gun if firing
+   - Hides gun if not firing
 3. **Teardown:** N/A
 
 ---
@@ -52,59 +52,38 @@ The `GunWeaponSystemHandler` manages the firing and flight behavior of gun entit
 
 ### `update({ entity, entities }: GunWeaponSystemHandlerUpdateProp): void`
 
-**Description:** Handles gun weapon system updates
+**Description:** Main update method for gun positioning
 
 **Flow:**
-- Validates gun entity
-- Processes firing state
-- Updates bullet position and movement
-- Transitions to flight state
+
+1. Validates entity
+2. Shows and positions gun if firing
+3. Hides gun if not firing
 
 **Side Effects:**
-- Modifies sprite position and visibility
-- Changes movement intent
-- Updates entity state
 
----
+- Modifies sprite properties
 
-### `fireBullet({ entity, entities }): void`
+### `private isValidGun(entity: GlobalEntity): entity is ValidGunWeaponEntity`
 
-**Description:** Handles bullet firing logic
+**Description:** Type guard for valid gun entities
 
 **Flow:**
-- Gets owner entity
-- Calculates bullet position based on owner state
-- Sets bullet sprite properties
-- Updates movement intent
-- Transitions to flight state
 
-**Side Effects:**
-- Modifies sprite position and visibility
-- Changes movement intent
-- Updates entity state
+1. Checks entity has required components
+2. Verifies entity type is GUN
 
----
-
-### `populateFireTransform({ ownerState, ownerInput, isFlipped }): void`
-
-**Description:** Calculates bullet firing transform
-
-**Flow:**
-- Determines firing direction based on owner state
-- Sets position offset and angle
-- Sets movement intent
-
-**Side Effects:**
-- Modifies internal transform target object
+**Side Effects:** N/A
 
 ---
 
 ## Dependencies & Relationships
 
-- **Core Dependencies:** `Phaser.Physics.Matter.Sprite`, `MatterJS.BodyType`
+- **Core Dependencies:**
+  - `ENTITY_TYPES`, `GUN_STATE`, `DEPTH`, `BULLET` constants
+  - `Phaser.Physics.Matter.Sprite`
 - **Related Systems:**
-  - `WeaponSystem`: Manages weapon behavior
-  - `VelocitySystem`: Applies movement intent
+  - `WeaponSystem`: Receives updates from this handler
 - **Events Consumed/Emitted:** N/A
 
 ---
@@ -112,4 +91,7 @@ The `GunWeaponSystemHandler` manages the firing and flight behavior of gun entit
 ## Maintenance Notes
 
 > [!WARNING]  
-> **Transform Target:** The internal transform target object is reused across frames to avoid allocations
+> **Performance:** 
+> - Runs in update loop
+> - Reuses transform target object to avoid allocations
+> - Keep transformations efficient

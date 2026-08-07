@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `GunStateHandler` manages state transitions for gun entities, including firing cooldowns and attack spamming prevention.
+The `GunStateHandler` manages state transitions for gun entities, handling firing states and attack cooldowns.
 
 ---
 
@@ -15,10 +15,13 @@ The `GunStateHandler` manages state transitions for gun entities, including firi
 
 ## Responsibilities
 
-- Handles gun state transitions
-- Manages firing cooldowns
-- Prevents attack spamming
-- Delegates to owner input
+- Manages gun state transitions
+- Handles attack cooldown timers via state ticker
+- Prevents attack spamming using `isAttackSpamming` flag
+- Manages transition between states:
+  - `IDLE` -> `FIRING` on input
+  - `FIRING` -> `IN_FLIGHT` after duration
+  - `IN_FLIGHT` -> `IDLE` when complete
 
 ---
 
@@ -28,76 +31,65 @@ The `GunStateHandler` manages state transitions for gun entities, including firi
 
 - **Reads:**
   - `StateComponent`: Checks current state and ticker
-  - `InputComponent`: Checks gun input from owner
+  - `InputComponent`: Evaluates gun input
 - **Writes:**
   - `StateComponent`: Updates current state and ticker
 
 ### Configuration Props
 
-- `GunStateHandlerUpdateProp` (`*.p.ts`): Takes entity and entities map
+- `GunStateHandlerUpdateProp` (`*.p.ts`): Contains the entity to be processed
 
 ---
 
 ## Lifecycle & Execution Flow
 
 1. **Initialization:** N/A
-2. **Update Loop:** Processes state transitions each frame
+2. **Update Loop:**
+   - Validates entity
+   - Processes state transitions
+   - Updates attack cooldown
 3. **Teardown:** N/A
 
 ---
 
 ## Methods
 
-### `update({ entity, entities }: GunStateHandlerUpdateProp): void`
+### `update({ entity }: GunStateHandlerUpdateProp): void`
 
-**Description:** Handles gun state updates
-
-**Flow:**
-- Validates gun entity
-- Processes active ticker
-- Resolves attack spamming
-- Updates gun state based on input
-
-**Side Effects:**
-- Modifies state component
-- Updates ticker value
-
----
-
-### `resolveAttackSpamming({ state, input }): void`
-
-**Description:** Manages attack spamming prevention
+**Description:** Main update method for gun state transitions
 
 **Flow:**
-- Resets spamming flag if no input
-- Maintains spamming flag during input
+
+1. Validates entity
+2. Processes ticker if active
+3. Resets expired attack state
+4. Updates attack lock state
+5. Resolves gun state based on input
 
 **Side Effects:**
-- Modifies state component
 
----
+- Modifies `StateComponent` values
 
-### `resolveGunState({ state, input }): void`
+### `private isValidGun(entity: GlobalEntity): entity is ValidGunEntity`
 
-**Description:** Handles state transitions
+**Description:** Type guard for valid gun entities
 
 **Flow:**
-- Transitions to firing state on input
-- Returns to idle state when not in flight
-- Sets firing duration ticker
 
-**Side Effects:**
-- Modifies state component
-- Updates ticker value
+1. Checks entity has required components
+2. Verifies entity type is GUN
+
+**Side Effects:** N/A
 
 ---
 
 ## Dependencies & Relationships
 
-- **Core Dependencies:** N/A
+- **Core Dependencies:**
+  - `ENTITY_TYPES`, `GUN_STATE`, `BULLET` constants
+  - `isTickerActive`, `decrementStateTicker` utilities
 - **Related Systems:**
-  - `StateSystem`: Manages state transitions
-  - `WeaponSystem`: Handles weapon behavior
+  - `StateSystem`: Receives state updates from this handler
 - **Events Consumed/Emitted:** N/A
 
 ---
@@ -105,4 +97,4 @@ The `GunStateHandler` manages state transitions for gun entities, including firi
 ## Maintenance Notes
 
 > [!WARNING]  
-> **Ticker Management:** Ensure ticker values are properly decremented to prevent state lock
+> **Performance:** Runs in update loop. Keep state checks lightweight.
