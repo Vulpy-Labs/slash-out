@@ -18,21 +18,13 @@ class GunStateHandler implements IEntityStateHandler {
 
     const owner = entity.ownerEntityId && entities ? entities.get(entity.ownerEntityId) : undefined;
     const input = owner?.input;
+    if (!input) return;
 
-    this.resetExpiredAttackState({ state });
-    if (input) {
-      this.updateAttackLockState({ state, input });
-      this.resolveGunState({ state, input });
-    }
+    this.resolveAttackSpamming({ state, input });
+    this.resolveGunState({ state, input });
   }
 
-  private resetExpiredAttackState({ state }: { state: StateComponent }): void {
-    if (state.current === GUN_STATE.FIRING) {
-      state.current = GUN_STATE.IDLE;
-    }
-  }
-
-  private updateAttackLockState({
+  private resolveAttackSpamming({
     state,
     input,
   }: {
@@ -55,8 +47,12 @@ class GunStateHandler implements IEntityStateHandler {
       state.current = GUN_STATE.FIRING;
       state.ticker = BULLET.ATTACK.DURATION_TICKS;
       state.isAttackSpamming = true;
-    } else {
+      return;
+    }
+
+    if (state.current !== GUN_STATE.IN_FLIGHT) {
       state.current = GUN_STATE.IDLE;
+      return;
     }
   }
 
