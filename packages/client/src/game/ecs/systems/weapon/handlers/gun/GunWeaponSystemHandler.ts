@@ -63,7 +63,7 @@ class GunWeaponSystemHandler implements IWeaponSystemHandler {
       entity.movement.intent.moveY = this.transformTarget.moveY;
     }
 
-    entity.state.current = GUN_STATE.IDLE;
+    entity.state.current = GUN_STATE.IN_FLIGHT;
   }
 
   private populateFireTransform({
