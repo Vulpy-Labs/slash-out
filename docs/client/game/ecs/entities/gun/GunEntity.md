@@ -1,4 +1,4 @@
-# GunEntity Documentation
+# Gun Entity Documentation
 
 ## Overview
 
