@@ -1,28 +1,64 @@
 # SwordEntity Documentation
 
 ## Overview
-Defines the structure and components of sword entities in the ECS architecture.
+
+Defines the component structure for sword entities.
+
+---
 
 ## Technical Identity
+
 - **Type:** Entity
-- **Domain:** Combat/Weapons
+- **Domain:** Weapon Composition
+
+---
+
+## Responsibilities
+
+- Specifies required components for sword entities
+- Extends base entity structure
+
+---
 
 ## Data Schema
-### Component Composition
-- `keymap`: KeymapComponent - Input key bindings
-- `input`: InputComponent - Current input state
-- `state`: StateComponent - Current sword state (IDLE/SLASHING)
-- `sprite`: Phaser.Physics.Matter.Sprite - Visual representation
-- `animation`: AnimationComponent - Animation configurations
 
-## Relationships
-- **Owned By:** Player entities via ownerEntityId
-- **Managed By:** EntityManager
-- **Processed By:**
-  - SwordStateHandler: Updates sword state
-  - AnimationSystem: Handles animations
-  - InputSystem: Processes player input
+### Components
+
+- `keymap`: KeymapComponent - Maps input keys
+- `input`: InputComponent - Tracks input state
+- `state`: StateComponent - Manages current state
+- `sprite`: Phaser.Physics.Matter.Sprite - Visual representation
+
+### Inherited Components
+
+- `entityId`: string - Unique identifier
+- `entityType`: EntityTypes - Entity classification
+
+---
+
+## Lifecycle & Execution Flow
+
+N/A (Pure type definition)
+
+---
+
+## Methods
+
+N/A (Pure type definition)
+
+---
+
+## Dependencies & Relationships
+
+- **Core Dependencies:**
+  - `BaseEntity`: Provides base entity structure
+- **Related Systems:**
+  - `StateSystem`: Processes state transitions
+  - `WeaponBuilder`: Creates sword entities
+
+---
 
 ## Maintenance Notes
-> [!NOTE]
-> Sword entities are created exclusively through the SwordWeaponHandler builder.
+
+> [!WARNING]
+> **Consistency:** Must match component structure used by SwordWeaponHandler

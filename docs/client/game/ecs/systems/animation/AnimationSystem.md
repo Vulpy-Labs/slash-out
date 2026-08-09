@@ -18,6 +18,8 @@ The `AnimationSystem` manages sprite animations and state transitions, interfaci
 - Creates Phaser animation definitions
 - Plays animations based on entity state
 - Handles sprite flipping and animation transitions
+- Maintains unidirectional ECS flow (State -> Animation)
+- Enforces visual abstraction through builders
 
 ---
 
@@ -36,7 +38,8 @@ The `AnimationSystem` manages sprite animations and state transitions, interfaci
 ### Configuration Props
 
 - `AnimationSystemProp` (`*.p.ts`): Requires Phaser Scene
-- `AnimationSystemPayloadProp` (`*.p.ts`): Takes entities map
+- `AnimationSystemPayloadProp` (`*.p.ts`): Takes GlobalEntityMap
+- `GlobalEntityMap`: Type for entities collection
 
 ---
 
