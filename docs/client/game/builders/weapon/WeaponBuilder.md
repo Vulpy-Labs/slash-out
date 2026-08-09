@@ -8,7 +8,7 @@ Factory for creating weapon entities through registered handlers.
 
 ## Technical Identity
 
-- **Type:** Entity Builder  
+- **Type:** Builder (Entity Factory)  
 - **Domain:** Weapon Construction
 
 ---
@@ -40,9 +40,11 @@ Factory for creating weapon entities through registered handlers.
 ### Constants Used
 
 - `ENTITY_TYPES`: Defines weapon entity types (currently `SWORD` and `GUN` supported)
+- `GlobalEntityMap`: Type for entity collection used in handlers
 
 ### Configuration Props
 
+- `WeaponEntityTypes`: Union type of supported weapon entity types (`ENTITY_TYPES.SWORD | ENTITY_TYPES.GUN`)
 - `WeaponBuilderProp`:
   - `scene: Phaser.Scene`
   - `onEntityCreated: (entity: GlobalEntity) => void`
@@ -118,6 +120,7 @@ Factory for creating weapon entities through registered handlers.
 
 - **Core Dependencies:**
   - `IWeaponHandler` interface (load/build methods)
+  - `GlobalEntityMap` type for entity collections
   - `SwordWeaponHandler` implementation
   - `GunWeaponHandler` implementation
   - `GlobalEntity` type
