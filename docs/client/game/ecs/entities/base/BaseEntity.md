@@ -19,6 +19,7 @@ The `BaseEntity` defines the fundamental properties that all entities in the ECS
 
 - **entityId**: Unique string identifier for each entity instance
 - **entityType**: Classification type from `EntityTypes` constants
+- **ownerEntityId** (optional): Reference to owning entity
 - **sprite** (optional): Reference to the Matter.js physics sprite
 
 ---
@@ -28,6 +29,7 @@ The `BaseEntity` defines the fundamental properties that all entities in the ECS
 - **Core Dependencies:**
   - `EntityTypes` constant
   - `Phaser.Physics.Matter.Sprite` from Phaser
+  - `Phaser.Physics.Matter` namespace
 
 ---
 
