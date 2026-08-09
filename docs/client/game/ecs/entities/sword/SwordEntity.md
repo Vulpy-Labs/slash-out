@@ -1,4 +1,4 @@
-# SwordEntity Documentation
+# Sword Entity Documentation
 
 ## Overview
 Defines the structure and components of sword entities in the ECS architecture.
