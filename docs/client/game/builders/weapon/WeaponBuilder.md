@@ -30,6 +30,7 @@ Factory for creating weapon entities through registered handlers.
 - **Writes:** N/A
 - **Creates:**
   - `GlobalEntity` via handlers
+  - Weapon sprites with Matter.js physics
 
 ### Configuration Props
 
@@ -104,6 +105,7 @@ Factory for creating weapon entities through registered handlers.
   - `SwordWeaponHandler` implementation
 - **Related Systems:**
   - `EntityManager`: Receives created entities
+  - `AnimationSystem`: Handles weapon animations
 - **Events Consumed/Emitted:** N/A
 
 ---
@@ -113,3 +115,5 @@ Factory for creating weapon entities through registered handlers.
 > [!WARNING]  
 > **Extensibility:** Add new handlers to constructor for new weapon types  
 > **Error Handling:** Always validate handler exists before use
+> **Physics:** Weapon sprites are created as sensors by default
+> **Positioning:** Weapons use owner's position + SWORD.CONFIG.OFFSET
