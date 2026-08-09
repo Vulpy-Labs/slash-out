@@ -11,6 +11,7 @@ export const SWORD = {
       BASE: 100,
       MULTIPLIER: 1,
     },
+    DURATION_TICKS: 45,
   },
 } as const;
 
