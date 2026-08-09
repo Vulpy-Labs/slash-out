@@ -34,19 +34,18 @@ Factory for creating weapon entities through registered handlers.
 
 ### Constants Used
 
-- `ENTITY_TYPES`: Defines weapon entity types
+- `ENTITY_TYPES`: Defines weapon entity types (currently only `SWORD` supported)
 
 ### Configuration Props
 
 - `WeaponBuilderProp`:
-- `WeaponEntityTypes`: Union type of supported weapon types
   - `scene: Phaser.Scene`
-  - `onEntityCreated: OnEntityCreatedCallback`
+  - `onEntityCreated: (entity: GlobalEntity) => void`
 - `WeaponBuilderBuildProp`:
   - `x: number`
   - `y: number`  
   - `ownerEntityId: string`
-  - `entityType: WeaponEntityTypes`
+  - `entityType: WeaponEntityTypes` (currently only `ENTITY_TYPES.SWORD`)
 
 ---
 
@@ -58,9 +57,11 @@ Factory for creating weapon entities through registered handlers.
      - `ENTITY_TYPES.SWORD` mapped to `SwordWeaponHandler`
 2. **Loading:**
    - Delegates to handler's load()
+   - Throws error if handler not found: `No weapon builder handler found for entity type: ${entityType}`
 3. **Building:**
    - Delegates to handler's build()
-   - Invokes onEntityCreated callback
+   - Throws error if handler not found: `No weapon builder handler found for entity type: ${entityType}`
+   - Invokes onEntityCreated callback with built entity
 
 ---
 
@@ -68,7 +69,7 @@ Factory for creating weapon entities through registered handlers.
 
 ### `constructor({ scene, onEntityCreated })`
 
-**Description:** Initializes builder
+**Description:** Initializes builder with scene reference and entity creation callback
 
 **Flow:**
 - Stores scene reference
@@ -78,37 +79,38 @@ Factory for creating weapon entities through registered handlers.
 
 ### `load({ entityType })`
 
-**Description:** Loads weapon assets
+**Description:** Loads weapon assets via registered handler
 
 **Flow:**
-- Gets handler by type
-- Throws if not found
+- Gets handler by type from map
+- Throws error if handler not found
 - Delegates to handler.load()
 
 **Side Effects:**
-- Loads assets via Phaser
+- Loads assets via Phaser's scene loader
 
 ### `build({ x, y, ownerEntityId, entityType })`
 
-**Description:** Creates weapon entity
+**Description:** Creates weapon entity via registered handler
 
 **Flow:**
-- Gets handler by type
-- Throws if not found
+- Gets handler by type from map
+- Throws error if handler not found
 - Delegates to handler.build()
-- Invokes callback with entity
+- Invokes callback with created entity
 
 **Side Effects:**
-- Creates new entity
-- Notifies EntityManager
+- Creates new entity with physics body
+- Notifies EntityManager via callback
 
 ---
 
 ## Dependencies & Relationships
 
 - **Core Dependencies:**
-  - `IWeaponHandler` interface
+  - `IWeaponHandler` interface (load/build methods)
   - `SwordWeaponHandler` implementation
+  - `GlobalEntity` type
 - **Related Systems:**
   - `EntityManager`: Receives created entities
   - `AnimationSystem`: Handles weapon animations
@@ -123,3 +125,4 @@ Factory for creating weapon entities through registered handlers.
 > **Error Handling:** Always validate handler exists before use
 > **Physics:** Weapon sprites are created as sensors by default
 > **Positioning:** Weapons use owner's position + SWORD.CONFIG.OFFSET
+> **Type Safety:** Only `ENTITY_TYPES.SWORD` is currently supported as WeaponEntityTypes
