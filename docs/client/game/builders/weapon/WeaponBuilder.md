@@ -79,7 +79,7 @@ Factory for creating weapon entities through registered handlers.
 
 **Description:** Loads weapon assets
 
-**Flow:
+**Flow:**
 - Gets handler by type
 - Throws if not found
 - Delegates to handler.load()
@@ -91,13 +91,13 @@ Factory for creating weapon entities through registered handlers.
 
 **Description:** Creates weapon entity
 
-**Flow:
+**Flow:**
 - Gets handler by type
 - Throws if not found
 - Delegates to handler.build()
 - Invokes callback with entity
 
-**Side Effects:
+**Side Effects:**
 - Creates new entity
 - Notifies EntityManager
 

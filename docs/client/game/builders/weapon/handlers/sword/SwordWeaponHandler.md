@@ -40,7 +40,7 @@ Handles loading and building sword weapon entities with Matter.js physics.
   - `HEIGHT`: Physical body height  
   - `ORIGIN_X`: Sprite origin X
   - `ORIGIN_Y`: Sprite origin Y
-  - `OFFSET`: Position offset from owner
+  - `OFFSET`: Position offset applied by `EntityManager.createPlayers` before `WeaponBuilder.build`
 
 ---
 
@@ -103,5 +103,5 @@ Handles loading and building sword weapon entities with Matter.js physics.
 ## Maintenance Notes
 
 > [!WARNING]  
-> **Physics:** Sensor bodies don't trigger collisions  
+> **Physics:** Sensor bodies trigger collision events but do not physically react to colliding bodies  
 > **Memory:** Textures must be preloaded before building
