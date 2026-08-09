@@ -81,6 +81,7 @@ The `GunWeaponSystemHandler` manages the visual representation and positioning o
 
 - **Core Dependencies:**
   - `ENTITY_TYPES`, `GUN_STATE`, `DEPTH`, `BULLET` constants
+  - `BULLET.CONFIG.OFFSET`: Determines vertical/horizontal positioning offset
   - `Phaser.Physics.Matter.Sprite`
 - **Related Systems:**
   - `WeaponSystem`: Receives updates from this handler

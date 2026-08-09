@@ -106,7 +106,10 @@ Handles the visual representation and positioning of sword weapons during combat
 
 **Flow:**
 - Checks for up/down attack inputs
-- Calculates appropriate offsets and angles
+- Calculates appropriate offsets and angles:
+  - 90° up/down for vertical attacks
+  - 0° for horizontal attacks
+  - Offset determined by SWORD.CONFIG.OFFSET
 - Stores results in transform target
 
 **Side Effects:**

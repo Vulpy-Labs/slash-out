@@ -83,6 +83,7 @@ The `GunStateHandler` manages state transitions for gun entities, handling firin
 
 - **Core Dependencies:**
   - `ENTITY_TYPES`, `GUN_STATE`, `BULLET` constants
+  - `BULLET.ATTACK.DURATION_TICKS`: Determines firing cooldown duration
   - `isTickerActive`, `decrementStateTicker` utilities
 - **Related Systems:**
   - `StateSystem`: Receives state updates from this handler

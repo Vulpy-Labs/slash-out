@@ -69,9 +69,10 @@ The `GunWeaponHandler` is responsible for loading and building gun weapon entiti
 
 **Flow:**
 
-1. Creates Matter.js sprite
+1. Creates Matter.js sprite at (-9999, -9999) (offscreen)
 2. Configures sprite properties (size, origin, body)
 3. Sets initial state and components
+4. Configures as sensor with no gravity
 
 **Side Effects:**
 

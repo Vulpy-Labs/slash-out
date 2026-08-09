@@ -143,4 +143,5 @@ Factory for creating weapon entities through registered handlers.
 > **Memory Management:** Handlers are kept in memory indefinitely. Consider cleanup strategy if adding many handlers
 
 > [!NOTE]  
-> **Handler Registry:** Handlers are stored in a Map for efficient lookup by weapon type
+> **Handler Registry:** Handlers are stored in a Map for efficient lookup by weapon type  
+> **Weapon Types:** Currently only supports `ENTITY_TYPES.SWORD` and `ENTITY_TYPES.GUN`

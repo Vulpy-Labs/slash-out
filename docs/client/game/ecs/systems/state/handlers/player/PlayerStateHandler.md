@@ -99,10 +99,10 @@ The `PlayerStateHandler` is responsible for managing and transitioning between d
 
 ### `private getEffectiveInput({ state, input }: { state: StateComponent; input: InputComponent }): InputComponent`
 
-**Description:** Returns modified input accounting for lockout  
+**Description:** Returns modified input accounting for attack lockout  
 
 **Flow:**  
-1. Returns input with sword disabled if locked  
+1. Returns input with sword/gun disabled if locked  
 2. Returns original input otherwise  
 
 **Side Effects:** None  
