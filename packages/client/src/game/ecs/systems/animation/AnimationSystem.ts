@@ -54,10 +54,12 @@ class AnimationSystem {
       }
 
       if (state) {
-        targetAnimKey = animation.animations[state.current];
+        targetAnimKey = animation.animations[state.current as keyof typeof animation.animations];
       } else {
         targetAnimKey = Object.values(animation.animations)[0];
       }
+
+      if (!targetAnimKey) return;
 
       const isCurrentAnimation = sprite.anims.currentAnim?.key === targetAnimKey.key;
 
