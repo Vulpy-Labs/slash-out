@@ -31,9 +31,12 @@ The `StateSystem` manages entity state transitions using registered state handle
 
 - `StateSystemUpdateProp` (`*.p.ts`): Iterates through entities to update
 - Initializes with:
-  - Built-in handlers:
-    - `ENTITY_TYPES.PLAYER`: `PlayerStateHandler`
-    - `ENTITY_TYPES.SWORD`: `SwordStateHandler`
+  - Creates new `Map<EntityTypes, IEntityStateHandler>`
+  - Registers default handlers:
+    - `ENTITY_TYPES.PLAYER`: `new PlayerStateHandler()`
+    - `ENTITY_TYPES.SWORD`: `new SwordStateHandler()`
+    - `ENTITY_TYPES.GUN`: `new GunStateHandler()`
+  - Handler instances are created once during system initialization
   - Adding new handlers:
     1. Implement `IEntityStateHandler` interface
     2. Register in constructor via `this.handlers.set()`
@@ -59,10 +62,12 @@ The `StateSystem` manages entity state transitions using registered state handle
 
 **Flow:**
 
+- Iterates through all entities with `forEach`
 - For each entity:
-  - Gets handler by entity type
-  - Delegates to handler's update method if exists
-  - Handler determines new state based on component data
+  - Skips if entity lacks `state` component
+  - Gets handler using `entity.entityType` as Map key
+  - Calls handler's `update({ entity })` if handler exists
+  - Handler receives entity with all components
 - Skipped if:
   - No `StateComponent` present
 
@@ -84,7 +89,6 @@ The `StateSystem` manages entity state transitions using registered state handle
 
 ## Maintenance Notes
 
-> [!WARNING]
->
+> [!WARNING]  
 > **Fallback:** Entities without registered handlers will be silently skipped  
-> **Extensibility:** New entity types require implementing `IEntityStateHandler` and registering in constructor
+> **Extensibility:** New entity types require implementing `IEntityStateHandler` and registering in constructor  
