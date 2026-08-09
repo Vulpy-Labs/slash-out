@@ -33,12 +33,12 @@ The `StateSystem` manages entity state transitions using registered state handle
 - Initializes with:
   - Built-in handlers:
     - `ENTITY_TYPES.PLAYER`: `PlayerStateHandler`
+    - `ENTITY_TYPES.SWORD`: `SwordStateHandler`
   - Adding new handlers:
     1. Implement `IEntityStateHandler` interface
     2. Register in constructor via `this.handlers.set()`
     3. Handler must implement `update()` method
   - Current limitations:
-    - Only `PLAYER` handler included by default
     - No handler fallback mechanism
 
 ---
