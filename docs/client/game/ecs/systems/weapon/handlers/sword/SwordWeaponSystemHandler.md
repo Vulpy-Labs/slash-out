@@ -158,3 +158,6 @@ Handles the visual representation and positioning of sword weapons during combat
 
 > [!NOTE]  
 > **Positioning:** Sword offset is relative to character sprite center point. Adjust SWORD.CONFIG.OFFSET for different weapon lengths.
+
+> [!NOTE]  
+> **Transform Reuse:** transformTarget object is reused across frames to avoid allocations

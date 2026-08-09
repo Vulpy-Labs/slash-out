@@ -141,3 +141,6 @@ Factory for creating weapon entities through registered handlers.
 > **Positioning:** Weapons use owner's position + weapon-specific offsets
 > **Type Safety:** Only `ENTITY_TYPES.SWORD` and `ENTITY_TYPES.GUN` are currently supported as WeaponEntityTypes
 > **Memory Management:** Handlers are kept in memory indefinitely. Consider cleanup strategy if adding many handlers
+
+> [!NOTE]  
+> **Handler Registry:** Handlers are stored in a Map for efficient lookup by weapon type
