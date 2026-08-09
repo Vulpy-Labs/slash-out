@@ -1,4 +1,4 @@
-# SwordWeaponHandler Documentation
+# Sword Weapon Handler Documentation
 
 ## Overview
 
@@ -48,9 +48,14 @@ Handles loading and building sword weapon entities with Matter.js physics.
 
 1. **Loading:**
    - Loads 5 sword sprite variants (spr_sword_0 to spr_sword_4)
+     - Checks if texture already exists before loading
+     - Uses PNG format for all sprites
 2. **Building:**
    - Creates Matter.js sprite
-   - Configures physics body as sensor
+   - Configures physics body as sensor:
+     - Rectangle shape matching sprite dimensions
+     - No collision response
+     - Ignores gravity
    - Sets visual properties
    - Returns GlobalEntity
 

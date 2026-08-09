@@ -1,4 +1,4 @@
-# SwordEntity Documentation
+# Sword Entity Documentation
 
 ## Overview
 
@@ -28,6 +28,7 @@ Defines the component structure for sword entities.
 - `input`: InputComponent - Tracks input state
 - `state`: StateComponent - Manages current state
 - `sprite`: Phaser.Physics.Matter.Sprite - Visual representation
+- `animation`: AnimationComponent - Handles animations
 
 ### Inherited Components
 
