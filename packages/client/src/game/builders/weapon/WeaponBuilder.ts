@@ -1,7 +1,7 @@
 import { ENTITY_TYPES } from '@/config/constants';
 import { GlobalEntity } from '@/ecs/entities';
 import { WeaponBuilderProp, WeaponBuilderBuildProp, WeaponEntityTypes } from './types.p';
-import { IWeaponHandler, SwordWeaponHandler } from './handlers';
+import { IWeaponHandler, SwordWeaponHandler, GunWeaponHandler } from './handlers';
 
 class WeaponBuilder {
   private readonly scene: Phaser.Scene;
@@ -14,6 +14,7 @@ class WeaponBuilder {
 
     this.handlers = new Map<WeaponEntityTypes, IWeaponHandler>([
       [ENTITY_TYPES.SWORD, new SwordWeaponHandler()],
+      [ENTITY_TYPES.GUN, new GunWeaponHandler()],
     ]);
   }
 

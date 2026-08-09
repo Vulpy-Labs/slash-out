@@ -47,10 +47,12 @@ Factory handler responsible for creating and configuring sword weapon entities. 
 1. **Loading:**
    - Checks and loads sword sprite assets
 2. **Building:**
-   - Creates Matter.js sprite
-   - Configures physics body
-   - Sets initial properties
-   - Returns complete entity
+   - Creates Matter.js sprite with rectangle physics body
+   - Configures sprite as sensor (non-colliding)
+   - Disables gravity
+   - Sets initial invisible state
+   - Configures display size and origin
+   - Returns complete entity with all required components
 
 ---
 

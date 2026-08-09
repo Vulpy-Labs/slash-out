@@ -24,7 +24,7 @@ class EntityManager {
 
   load() {
     this.loadPlayers();
-    this.weaponBuilder.load({ entityType: ENTITY_TYPES.SWORD });
+    this.loadWeapons();
   }
 
   createPlayers(spawnPoints?: { x: number; y: number }[]) {
@@ -92,6 +92,11 @@ class EntityManager {
     this.matchConfig.players.characters.forEach(character => {
       this.playerBuilder.load({ character });
     });
+  }
+
+  private loadWeapons() {
+    this.weaponBuilder.load({ entityType: ENTITY_TYPES.SWORD });
+    this.weaponBuilder.load({ entityType: ENTITY_TYPES.GUN });
   }
 
   private createPlayerId() {

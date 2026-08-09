@@ -89,8 +89,11 @@ Handles the visual representation and positioning of sword weapons during combat
 
 **Flow:**
 - Checks owner flip state
-- Calculates offsets based on attack direction
-- Applies position, angle and flip to sprite
+- Calculates offsets based on attack direction (up/down/neutral)
+- Adjusts angle for vertical attacks (90° up/down)
+- Maintains horizontal offset for neutral attacks
+- Syncs flip state with owner character
+- Applies final position, angle and flip to sprite
 
 **Side Effects:**
 - Updates sprite transform properties

@@ -3,7 +3,7 @@ import { GlobalEntity } from '@/ecs/entities';
 
 type OnEntityCreatedCallback = (entity: GlobalEntity) => void;
 
-type WeaponEntityTypes = typeof ENTITY_TYPES.SWORD;
+type WeaponEntityTypes = typeof ENTITY_TYPES.SWORD | typeof ENTITY_TYPES.GUN;
 
 type WeaponBuilderProp = {
   scene: Phaser.Scene;

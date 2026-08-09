@@ -46,8 +46,9 @@ The `EntityManager` is the single source of truth for all game entities, enforci
 
 1. **Initialization:**
    - Constructs with scene and `matchConfig` references
-   - Initializes `PlayerBuilder` with creation callback
-   - Loads player assets via `PlayerBuilder.load()`
+   - Initializes `PlayerBuilder` and `WeaponBuilder` with creation callbacks
+   - Loads player and weapon assets via builder load methods
+   - Automatically creates sword weapons for each player
 
 2. **Main Operations:**
    - Creates player entities from `matchConfig` via `PlayerBuilder.build()`

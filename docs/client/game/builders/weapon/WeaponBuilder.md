@@ -33,10 +33,13 @@ Factory for creating weapon entities through registered handlers.
   - `GlobalEntity` via handlers
   - Weapon sprites with Matter.js physics
   - Weapon state components
+  - Input components
+  - Keymap bindings
+  - Animation components
 
 ### Constants Used
 
-- `ENTITY_TYPES`: Defines weapon entity types (currently only `SWORD` supported)
+- `ENTITY_TYPES`: Defines weapon entity types (currently `SWORD` and `GUN` supported)
 
 ### Configuration Props
 
@@ -47,7 +50,7 @@ Factory for creating weapon entities through registered handlers.
   - `x: number`
   - `y: number`  
   - `ownerEntityId: string`
-  - `entityType: WeaponEntityTypes` (currently only `ENTITY_TYPES.SWORD`)
+  - `entityType: WeaponEntityTypes` (`ENTITY_TYPES.SWORD` or `ENTITY_TYPES.GUN`)
 
 ---
 
@@ -57,6 +60,7 @@ Factory for creating weapon entities through registered handlers.
    - Creates handler map
    - Registers default handlers:
      - `ENTITY_TYPES.SWORD` mapped to `SwordWeaponHandler`
+     - `ENTITY_TYPES.GUN` mapped to `GunWeaponHandler`
 2. **Loading:**
    - Delegates to handler's load()
    - Throws error if handler not found: `No weapon builder handler found for entity type: ${entityType}`
@@ -80,7 +84,7 @@ Factory for creating weapon entities through registered handlers.
 - Stores scene reference
 - Stores callback
 - Initializes handler map
-- Registers SwordWeaponHandler
+- Registers SwordWeaponHandler and GunWeaponHandler
 
 ### `load({ entityType })`
 
@@ -115,6 +119,7 @@ Factory for creating weapon entities through registered handlers.
 - **Core Dependencies:**
   - `IWeaponHandler` interface (load/build methods)
   - `SwordWeaponHandler` implementation
+  - `GunWeaponHandler` implementation
   - `GlobalEntity` type
   - `WeaponBuilderProp` and `WeaponBuilderBuildProp` types
 - **Related Systems:**
@@ -130,6 +135,6 @@ Factory for creating weapon entities through registered handlers.
 > **Extensibility:** Add new handlers to constructor for new weapon types  
 > **Error Handling:** Always validate handler exists before use
 > **Physics:** Weapon sprites are created as sensors by default
-> **Positioning:** Weapons use owner's position + SWORD.CONFIG.OFFSET
-> **Type Safety:** Only `ENTITY_TYPES.SWORD` is currently supported as WeaponEntityTypes
+> **Positioning:** Weapons use owner's position + weapon-specific offsets
+> **Type Safety:** Only `ENTITY_TYPES.SWORD` and `ENTITY_TYPES.GUN` are currently supported as WeaponEntityTypes
 > **Memory Management:** Handlers are kept in memory indefinitely. Consider cleanup strategy if adding many handlers
