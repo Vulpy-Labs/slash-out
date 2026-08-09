@@ -35,7 +35,7 @@ jobs:
 
       - name: Fetch PR
         id: fetch-pr
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const pullNumber = Number(process.env.PR_NUMBER);
@@ -59,7 +59,7 @@ jobs:
         id: should-summarize
         env:
           PR_DATA: ${{ steps.fetch-pr.outputs.result }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const skippableExtensions = JSON.parse(process.env.SKIPPABLE_EXTENSIONS);
@@ -120,7 +120,7 @@ jobs:
         id: fetch-pr-diff
         env:
           PR_FILES: ${{ needs.check-if-needs-summary.outputs.PR_FILES }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           result-encoding: string
           script: |
@@ -154,7 +154,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DIFF_CONTENT: ${{ steps.fetch-pr-diff.outputs.result }}
           SKIPPED_NOTE: ${{ steps.fetch-pr-diff.outputs.skipped-note }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -174,34 +174,79 @@ jobs:
             // Google deprecates a dated model version.
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
 
-            const response = await fetch(url, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                system_instruction: {
-                  parts: [{ text: systemPrompt }]
-                },
-                contents: [
-                  {
-                    parts: [{ text: userPrompt }]
-                  }
-                ],
-                generationConfig: {
-                  maxOutputTokens: 4096,
-                  temperature: 0.2
-                }
-              })
-            });
+            const maxAttempts = 3;
+            const timeoutMs = 30000;
+            let response;
 
-            if (!response.ok) {
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+              let networkError = null;
+              try {
+                response = await fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    system_instruction: {
+                      parts: [{ text: systemPrompt }]
+                    },
+                    contents: [
+                      {
+                        parts: [{ text: userPrompt }]
+                      }
+                    ],
+                    generationConfig: {
+                      maxOutputTokens: 4096,
+                      temperature: 0.2
+                    }
+                  }),
+                  signal: controller.signal
+                });
+              } catch (err) {
+                networkError = err;
+              } finally {
+                clearTimeout(timeoutId);
+              }
+
+              if (networkError) {
+                if (attempt < maxAttempts) {
+                  const delay = 1000 * Math.pow(2, attempt - 1);
+                  await new Promise(resolve => setTimeout(resolve, delay));
+                  continue;
+                }
+                throw networkError;
+              }
+
+              if (response.ok) {
+                break;
+              }
+
               const errText = await response.text();
-              throw new Error(`Gemini API error (${response.status}): ${errText}`);
+              const apiError = new Error(`Gemini API error (${response.status}): ${errText}`);
+
+              const isRetryable = response.status === 429 || (response.status >= 500 && response.status < 600);
+              if (isRetryable && attempt < maxAttempts) {
+                const delay = 1000 * Math.pow(2, attempt - 1);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                continue;
+              }
+
+              throw apiError;
             }
 
             const data = await response.json();
-            const summaryText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            const candidate = data.candidates?.find(c => c?.finishReason === 'STOP');
+
+            let summaryText = '';
+            if (candidate?.content?.parts) {
+              summaryText = candidate.content.parts
+                .filter(part => typeof part.text === 'string' && !part.thought)
+                .map(part => part.text)
+                .join('');
+            }
 
             if (!summaryText) {
               throw new Error('No summary content received from Gemini API.');
@@ -213,7 +258,7 @@ jobs:
         env:
           PR_DATA: ${{ needs.check-if-needs-summary.outputs.PR_DATA }}
           NEW_SUMMARY: ${{ steps.inference-summary.outputs.response }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             try {
