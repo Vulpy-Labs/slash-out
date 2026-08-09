@@ -23,21 +23,28 @@ class SwordWeaponSystemHandler implements IWeaponSystemHandler {
     entity: ValidSwordWeaponEntity;
     entities?: SwordWeaponSystemHandlerUpdateProp['entities'];
   }): void {
-    const { sprite } = entity;
-
-    sprite.setVisible(true);
-    sprite.setDepth(DEPTH.ENTITIES + 1);
-
-    if (!entities) return;
+    if (!entities) {
+      this.hideSword({ entity });
+      return;
+    }
 
     const ownerId = entity.ownerEntityId;
-    if (!ownerId) return;
+    if (!ownerId) {
+      this.hideSword({ entity });
+      return;
+    }
 
     const owner = entities.get(ownerId);
-
-    if (owner?.sprite) {
-      this.updateTransform({ sword: entity, owner });
+    if (!owner?.sprite) {
+      this.hideSword({ entity });
+      return;
     }
+
+    this.updateTransform({ sword: entity, owner });
+
+    const { sprite } = entity;
+    sprite.setVisible(true);
+    sprite.setDepth(DEPTH.ENTITIES + 1);
   }
 
   private updateTransform({
