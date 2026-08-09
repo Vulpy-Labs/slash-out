@@ -28,8 +28,10 @@ The `GunWeaponSystemHandler` manages the visual representation and positioning o
 - **Reads:**
   - `StateComponent`: Checks current state
   - `Sprite`: Accesses sprite properties
+  - `MovementComponent`: Updates movement intent
 - **Writes:**
-  - `Sprite`: Updates position, visibility, and depth
+  - `Sprite`: Updates position, visibility, depth and angle
+  - `MovementComponent`: Sets movement intent
 
 ### Configuration Props
 
@@ -94,6 +96,19 @@ The `GunWeaponSystemHandler` manages the visual representation and positioning o
 - Updates sprite transform properties
 
 ### `private populateOffsetAndAngle({ ownerState, ownerInput, isFlipped }): void`
+
+**Description:** Determines gun positioning offsets
+
+**Flow:**
+1. Checks for up/down attack inputs
+2. Calculates appropriate offsets and angles:
+   - 90° up/down for vertical attacks
+   - 0° for horizontal attacks
+   - Offset determined by BULLET.CONFIG.OFFSET
+3. Stores results in transform target
+
+**Side Effects:**
+- Updates internal transform target object
 
 **Description:** Determines gun positioning offsets
 

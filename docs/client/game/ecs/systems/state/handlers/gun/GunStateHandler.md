@@ -32,8 +32,9 @@ The `GunStateHandler` manages state transitions for gun entities, handling firin
 - **Reads:**
   - `StateComponent`: Checks current state and ticker
   - `InputComponent`: Evaluates gun input
+  - `GlobalEntityMap`: Accesses owner entity
 - **Writes:**
-  - `StateComponent`: Updates current state and ticker
+  - `StateComponent`: Updates current state, ticker and isAttackSpamming flag
 
 ### Configuration Props
 
@@ -93,6 +94,17 @@ The `GunStateHandler` manages state transitions for gun entities, handling firin
 - Modifies StateComponent.isAttackSpamming
 
 ### `private resolveGunState({ state, input }: { state: StateComponent; input: InputComponent }): void`
+
+**Description:** Determines gun state based on input
+
+**Flow:**
+1. Checks for gun input
+2. Sets FIRING state if input detected and not locked
+3. Sets IDLE state otherwise
+
+**Side Effects:**
+- Modifies StateComponent.current
+- Updates StateComponent.ticker
 
 **Description:** Determines gun state based on input
 

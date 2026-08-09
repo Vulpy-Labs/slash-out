@@ -78,7 +78,9 @@ The `StateSystem` manages entity state transitions using registered state handle
 
 ## Dependencies & Relationships
 
-- **Core Dependencies:** N/A
+- **Core Dependencies:** 
+  - `ENTITY_TYPES`: Entity type constants
+  - `IEntityStateHandler`: Interface for state handlers
 - **Related Systems:**
   - `AnimationSystem`: Reacts to state changes
 - **Events Consumed/Emitted:** N/A

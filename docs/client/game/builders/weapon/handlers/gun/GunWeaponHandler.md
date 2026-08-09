@@ -86,9 +86,12 @@ The `GunWeaponHandler` is responsible for loading and building gun weapon entiti
 ## Dependencies & Relationships
 
 - **Core Dependencies:** 
-  - `Phaser.Scene`
-  - `Phaser.Physics.Matter.Sprite`
-  - `ENTITY_TYPES`, `BULLET`, `DEPTH`, `GUN_STATE` constants
+  - `Phaser.Scene`: Scene context
+  - `Phaser.Physics.Matter.Sprite`: Physics sprite implementation
+  - `ENTITY_TYPES`: Entity type constants
+  - `BULLET`: Bullet configuration constants
+  - `DEPTH`: Rendering depth constants
+  - `GUN_STATE`: Gun state constants
 - **Related Systems:** N/A
 - **Events Consumed/Emitted:** N/A
 

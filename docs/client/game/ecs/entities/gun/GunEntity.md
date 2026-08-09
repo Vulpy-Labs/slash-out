@@ -49,11 +49,11 @@ N/A (Type definition only)
 ## Dependencies & Relationships
 
 - **Core Dependencies:**
-  - `BaseEntity`
-  - `KeymapComponent`
-  - `InputComponent`
-  - `StateComponent`
-  - `Phaser.Physics.Matter.Sprite`
+  - `BaseEntity`: Core entity properties
+  - `KeymapComponent`: Input mapping
+  - `InputComponent`: Current input state
+  - `StateComponent`: State management
+  - `Phaser.Physics.Matter.Sprite`: Visual representation
 - **Related Systems:**
   - `WeaponSystem`: Manages gun entity behavior
 - **Events Consumed/Emitted:** N/A
