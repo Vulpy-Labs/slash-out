@@ -56,8 +56,10 @@ Factory function that creates default animation configurations for sword entitie
 **Description:** Creates sword animation component
 
 **Flow:**
-- Defines idle animation (single frame)
-- Defines slashing animation (5-frame sequence)
+- Defines idle animation (single frame, `spr_sword_0`)
+- Defines slashing animation (5-frame sequence, `spr_sword_0` to `spr_sword_4`)
+  - Frame rate: 15 FPS
+  - Non-repeating
 - Returns animation component
 
 **Side Effects:**

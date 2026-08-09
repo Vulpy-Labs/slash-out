@@ -54,7 +54,8 @@ Factory for creating weapon entities through registered handlers.
 
 1. **Initialization:**
    - Creates handler map
-   - Registers default handlers (Sword)
+   - Registers default handlers:
+     - `ENTITY_TYPES.SWORD` mapped to `SwordWeaponHandler`
 2. **Loading:**
    - Delegates to handler's load()
 3. **Building:**
