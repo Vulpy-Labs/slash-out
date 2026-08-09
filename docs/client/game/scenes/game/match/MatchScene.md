@@ -101,7 +101,8 @@ The `MatchScene` is the core gameplay scene that initializes and manages the ECS
 2. Handles movement
 3. Updates velocities
 4. Manages states
-5. Animates entities
+5. Updates weapons
+6. Animates entities
 
 ---
 
@@ -110,12 +111,15 @@ The `MatchScene` is the core gameplay scene that initializes and manages the ECS
 - **Core Dependencies:**
   - `Phaser.Scene`
   - `EntityManager`
+  - `GlobalEntityMap` type
   - ECS Systems
 - **Related Systems:**
   - All ECS systems in defined order
+  - `WeaponSystem`: Manages weapon behaviors
 - **Builders:**
   - `MapBuilder`: Constructs game world
-  - `WeaponBuilder`: Creates weapon entities
+- **Managers:**
+  - `EntityManager`: Handles entity lifecycle
 
 ---
 

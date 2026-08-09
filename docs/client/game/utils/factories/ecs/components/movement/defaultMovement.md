@@ -8,7 +8,7 @@ The `defaultMovement` factory creates a `MovementComponent` with default intent 
 
 ## Technical Identity
 
-- **Type:** Factory
+- **Type:** Component Factory
 - **Domain:** Movement
 
 ---
@@ -16,6 +16,7 @@ The `defaultMovement` factory creates a `MovementComponent` with default intent 
 ## Responsibilities
 
 - Builds a normalized `MovementComponent` payload for new entities
+- Ensures consistent movement component initialization
 - Initializes movement intent with neutral values
 - Resolves air and ground movement configuration from `MOVEMENT_MAPPING`
 
@@ -46,7 +47,7 @@ The `defaultMovement` factory creates a `MovementComponent` with default intent 
 ## Lifecycle & Execution Flow
 
 1. **Initialization:** N/A (Stateless)
-2. **Update Loop:** Called during entity/component assembly
+2. **Execution:** Called during entity/component assembly to initialize movement parameters
 3. **Teardown:** N/A (Stateless)
 
 ---
@@ -59,25 +60,18 @@ The `defaultMovement` factory creates a `MovementComponent` with default intent 
 
 **Flow:**
 
-- Reads the movement profile from `MOVEMENT_MAPPING[entityType]`
-- Initializes `intent` with:
-  - `moveX: 0`
-  - `moveY: 0`
-- Maps air movement values:
-  - `speed` from `MOVEMENT_MAPPING[entityType].AIR.SPEED`
-  - `friction` from `MOVEMENT_MAPPING[entityType].AIR.FRICTION`
-- Maps ground movement values:
-  - `speed` from `MOVEMENT_MAPPING[entityType].GROUND.SPEED`
-  - `friction` from `MOVEMENT_MAPPING[entityType].GROUND.FRICTION`
+- Performs typed `MOVEMENT_MAPPING[entityType]` lookup
+- Initializes `intent` with neutral values
+- Maps air and ground movement values from configuration
 
 ---
 
 ## Dependencies & Relationships
 
 - **Core Dependencies:**
-  - `MOVEMENT_MAPPING`
-  - `MovementComponent`
-  - `DefaultMovementProp`
+  - `MOVEMENT_MAPPING` configuration
+  - `MovementComponent` interface
+  - `DefaultMovementProp` type
 - **Related Systems:**
   - `MovementSystem`: consumes movement intent and movement parameters
 - **Events Consumed/Emitted:** N/A
@@ -90,3 +84,4 @@ The `defaultMovement` factory creates a `MovementComponent` with default intent 
 > **Consistency:** Keep `MOVEMENT_MAPPING` synchronized with valid `EntityTypes` to avoid undefined movement profiles.
 >
 > **Type Safety:** Ensure `entityType` parameter matches the keys in `MOVEMENT_MAPPING` to prevent runtime errors.
+> **Configuration:** Movement parameters are centralized in MOVEMENT_MAPPING for easy tuning

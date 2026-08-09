@@ -20,8 +20,6 @@ export class SwordWeaponHandler implements IWeaponHandler {
 
   build({
     scene,
-    x,
-    y,
     ownerEntityId,
   }: {
     scene: Phaser.Scene;
@@ -29,7 +27,7 @@ export class SwordWeaponHandler implements IWeaponHandler {
     y: number;
     ownerEntityId: string;
   }): GlobalEntity {
-    const sprite = scene.matter.add.sprite(x, y, 'spr_sword_0');
+    const sprite = scene.matter.add.sprite(-9999, -9999, 'spr_sword_0');
 
     sprite.setDisplaySize(SWORD.CONFIG.WIDTH, SWORD.CONFIG.HEIGHT);
     sprite.setOrigin(SWORD.CONFIG.ORIGIN_X, SWORD.CONFIG.ORIGIN_Y);
@@ -41,12 +39,14 @@ export class SwordWeaponHandler implements IWeaponHandler {
 
     sprite.setSensor(true);
     sprite.setIgnoreGravity(true);
+    sprite.setVisible(false);
     sprite.setDepth(DEPTH.ENTITIES);
 
     const playerRef = ownerEntityId.includes('02') ? '02' : '01';
 
     return {
       entityId: `sword_${ownerEntityId}`,
+      ownerEntityId,
       entityType: ENTITY_TYPES.SWORD,
       sprite,
       state: { current: SWORD_STATE.IDLE },
