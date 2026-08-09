@@ -1,4 +1,4 @@
-# GunWeaponHandler Documentation
+# Gun Weapon Handler Documentation
 
 ## Overview
 
