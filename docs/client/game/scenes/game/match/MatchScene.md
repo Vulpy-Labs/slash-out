@@ -115,6 +115,7 @@ The `MatchScene` is the core gameplay scene that initializes and manages the ECS
   - All ECS systems in defined order
 - **Builders:**
   - `MapBuilder`: Constructs game world
+  - `WeaponBuilder`: Creates weapon entities
 
 ---
 
