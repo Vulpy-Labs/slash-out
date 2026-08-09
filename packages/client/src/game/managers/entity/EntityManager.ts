@@ -44,6 +44,13 @@ class EntityManager {
           ownerEntityId: player.entityId,
           entityType: ENTITY_TYPES.SWORD,
         });
+
+        this.weaponBuilder.build({
+          x: swordX,
+          y: swordY,
+          ownerEntityId: player.entityId,
+          entityType: ENTITY_TYPES.GUN,
+        });
       }
     });
   }
@@ -62,6 +69,16 @@ class EntityManager {
     if (!entity) {
       console.warn(`Entity with id ${id} not found to destroy.`);
       return;
+    }
+
+    for (const [childId, childEntity] of this.entities.entries()) {
+      if (childEntity.ownerEntityId === id) {
+        if (childEntity.sprite) {
+          childEntity.sprite.destroy();
+        }
+
+        this.entities.delete(childId);
+      }
     }
 
     if (entity.sprite) {

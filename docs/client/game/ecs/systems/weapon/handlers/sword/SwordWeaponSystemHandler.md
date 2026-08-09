@@ -27,6 +27,7 @@ Handles the visual representation and positioning of sword weapons during combat
 ### Manipulated Components
 
 - **Reads:**
+  - `ValidSwordWeaponEntity`: Type guard for sword entities
   - `StateComponent`: Checks current sword state (SLASHING/IDLE)
   - `InputComponent`: Determines attack direction (up/down)
   - `AnimationComponent`: Syncs flip state with character
@@ -37,6 +38,7 @@ Handles the visual representation and positioning of sword weapons during combat
 
 ### Configuration Props
 
+- `SwordWeaponSystemHandlerUpdateProp`: Contains `entity` and `entities` parameters for update
 - `SWORD.CONFIG.OFFSET`: Determines sword positioning offset from character
 - `SWORD.CONFIG.WIDTH`: Defines sword physics body width
 - `SWORD.CONFIG.HEIGHT`: Defines sword physics body height
@@ -136,6 +138,8 @@ Handles the visual representation and positioning of sword weapons during combat
 
 - **Core Dependencies:** 
   - Phaser.Physics.Matter.Sprite
+  - `GlobalEntityMap` type for entity collections
+  - `IWeaponSystemHandler` interface
   - SWORD_STATE constants
   - CHARACTER_STATE constants
   - ENTITY_TYPES.SWORD

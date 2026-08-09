@@ -1,22 +1,24 @@
-# GunWeaponHandler Documentation
+# Gun Weapon Handler Documentation
 
 ## Overview
 
-Handler for loading and building gun weapon entities. Implements basic asset loading functionality with placeholder for future gun entity construction.
+The `GunWeaponHandler` implements `IWeaponHandler` to create and manage gun weapon entities with bullet sprites and physics properties.
 
 ---
 
 ## Technical Identity
 
-- **Type:** Builder Handler  
-- **Domain:** Weapon/Entity Creation  
+- **Type:** Handler
+- **Domain:** Weapon Construction
 
 ---
 
 ## Responsibilities
 
-- Preloads bullet sprite assets
-- Placeholder for future gun entity construction
+- Loads bullet sprite assets
+- Constructs gun entities with Matter.js physics
+- Configures bullet sprite properties
+- Manages gun state initialization
 
 ---
 
@@ -24,20 +26,28 @@ Handler for loading and building gun weapon entities. Implements basic asset loa
 
 ### Manipulated Components
 
-- **Reads:** N/A (Builder pattern)
-- **Writes:** N/A (Build method not implemented)
+- **Reads:** N/A
+- **Writes:**
+  - `StateComponent`: Initializes gun state
+  - `InputComponent`: Provides default input mapping
+  - `KeymapComponent`: Configures player-specific controls
 
 ### Configuration Props
 
-- N/A (Basic loader implementation)
+- `{ scene: Phaser.Scene }`: For sprite loading
+- `{ scene: Phaser.Scene, x: number, y: number, ownerEntityId: string }`: For entity construction
 
 ---
 
 ## Lifecycle & Execution Flow
 
-1. **Loading:**
-   - Checks if textures exist
-   - Loads bullet sprites if missing
+1. **Initialization:**
+   - Loads bullet sprites via `load()`
+2. **Main Operations:**
+   - Creates gun entity via `build()`
+   - Configures sprite physics properties
+   - Initializes state and input components
+3. **Teardown:** N/A (Managed by EntityManager)
 
 ---
 
@@ -48,32 +58,45 @@ Handler for loading and building gun weapon entities. Implements basic asset loa
 **Description:** Preloads bullet sprite assets
 
 **Flow:**
-- Checks texture existence
-- Loads bullet sprites if needed
+- Checks if textures exist
+- Loads bullet sprites if not already loaded
 
 **Side Effects:**
-- Adds assets to Phaser loader
+- Adds sprite assets to Phaser loader
 
-### `build(): GlobalEntity`
+---
 
-**Description:** Placeholder for gun entity construction
+### `build({ scene, x, y, ownerEntityId }): GlobalEntity`
+
+**Description:** Constructs a gun weapon entity
 
 **Flow:**
-- Throws "Method not implemented" error
+- Creates Matter.js sprite
+- Configures sprite dimensions and physics
+- Sets initial state and input components
+- Determines player reference from owner ID
+
+**Side Effects:**
+- Creates new Matter.js body
+- Initializes entity components
 
 ---
 
 ## Dependencies & Relationships
 
 - **Core Dependencies:**
-  - `Phaser.Scene` for loading
-  - `GlobalEntity` type
-- **Related Systems:** N/A (Not implemented)
+  - `Phaser.Physics.Matter.Sprite`
+  - `BULLET.CONFIG`
+  - `DEPTH.ENTITIES`
+  - `ENTITY_TYPES`
+  - `GUN_STATE`
+- **Related Systems:**
+  - `WeaponBuilder`: Uses this handler for gun creation
+- **Events Consumed/Emitted:** N/A
 
 ---
 
 ## Maintenance Notes
 
 > [!WARNING]  
-> **Implementation Required:** Build method must be implemented for gun functionality
-> **Asset Loading:** Always check `textures.exists()` before loading
+> **Physics:** Ensure `setSensor(true)` and `setIgnoreGravity(true)` remain set for proper bullet behavior
