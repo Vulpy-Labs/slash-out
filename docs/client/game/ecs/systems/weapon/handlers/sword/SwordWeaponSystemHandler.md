@@ -30,6 +30,7 @@ Handles the visual representation and positioning of sword weapons during combat
   - `StateComponent`: Checks current sword state (SLASHING/IDLE)
   - `InputComponent`: Determines attack direction (up/down)
   - `AnimationComponent`: Syncs flip state with character
+  - `ownerEntityId`: Used to find owning character entity
 - **Writes:**
   - Sprite properties: Updates position, visibility, depth, angle
   - `AnimationComponent`: Updates flipX state
@@ -37,6 +38,8 @@ Handles the visual representation and positioning of sword weapons during combat
 ### Configuration Props
 
 - `SWORD.CONFIG.OFFSET`: Determines sword positioning offset from character
+- `SWORD.CONFIG.WIDTH`: Defines sword physics body width
+- `SWORD.CONFIG.HEIGHT`: Defines sword physics body height
 - `DEPTH.ENTITIES`: Used for proper z-index layering
 
 ---
@@ -132,6 +135,8 @@ Handles the visual representation and positioning of sword weapons during combat
   - Phaser.Physics.Matter.Sprite
   - SWORD_STATE constants
   - CHARACTER_STATE constants
+  - ENTITY_TYPES.SWORD
+  - GlobalEntity type
 - **Related Systems:**
   - SwordStateHandler: Determines sword state
   - AnimationSystem: Handles sprite animations

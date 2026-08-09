@@ -32,6 +32,7 @@ Orchestrates weapon behavior by delegating to type-specific handlers. Maintains 
 ### Configuration Props
 
 - `handlers`: Map of weapon type to handler instances
+- `WeaponSystemUpdateProp`: Update method parameter type
 
 ---
 
@@ -77,8 +78,9 @@ Orchestrates weapon behavior by delegating to type-specific handlers. Maintains 
 - **Core Dependencies:**
   - `IWeaponSystemHandler` interface
   - `EntityTypes` constants
+  - `ENTITY_TYPES` enum
 - **Related Systems:**
-  - All weapon handlers (e.g., `SwordWeaponSystemHandler`)
+  - `SwordWeaponSystemHandler`: Handles sword weapon logic
   - `StateSystem`: Determines weapon states
 
 ---

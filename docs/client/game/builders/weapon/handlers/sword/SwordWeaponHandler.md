@@ -38,6 +38,7 @@ Factory handler responsible for creating and configuring sword weapon entities. 
 
 - `SWORD.CONFIG`: Defines sword dimensions and origin
 - `DEPTH.ENTITIES`: Sets initial sprite depth
+- `SWORD_STATE.IDLE`: Initial sword state
 
 ---
 
@@ -66,9 +67,15 @@ Factory handler responsible for creating and configuring sword weapon entities. 
 **Side Effects:**
 - Adds assets to Phaser loader
 
-### `build({ scene, ownerEntityId }): GlobalEntity`
+### `build({ scene, x, y, ownerEntityId }): GlobalEntity`
 
 **Description:** Constructs sword entity
+
+**Parameters:**
+- `scene: Phaser.Scene`: Phaser scene instance
+- `x: number`: Initial X coordinate
+- `y: number`: Initial Y coordinate
+- `ownerEntityId: string`: Entity ID of the weapon owner
 
 **Flow:**
 - Creates Matter sprite
@@ -87,6 +94,9 @@ Factory handler responsible for creating and configuring sword weapon entities. 
 - **Core Dependencies:**
   - `Phaser.Physics.Matter.Sprite`
   - `SWORD.CONFIG` constants
+  - `ENTITY_TYPES.SWORD`
+  - `GlobalEntity` type
+  - `defaultInput`, `defaultKeymap`, `defaultSwordAnimation` factories
 - **Related Systems:**
   - `EntityManager`: Registers created entities
   - `WeaponSystem`: Manages weapon behavior
@@ -96,5 +106,5 @@ Factory handler responsible for creating and configuring sword weapon entities. 
 ## Maintenance Notes
 
 > [!WARNING]  
-> **Asset Loading:** Always check `textures.exists()` before loading
-> **Physics:** Sensor bodies don't trigger collisions
+> **Asset Loading:** Always check `textures.exists()` before loading  
+> **Physics:** Sensor bodies do not produce physical collision responses, while Matter.js still detects eligible overlaps and emits collision events
