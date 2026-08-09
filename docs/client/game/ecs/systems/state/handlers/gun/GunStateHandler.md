@@ -1,4 +1,4 @@
-# GunStateHandler Documentation
+# Gun State Handler Documentation
 
 ## Overview
 
