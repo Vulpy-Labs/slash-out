@@ -1,23 +1,22 @@
-# WeaponSystem Documentation
+# Weapon System Documentation
 
 ## Overview
 
-Orchestrates weapon behavior by delegating to type-specific handlers. Maintains a map of weapon handlers and routes updates to the appropriate handler based on entity type.
+The `WeaponSystem` manages weapon-specific behavior by delegating to appropriate handlers based on entity type.
 
 ---
 
 ## Technical Identity
 
-- **Type:** System  
-- **Domain:** Weapon Management  
+- **Type:** System
+- **Domain:** Weapon Management
 
 ---
 
 ## Responsibilities
 
-- Maintains weapon handler registry
-- Routes entity updates to proper handlers
-- Ensures type-safe weapon processing
+- Routes weapon updates to appropriate handlers
+- Maintains handler map for different weapon types
 
 ---
 
@@ -25,67 +24,67 @@ Orchestrates weapon behavior by delegating to type-specific handlers. Maintains 
 
 ### Manipulated Components
 
-- **Reads:**
-  - `entityType`: Determines handler selection
-- **Writes:** N/A (Delegates to handlers)
+- **Reads:** N/A
+- **Writes:** N/A
 
 ### Configuration Props
 
-- `handlers`: Map of weapon type to handler instances
-- `WeaponSystemUpdateProp`: Update method parameter type
+- `WeaponSystemUpdateProp` (`*.p.ts`): Contains entities map
 
 ---
 
 ## Lifecycle & Execution Flow
 
-1. **Initialization:**
-   - Registers default weapon handlers
+1. **Initialization:** Creates handler map
 2. **Update Loop:**
-   - Routes each entity to its handler
-   - Delegates update logic
+   - Iterates through entities
+   - Delegates to appropriate handler
+3. **Teardown:** N/A
 
 ---
 
 ## Methods
 
-### `constructor()`
-
-**Description:** Initializes weapon system
-
-**Flow:**
-- Creates handlers map
-- Registers default handlers
-
-**Side Effects:**
-- Initializes handler instances
-
 ### `update({ entities }: WeaponSystemUpdateProp): void`
 
-**Description:** Main update method
+**Description:** Main update method for weapon system
 
 **Flow:**
-- Iterates through entities
-- Finds matching handler
-- Delegates update
+
+1. Iterates through entities
+2. Gets appropriate handler for entity type
+3. Delegates update to handler
 
 **Side Effects:**
-- Invokes handler updates
+
+- Modifies entities through handlers
+
+### `constructor()`
+
+**Description:** Initializes weapon system with handler map
+
+**Flow:**
+1. Creates handler map
+2. Registers SwordWeaponSystemHandler and GunWeaponSystemHandler
+
+**Side Effects:**
+- Initializes internal handler map
 
 ---
 
 ## Dependencies & Relationships
 
 - **Core Dependencies:**
+  - `ENTITY_TYPES` constant
   - `IWeaponSystemHandler` interface
-  - `EntityTypes` constants
-  - `ENTITY_TYPES` enum
 - **Related Systems:**
-  - `SwordWeaponSystemHandler`: Handles sword weapon logic
-  - `StateSystem`: Determines weapon states
+  - `GunWeaponSystemHandler`: Handles gun entities
+  - `SwordWeaponSystemHandler`: Handles sword entities
+- **Events Consumed/Emitted:** N/A
 
 ---
 
 ## Maintenance Notes
 
-> [!NOTE]  
-> **Extensibility:** Add new weapon types by registering additional handlers
+> [!WARNING]  
+> **Performance:** Runs in update loop. Keep handler delegation efficient.

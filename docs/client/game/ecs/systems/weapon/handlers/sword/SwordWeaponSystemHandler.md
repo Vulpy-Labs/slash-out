@@ -106,7 +106,10 @@ Handles the visual representation and positioning of sword weapons during combat
 
 **Flow:**
 - Checks for up/down attack inputs
-- Calculates appropriate offsets and angles
+- Calculates appropriate offsets and angles:
+  - 90° up/down for vertical attacks
+  - 0° for horizontal attacks
+  - Offset determined by SWORD.CONFIG.OFFSET
 - Stores results in transform target
 
 **Side Effects:**
@@ -131,6 +134,16 @@ Handles the visual representation and positioning of sword weapons during combat
 **Flow:**
 - Checks for required components
 - Verifies entity type
+
+### `constructor()`
+
+**Description:** Initializes transform target object
+
+**Flow:**
+1. Creates transformTarget object for positioning calculations
+
+**Side Effects:**
+- Initializes internal transform target
 
 ---
 
@@ -158,3 +171,6 @@ Handles the visual representation and positioning of sword weapons during combat
 
 > [!NOTE]  
 > **Positioning:** Sword offset is relative to character sprite center point. Adjust SWORD.CONFIG.OFFSET for different weapon lengths.
+
+> [!NOTE]  
+> **Transform Reuse:** transformTarget object is reused across frames to avoid allocations

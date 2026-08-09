@@ -99,10 +99,10 @@ The `PlayerStateHandler` is responsible for managing and transitioning between d
 
 ### `private getEffectiveInput({ state, input }: { state: StateComponent; input: InputComponent }): InputComponent`
 
-**Description:** Returns modified input accounting for lockout  
+**Description:** Returns modified input accounting for attack lockout  
 
 **Flow:**  
-1. Returns input with sword disabled if locked  
+1. Returns input with sword/gun disabled if locked  
 2. Returns original input otherwise  
 
 **Side Effects:** None  
@@ -126,6 +126,17 @@ The `PlayerStateHandler` is responsible for managing and transitioning between d
 1. Checks for required components (`input`, `state`, `sprite`)  
 
 **Side Effects:** None  
+
+### `private resolvePlayerMobilityState({ state, sprite, input }: { state: StateComponent; sprite: Phaser.Physics.Matter.Sprite; input: InputComponent }): void`
+
+**Description:** Delegates to appropriate mobility handler
+
+**Flow:**
+1. Determines mobility via getMobility()
+2. Delegates to GroundedHandler or AirborneHandler
+
+**Side Effects:**
+- Indirectly modifies StateComponent.current via handlers
 
 ---
 

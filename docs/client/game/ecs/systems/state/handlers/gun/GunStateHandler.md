@@ -2,7 +2,7 @@
 
 ## Overview
 
-Handles state transitions for gun entities, managing firing states and attack spamming prevention.
+The `GunStateHandler` manages state transitions for gun entities, handling firing states and attack cooldowns.
 
 ---
 
@@ -15,9 +15,9 @@ Handles state transitions for gun entities, managing firing states and attack sp
 
 ## Responsibilities
 
-- Manages gun firing state transitions
+- Manages gun state transitions
+- Handles attack cooldown timers
 - Prevents attack spamming
-- Validates gun entities before processing
 
 ---
 
@@ -26,21 +26,24 @@ Handles state transitions for gun entities, managing firing states and attack sp
 ### Manipulated Components
 
 - **Reads:**
-  - `InputComponent`: Checks gun input state
-  - `StateComponent`: Reads current state and spamming flag
+  - `StateComponent`: Checks current state and ticker
+  - `InputComponent`: Evaluates gun input
 - **Writes:**
-  - `StateComponent`: Updates current state and spamming flag
+  - `StateComponent`: Updates current state and ticker
 
 ### Configuration Props
 
-- `GunStateHandlerUpdateProp`: Contains entity to process
+- `GunStateHandlerUpdateProp` (`*.p.ts`): Contains the entity to be processed
 
 ---
 
 ## Lifecycle & Execution Flow
 
-1. **Initialization:** N/A (stateless handler)
-2. **Update Loop:** Processes state changes each frame
+1. **Initialization:** N/A
+2. **Update Loop:**
+   - Validates entity
+   - Processes state transitions
+   - Updates attack cooldown
 3. **Teardown:** N/A
 
 ---
@@ -49,51 +52,76 @@ Handles state transitions for gun entities, managing firing states and attack sp
 
 ### `update({ entity }: GunStateHandlerUpdateProp): void`
 
-**Description:** Main update method for gun state handling
+**Description:** Main update method for gun state transitions
 
 **Flow:**
-- Validates entity type
-- Updates attack lock state
-- Resolves gun state based on input
+
+1. Validates entity
+2. Processes ticker if active
+3. Resets expired attack state
+4. Updates attack lock state
+5. Resolves gun state based on input
 
 **Side Effects:**
-- Modifies entity's state component
+
+- Modifies `StateComponent` values
+
+### `private resetExpiredAttackState({ state }: { state: StateComponent }): void`
+
+**Description:** Resets gun state to IDLE when firing state expires
+
+**Flow:**
+1. Checks if current state is FIRING
+2. Resets to IDLE if true
+
+**Side Effects:**
+- Modifies StateComponent.current
 
 ### `private updateAttackLockState({ state, input }: { state: StateComponent; input: InputComponent }): void`
 
-**Description:** Manages attack spamming state
+**Description:** Manages gun input lockout state
 
 **Flow:**
-- Clears spamming flag when gun input is released
+1. Resets lock if no gun input
+2. Sets lock if gun input detected
+
+**Side Effects:**
+- Modifies StateComponent.isAttackSpamming
 
 ### `private resolveGunState({ state, input }: { state: StateComponent; input: InputComponent }): void`
 
-**Description:** Determines new gun state
+**Description:** Determines gun state based on input
 
 **Flow:**
-- Checks if gun input is active (`input.gun`)
-- Checks if not currently spamming (`!state.isAttackSpamming`)
-- If both conditions true:
-  - Sets state to `GUN_STATE.FIRING`
-  - Sets `isAttackSpamming` flag to true
+1. Checks for gun input
+2. Sets FIRING state if input detected and not locked
+3. Sets IDLE state otherwise
+
+**Side Effects:**
+- Modifies StateComponent.current
+- Updates StateComponent.ticker
 
 ### `private isValidGun(entity: GlobalEntity): entity is ValidGunEntity`
 
 **Description:** Type guard for valid gun entities
 
 **Flow:**
-- Checks for required components
-- Verifies entity type is GUN
+
+1. Checks entity has required components
+2. Verifies entity type is GUN
+
+**Side Effects:** N/A
 
 ---
 
 ## Dependencies & Relationships
 
-- **Core Dependencies:** 
-  - `ENTITY_TYPES`
-  - `GUN_STATE`
+- **Core Dependencies:**
+  - `ENTITY_TYPES`, `GUN_STATE`, `BULLET` constants
+  - `BULLET.ATTACK.DURATION_TICKS`: Determines firing cooldown duration
+  - `isTickerActive`, `decrementStateTicker` utilities
 - **Related Systems:**
-  - `StateSystem`: Registers and calls this handler
+  - `StateSystem`: Receives state updates from this handler
 - **Events Consumed/Emitted:** N/A
 
 ---
@@ -101,5 +129,4 @@ Handles state transitions for gun entities, managing firing states and attack sp
 ## Maintenance Notes
 
 > [!WARNING]  
-> **Validation:** Silently skips invalid entities  
-> **State Transition:** Only handles FIRING state transitions  
+> **Performance:** Runs in update loop. Keep state checks lightweight.

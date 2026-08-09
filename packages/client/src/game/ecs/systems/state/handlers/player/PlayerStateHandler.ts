@@ -1,4 +1,4 @@
-import { CHARACTER_COMBAT, CHARACTER_STATE, MOBILITY } from '@/config/constants';
+import { BULLET, CHARACTER_COMBAT, CHARACTER_STATE, MOBILITY } from '@/config/constants';
 import { InputComponent, StateComponent } from '@/ecs/components';
 import { GlobalEntity } from '@/ecs/entities';
 import { getMobility } from '@/utils/physics';
@@ -39,7 +39,10 @@ class PlayerStateHandler implements IEntityStateHandler {
     const isAttackingState =
       state.current === CHARACTER_STATE.SHORT_ATTACK_FORWARD ||
       state.current === CHARACTER_STATE.SHORT_ATTACK_UP ||
-      state.current === CHARACTER_STATE.SHORT_ATTACK_DOWN;
+      state.current === CHARACTER_STATE.SHORT_ATTACK_DOWN ||
+      state.current === CHARACTER_STATE.LONG_ATTACK_FORWARD ||
+      state.current === CHARACTER_STATE.LONG_ATTACK_UP ||
+      state.current === CHARACTER_STATE.LONG_ATTACK_DOWN;
 
     if (isAttackingState) {
       state.current = CHARACTER_STATE.IDLE;
@@ -53,12 +56,15 @@ class PlayerStateHandler implements IEntityStateHandler {
     state: StateComponent;
     input: InputComponent;
   }): void {
-    if (!input.sword) {
+    if (!input.sword && !input.gun) {
       state.isAttackSpamming = false;
     }
 
     if (input.sword && !state.isAttackSpamming) {
       state.ticker = CHARACTER_COMBAT.ATTACK.DURATION_TICKS;
+      state.isAttackSpamming = true;
+    } else if (input.gun && !state.isAttackSpamming) {
+      state.ticker = BULLET.ATTACK.DURATION_TICKS;
       state.isAttackSpamming = true;
     }
   }
@@ -71,7 +77,7 @@ class PlayerStateHandler implements IEntityStateHandler {
     input: InputComponent;
   }): InputComponent {
     if (state.isAttackSpamming && !isTickerActive({ state })) {
-      return { ...input, sword: false };
+      return { ...input, sword: false, gun: false };
     }
     return input;
   }
