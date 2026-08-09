@@ -1,4 +1,4 @@
-# WeaponSystem Documentation
+# Weapon System Documentation
 
 ## Overview
 
