@@ -71,8 +71,11 @@ Handles state transitions for gun entities, managing firing states and attack sp
 **Description:** Determines new gun state
 
 **Flow:**
-- Sets FIRING state when gun input is active and not spamming
-- Sets spamming flag when firing starts
+- Checks if gun input is active (`input.gun`)
+- Checks if not currently spamming (`!state.isAttackSpamming`)
+- If both conditions true:
+  - Sets state to `GUN_STATE.FIRING`
+  - Sets `isAttackSpamming` flag to true
 
 ### `private isValidGun(entity: GlobalEntity): entity is ValidGunEntity`
 
@@ -97,6 +100,6 @@ Handles state transitions for gun entities, managing firing states and attack sp
 
 ## Maintenance Notes
 
-> [!WARNING]
-> **Validation:** Silently skips invalid entities
-> **State Transition:** Only handles FIRING state transitions
+> [!WARNING]  
+> **Validation:** Silently skips invalid entities  
+> **State Transition:** Only handles FIRING state transitions  
