@@ -60,8 +60,7 @@ The `defaultMovement` factory creates a `MovementComponent` with default intent 
 
 **Flow:**
 
-- Validates entityType against MOVEMENT_MAPPING keys
-- Reads the movement profile from `MOVEMENT_MAPPING[entityType]`
+- Performs typed `MOVEMENT_MAPPING[entityType]` lookup
 - Initializes `intent` with neutral values
 - Maps air and ground movement values from configuration
 

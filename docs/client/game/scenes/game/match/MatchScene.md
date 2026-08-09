@@ -101,7 +101,8 @@ The `MatchScene` is the core gameplay scene that initializes and manages the ECS
 2. Handles movement
 3. Updates velocities
 4. Manages states
-5. Animates entities
+5. Updates weapons
+6. Animates entities
 
 ---
 
