@@ -33,6 +33,9 @@ Factory for creating weapon entities through registered handlers.
   - `GlobalEntity` via handlers
   - Weapon sprites with Matter.js physics
   - Weapon state components
+  - Input components
+  - Keymap bindings
+  - Animation components
 
 ### Constants Used
 

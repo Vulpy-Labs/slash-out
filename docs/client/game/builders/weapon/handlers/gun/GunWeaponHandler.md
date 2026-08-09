@@ -2,7 +2,7 @@
 
 ## Overview
 
-Handler for loading and building gun weapon entities. Currently implements asset loading but build functionality is not yet implemented.
+Handler for loading and building gun weapon entities. Implements basic asset loading functionality with placeholder for future gun entity construction.
 
 ---
 
