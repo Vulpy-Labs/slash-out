@@ -1,4 +1,4 @@
-# SwordEntity Documentation
+# Sword Entity Documentation
 
 ## Overview
 

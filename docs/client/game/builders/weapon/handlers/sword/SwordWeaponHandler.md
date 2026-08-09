@@ -1,4 +1,4 @@
-# SwordWeaponHandler Documentation
+# Sword Weapon Handler Documentation
 
 ## Overview
 
