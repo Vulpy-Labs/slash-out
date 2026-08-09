@@ -1,4 +1,4 @@
-# PlayerStateHandler Documentation
+# Player State Handler Documentation
 
 ## Overview
 
