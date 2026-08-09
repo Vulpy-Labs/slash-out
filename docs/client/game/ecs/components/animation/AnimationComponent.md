@@ -51,7 +51,9 @@ N/A (Pure data interface)
 
 ## Dependencies & Relationships
 
-- **Core Dependencies:** `CHARACTER_STATE`
+- **Core Dependencies:** 
+  - `CHARACTER_STATE`
+  - `SWORD_STATE`
 - **Related Systems:**
   - `AnimationSystem`: Handles playback
   - `StateSystem`: Triggers state changes
