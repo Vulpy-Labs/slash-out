@@ -8,7 +8,7 @@ Factory for creating weapon entities through registered handlers.
 
 ## Technical Identity
 
-- **Type:** Builder  
+- **Type:** Entity Builder  
 - **Domain:** Weapon Construction
 
 ---
@@ -16,6 +16,7 @@ Factory for creating weapon entities through registered handlers.
 ## Responsibilities
 
 - Manages weapon handler registry
+- Maintains handler registry lifecycle
 - Delegates loading to handlers
 - Delegates building to handlers
 - Notifies EntityManager of new entities
@@ -31,6 +32,7 @@ Factory for creating weapon entities through registered handlers.
 - **Creates:**
   - `GlobalEntity` via handlers
   - Weapon sprites with Matter.js physics
+  - Weapon state components
 
 ### Constants Used
 
@@ -62,6 +64,9 @@ Factory for creating weapon entities through registered handlers.
    - Delegates to handler's build()
    - Throws error if handler not found: `No weapon builder handler found for entity type: ${entityType}`
    - Invokes onEntityCreated callback with built entity
+4. **Handler Management:**
+   - Maintains handler instances in memory
+   - Ensures handlers are properly initialized
 
 ---
 
@@ -91,7 +96,7 @@ Factory for creating weapon entities through registered handlers.
 
 ### `build({ x, y, ownerEntityId, entityType })`
 
-**Description:** Creates weapon entity via registered handler
+**Description:** Creates weapon entity via registered handler and initializes its components
 
 **Flow:**
 - Gets handler by type from map
@@ -111,6 +116,7 @@ Factory for creating weapon entities through registered handlers.
   - `IWeaponHandler` interface (load/build methods)
   - `SwordWeaponHandler` implementation
   - `GlobalEntity` type
+  - `WeaponBuilderProp` and `WeaponBuilderBuildProp` types
 - **Related Systems:**
   - `EntityManager`: Receives created entities
   - `AnimationSystem`: Handles weapon animations
@@ -126,3 +132,4 @@ Factory for creating weapon entities through registered handlers.
 > **Physics:** Weapon sprites are created as sensors by default
 > **Positioning:** Weapons use owner's position + SWORD.CONFIG.OFFSET
 > **Type Safety:** Only `ENTITY_TYPES.SWORD` is currently supported as WeaponEntityTypes
+> **Memory Management:** Handlers are kept in memory indefinitely. Consider cleanup strategy if adding many handlers
