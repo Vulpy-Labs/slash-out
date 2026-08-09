@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `EntityManager` is the single source of truth for all game entities, enforcing strict lifecycle management through builders. It maintains separate registries for all entities and player entities specifically.
+The `EntityManager` is the single source of truth for all game entities, enforcing strict ECS lifecycle management through builders. It maintains separate registries for all entities and player entities specifically, ensuring compliance with EntityManager is the Law golden rule.
 
 ---
 
@@ -21,6 +21,8 @@ The `EntityManager` is the single source of truth for all game entities, enforci
 - Enforces proper cleanup of Phaser sprites and Matter.js bodies
 - Generates unique player IDs
 - Provides access to entity maps
+- Ensures entities are only created/destroyed through proper ECS channels
+- Maintains separation between player and non-player entities
 
 ---
 
