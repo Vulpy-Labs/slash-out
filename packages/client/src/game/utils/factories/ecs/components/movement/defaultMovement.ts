@@ -3,7 +3,7 @@ import { MovementComponent } from '@/ecs/components';
 import { DefaultMovementProp } from './type.p';
 
 function defaultMovement({ entityType }: DefaultMovementProp): MovementComponent {
-  const entityMovement = MOVEMENT_MAPPING[entityType as keyof typeof MOVEMENT_MAPPING];
+  const entityMovement = MOVEMENT_MAPPING[entityType];
 
   return {
     intent: {
