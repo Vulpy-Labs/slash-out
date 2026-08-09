@@ -1,4 +1,5 @@
-import { PlayerBuilder } from '@/builders';
+import { PlayerBuilder, WeaponBuilder } from '@/builders';
+import { ENTITY_TYPES, SWORD } from '@/config/constants';
 
 import { GlobalEntityMap } from '@/scenes/game';
 import { MatchConfig } from '@/ecs/components';
@@ -12,6 +13,7 @@ class EntityManager {
   private readonly players: GlobalEntityMap = new Map();
 
   private playerBuilder: PlayerBuilder;
+  private weaponBuilder: WeaponBuilder;
 
   constructor({ scene, matchConfig }: EntityManagerProp) {
     this.scene = scene;
@@ -22,11 +24,27 @@ class EntityManager {
 
   load() {
     this.loadPlayers();
+    this.weaponBuilder.load({ entityType: ENTITY_TYPES.SWORD });
   }
 
-  createPlayers() {
-    this.matchConfig.players.characters.forEach(character => {
-      this.playerBuilder.build({ character });
+  createPlayers(spawnPoints?: { x: number; y: number }[]) {
+    this.matchConfig.players.characters.forEach((character, index) => {
+      const spawnPoint = spawnPoints?.[index];
+      this.playerBuilder.build({ character, spawnPoint });
+    });
+
+    this.players.forEach(player => {
+      if (player.sprite) {
+        const swordX = player.sprite.x + SWORD.CONFIG.OFFSET;
+        const swordY = player.sprite.y;
+
+        this.weaponBuilder.build({
+          x: swordX,
+          y: swordY,
+          ownerEntityId: player.entityId,
+          entityType: ENTITY_TYPES.SWORD,
+        });
+      }
     });
   }
 
@@ -62,6 +80,11 @@ class EntityManager {
     this.playerBuilder = new PlayerBuilder({
       scene: this.scene,
       onEntityCreated: entity => this.registerEntity({ entity, options: { isPlayer: true } }),
+    });
+
+    this.weaponBuilder = new WeaponBuilder({
+      scene: this.scene,
+      onEntityCreated: entity => this.registerEntity({ entity, options: { isPlayer: false } }),
     });
   }
 

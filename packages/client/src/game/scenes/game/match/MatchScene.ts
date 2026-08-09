@@ -20,6 +20,7 @@ export class MatchScene extends Phaser.Scene {
   private entityManager: EntityManager;
 
   private mapBuilder: MapBuilder;
+  private spawnPoints: { x: number; y: number }[] = [];
 
   private keymapSystem: KeymapSystem;
   private inputSystem: InputSystem;
@@ -82,11 +83,12 @@ export class MatchScene extends Phaser.Scene {
   }
 
   createMap() {
-    this.mapBuilder.build();
+    const { spawnPoints } = this.mapBuilder.build();
+    this.spawnPoints = spawnPoints;
   }
 
   createPlayers() {
-    this.entityManager.createPlayers();
+    this.entityManager.createPlayers(this.spawnPoints);
   }
 
   createKeyboardInputs() {

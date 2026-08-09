@@ -44,8 +44,8 @@ class PlayerBuilder {
     this.loadCharacterSprites({ character });
   }
 
-  build({ character }: PlayerBuilderPayloadProp) {
-    this.createPlayer({ character });
+  build({ character, spawnPoint }: PlayerBuilderPayloadProp) {
+    this.createPlayer({ character, spawnPoint });
   }
 
   private loadCharacterSprites({ character }: PlayerBuilderPayloadProp) {
@@ -75,8 +75,12 @@ class PlayerBuilder {
     });
   }
 
-  private createPlayer({ character }: PlayerBuilderPayloadProp) {
-    const playerSprite = this.createPlayerSprite({ character, options: { friction: 0 } });
+  private createPlayer({ character, spawnPoint }: PlayerBuilderPayloadProp) {
+    const playerSprite = this.createPlayerSprite({
+      character,
+      spawnPoint,
+      options: { friction: 0 },
+    });
     const playerEntity = this.mountPlayerEntity({
       character,
       sprite: playerSprite,
@@ -85,15 +89,11 @@ class PlayerBuilder {
     this.onEntityCreated(playerEntity);
   }
 
-  private createPlayerSprite({ character, frame, options }: CreatePlayerSpriteProp) {
+  private createPlayerSprite({ character, frame, options, spawnPoint }: CreatePlayerSpriteProp) {
     const initialSprite = `${character.name}_spr_idle_${character.skin}`;
-    const sprite = this.scene.matter.add.sprite(
-      this.tempSpawnPoints.x,
-      this.tempSpawnPoints.y,
-      initialSprite,
-      frame,
-      options
-    );
+    const x = spawnPoint?.x ?? this.tempSpawnPoints.x;
+    const y = spawnPoint?.y ?? this.tempSpawnPoints.y;
+    const sprite = this.scene.matter.add.sprite(x, y, initialSprite, frame, options);
 
     sprite.setFixedRotation();
     sprite.setDepth(DEPTH.ENTITIES);

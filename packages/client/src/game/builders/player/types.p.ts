@@ -10,12 +10,14 @@ type PlayerBuilderProp = {
 
 type PlayerBuilderPayloadProp = {
   character: MatchConfigCharacter;
+  spawnPoint?: { x: number; y: number };
 };
 
 type CreatePlayerSpriteProp = {
   character: MatchConfigCharacter;
   frame?: string | number;
   options?: Phaser.Types.Physics.Matter.MatterBodyConfig;
+  spawnPoint?: { x: number; y: number };
 };
 
 type MountPlayerEntityProp = {
