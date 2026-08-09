@@ -1,23 +1,23 @@
-import { ENTITY_TYPES, EntityTypes } from '@/config/constants';
+import { ENTITY_TYPES } from '@/config/constants';
 import { GlobalEntity } from '@/ecs/entities';
-import { WeaponBuilderProp, WeaponBuilderBuildProp } from './types.p';
+import { WeaponBuilderProp, WeaponBuilderBuildProp, WeaponEntityTypes } from './types.p';
 import { IWeaponHandler, SwordWeaponHandler } from './handlers';
 
 class WeaponBuilder {
   private readonly scene: Phaser.Scene;
   private readonly onEntityCreated: (entity: GlobalEntity) => void;
-  private readonly handlers: Map<EntityTypes, IWeaponHandler>;
+  private readonly handlers: Map<WeaponEntityTypes, IWeaponHandler>;
 
   constructor({ scene, onEntityCreated }: WeaponBuilderProp) {
     this.scene = scene;
     this.onEntityCreated = onEntityCreated;
 
-    this.handlers = new Map<EntityTypes, IWeaponHandler>([
+    this.handlers = new Map<WeaponEntityTypes, IWeaponHandler>([
       [ENTITY_TYPES.SWORD, new SwordWeaponHandler()],
     ]);
   }
 
-  load({ entityType }: { entityType: EntityTypes }) {
+  load({ entityType }: { entityType: WeaponEntityTypes }) {
     const handler = this.handlers.get(entityType);
 
     if (!handler) {
