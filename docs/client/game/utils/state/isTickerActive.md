@@ -15,7 +15,7 @@ Pure utility function that checks if a state ticker is currently active.
 
 ## Responsibilities
 
-- Determines if a state ticker is active (non-zero and defined)
+- Determines if a state ticker is active (greater than zero and defined)
 
 ---
 

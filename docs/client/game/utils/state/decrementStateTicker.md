@@ -16,8 +16,7 @@ Utility function that safely decrements a state ticker and clears it when expire
 ## Responsibilities
 
 - Decrements active tickers  
-- Clears expired tickers (sets to undefined)  
-- Prevents negative ticker values  
+- Clears positive tickers (sets to undefined) when decrementing reaches zero or below  
 
 ---
 
