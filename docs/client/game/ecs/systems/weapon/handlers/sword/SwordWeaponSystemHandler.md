@@ -135,6 +135,16 @@ Handles the visual representation and positioning of sword weapons during combat
 - Checks for required components
 - Verifies entity type
 
+### `constructor()`
+
+**Description:** Initializes transform target object
+
+**Flow:**
+1. Creates transformTarget object for positioning calculations
+
+**Side Effects:**
+- Initializes internal transform target
+
 ---
 
 ## Dependencies & Relationships

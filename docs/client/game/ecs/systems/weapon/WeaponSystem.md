@@ -59,6 +59,17 @@ The `WeaponSystem` manages weapon-specific behavior by delegating to appropriate
 
 - Modifies entities through handlers
 
+### `constructor()`
+
+**Description:** Initializes weapon system with handler map
+
+**Flow:**
+1. Creates handler map
+2. Registers SwordWeaponSystemHandler and GunWeaponSystemHandler
+
+**Side Effects:**
+- Initializes internal handler map
+
 ---
 
 ## Dependencies & Relationships

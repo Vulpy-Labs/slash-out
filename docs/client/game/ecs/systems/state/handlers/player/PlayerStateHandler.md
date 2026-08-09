@@ -127,6 +127,17 @@ The `PlayerStateHandler` is responsible for managing and transitioning between d
 
 **Side Effects:** None  
 
+### `private resolvePlayerMobilityState({ state, sprite, input }: { state: StateComponent; sprite: Phaser.Physics.Matter.Sprite; input: InputComponent }): void`
+
+**Description:** Delegates to appropriate mobility handler
+
+**Flow:**
+1. Determines mobility via getMobility()
+2. Delegates to GroundedHandler or AirborneHandler
+
+**Side Effects:**
+- Indirectly modifies StateComponent.current via handlers
+
 ---
 
 ## Dependencies & Relationships

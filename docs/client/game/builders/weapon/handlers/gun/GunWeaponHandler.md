@@ -79,6 +79,16 @@ The `GunWeaponHandler` is responsible for loading and building gun weapon entiti
 - Creates new entity in ECS
 - Adds Matter.js physics body
 
+### `private isValidGun(entity: GlobalEntity): entity is ValidGunEntity`
+
+**Description:** Type guard for valid gun entities
+
+**Flow:**
+1. Checks entity has required components
+2. Verifies entity type is GUN
+
+**Side Effects:** N/A
+
 ---
 
 ## Dependencies & Relationships
