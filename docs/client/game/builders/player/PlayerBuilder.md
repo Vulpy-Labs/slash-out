@@ -47,6 +47,8 @@ The `PlayerBuilder` handles the creation and setup of player entities, including
 - `CreatePlayerSpriteProp` (`*.p.ts`): Defines character, frame, and physics options for sprite creation
 - `MountPlayerEntityProp` (`*.p.ts`): Specifies character and sprite for entity composition
 - `DefaultPlayerAnimationProp` (`*.p.ts`): Configures idle animations using character reference from MatchConfigCharacter
+- `DefaultMovementProp` (`*.p.ts`): Configures movement properties based on entity type
+- `DefaultKeymapProp` (`*.p.ts`): Binds keymap to player reference
 
 ---
 
