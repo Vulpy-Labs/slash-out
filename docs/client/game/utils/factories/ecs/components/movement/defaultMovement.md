@@ -28,8 +28,8 @@ The `defaultMovement` factory creates a `MovementComponent` with default intent 
 - **Reads:** N/A
 - **Writes:** `MovementComponent`:
   - `intent`: 
-    - `moveX: number`
-    - `moveY: number`
+    - `moveX: 0 | 1 | -1`
+    - `moveY: 0 | 1 | -1`
   - `air`:
     - `speed: number`
     - `friction: number`
@@ -88,6 +88,5 @@ The `defaultMovement` factory creates a `MovementComponent` with default intent 
 
 > [!WARNING]  
 > **Consistency:** Keep `MOVEMENT_MAPPING` synchronized with valid `EntityTypes` to avoid undefined movement profiles.
-
-> [!WARNING]  
+>
 > **Type Safety:** Ensure `entityType` parameter matches the keys in `MOVEMENT_MAPPING` to prevent runtime errors.
