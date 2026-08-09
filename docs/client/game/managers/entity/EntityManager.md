@@ -214,6 +214,7 @@ The `EntityManager` is the single source of truth for all game entities, enforci
   - `MatchConfig`: Provides player character definitions
 - **Related Systems:**
   - `PlayerBuilder`: For player entity creation
+  - `WeaponBuilder`: For weapon entity creation
 
 ---
 

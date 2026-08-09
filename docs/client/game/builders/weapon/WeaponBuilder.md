@@ -32,9 +32,14 @@ Factory for creating weapon entities through registered handlers.
   - `GlobalEntity` via handlers
   - Weapon sprites with Matter.js physics
 
+### Constants Used
+
+- `ENTITY_TYPES`: Defines weapon entity types
+
 ### Configuration Props
 
 - `WeaponBuilderProp`:
+- `WeaponEntityTypes`: Union type of supported weapon types
   - `scene: Phaser.Scene`
   - `onEntityCreated: OnEntityCreatedCallback`
 - `WeaponBuilderBuildProp`:

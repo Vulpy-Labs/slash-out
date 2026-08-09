@@ -31,9 +31,11 @@ Handles loading and building sword weapon entities with Matter.js physics.
 - **Creates:**
   - `GlobalEntity` with sword configuration
 
-### Configuration Props
+### Constants Used
 
-- `SWORD.CONFIG` constants:
+- `ENTITY_TYPES`: Defines weapon entity type ('SWORD')
+- `DEPTH`: Controls entity rendering depth (ENTITIES layer)
+- `SWORD.CONFIG`:
   - `WIDTH`: Physical body width
   - `HEIGHT`: Physical body height  
   - `ORIGIN_X`: Sprite origin X

@@ -38,7 +38,8 @@ The `AnimationSystem` manages sprite animations and state transitions, interfaci
 ### Configuration Props
 
 - `AnimationSystemProp` (`*.p.ts`): Requires Phaser Scene
-- `AnimationSystemPayloadProp` (`*.p.ts`): Takes entities map
+- `AnimationSystemPayloadProp` (`*.p.ts`): Takes GlobalEntityMap
+- `GlobalEntityMap`: Type for entities collection
 
 ---
 
