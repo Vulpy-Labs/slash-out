@@ -1,4 +1,4 @@
-# SwordWeaponHandler Documentation
+# Sword Weapon Handler Documentation
 
 ## Overview
 Handles loading and building sword weapon entities in the game. Responsible for creating sword sprites with Matter.js physics and setting up their initial state.
