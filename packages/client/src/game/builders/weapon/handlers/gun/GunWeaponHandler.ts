@@ -1,6 +1,6 @@
 import { BULLET, DEPTH, ENTITY_TYPES, GUN_STATE } from '@/config/constants';
 import { GlobalEntity } from '@/ecs/entities';
-import { defaultMovement } from '@/utils/factories/ecs/components';
+import { defaultBulletAnimation, defaultMovement } from '@/utils/factories/ecs/components';
 import { IWeaponHandler } from '../types.i';
 
 export class GunWeaponHandler implements IWeaponHandler {
@@ -45,6 +45,7 @@ export class GunWeaponHandler implements IWeaponHandler {
       state: { current: GUN_STATE.IDLE },
       movement: defaultMovement({ entityType: ENTITY_TYPES.GUN }),
       velocity: { vx: 0, vy: 0 },
+      animation: defaultBulletAnimation(),
     };
   }
 }
