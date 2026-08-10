@@ -31,12 +31,10 @@ The `StateSystem` manages entity state transitions using registered state handle
 
 - `StateSystemUpdateProp` (`*.p.ts`): Iterates through entities to update
 - Initializes with:
-  - Creates new `Map<EntityTypes, IEntityStateHandler>`
-  - Registers default handlers:
-    - `ENTITY_TYPES.PLAYER`: `new PlayerStateHandler()`
-    - `ENTITY_TYPES.SWORD`: `new SwordStateHandler()`
-    - `ENTITY_TYPES.GUN`: `new GunStateHandler()`
-  - Handler instances are created once during system initialization
+  - Built-in handlers:
+    - `ENTITY_TYPES.PLAYER`: `PlayerStateHandler`
+    - `ENTITY_TYPES.SWORD`: `SwordStateHandler`
+    - `ENTITY_TYPES.GUN`: `GunStateHandler`
   - Adding new handlers:
     1. Implement `IEntityStateHandler` interface
     2. Register in constructor via `this.handlers.set()`
@@ -66,7 +64,7 @@ The `StateSystem` manages entity state transitions using registered state handle
 - For each entity:
   - Skips if entity lacks `state` component
   - Gets handler using `entity.entityType` as Map key
-  - Calls handler's `update({ entity })` if handler exists
+  - Calls handler's `update({ entity, entities })` if handler exists
   - Handler receives entity with all components
 - Skipped if:
   - No `StateComponent` present
@@ -80,7 +78,9 @@ The `StateSystem` manages entity state transitions using registered state handle
 
 ## Dependencies & Relationships
 
-- **Core Dependencies:** N/A
+- **Core Dependencies:** 
+  - `ENTITY_TYPES`: Entity type constants
+  - `IEntityStateHandler`: Interface for state handlers
 - **Related Systems:**
   - `AnimationSystem`: Reacts to state changes
 - **Events Consumed/Emitted:** N/A

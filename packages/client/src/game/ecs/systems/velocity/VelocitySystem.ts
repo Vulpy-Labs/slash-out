@@ -1,3 +1,4 @@
+import { MovementComponent } from '@/ecs/components';
 import { VelocitySystemProp, VelocitySystemUpdateProp } from './types.p';
 
 class VelocitySystem {
@@ -8,25 +9,44 @@ class VelocitySystem {
   }
 
   update({ entities }: VelocitySystemUpdateProp) {
-    entities.forEach(({ movement, sprite, animation }) => {
+    entities.forEach(({ animation, movement, sprite }) => {
       if (!movement || !sprite?.body) return;
 
-      let vy = sprite.body.velocity.y;
-      const vx = movement.intent.moveX * movement.ground.speed;
-
-      if (movement.intent.moveY) {
-        vy = movement.intent.moveY * movement.air.speed;
-      }
+      const body = sprite.body as MatterJS.BodyType;
+      const vx = this.resolveHorizontalVelocity({ movement });
+      const vy = this.resolveVerticalVelocity({ body, movement });
 
       if (animation && movement.intent.moveX) {
         animation.flipX = movement.intent.moveX < 0;
       }
 
-      this.scene.matter.body.setVelocity(sprite.body as MatterJS.BodyType, {
+      this.scene.matter.body.setVelocity(body, {
         x: vx,
         y: vy,
       });
     });
+  }
+
+  private resolveHorizontalVelocity({ movement }: { movement: MovementComponent }): number {
+    return movement.intent.moveX * movement.ground.speed;
+  }
+
+  private resolveVerticalVelocity({
+    body,
+    movement,
+  }: {
+    body: MatterJS.BodyType;
+    movement: MovementComponent;
+  }): number {
+    if (movement.intent.moveY) {
+      return movement.intent.moveY * movement.air.speed;
+    }
+
+    if (body.ignoreGravity) {
+      return 0;
+    }
+
+    return body.velocity.y;
   }
 }
 

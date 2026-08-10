@@ -1,7 +1,8 @@
 import { GlobalEntity } from '@/ecs/entities';
+import { GlobalEntityMap } from '@/scenes/game';
 
 interface IEntityStateHandler {
-  update({ entity }: { entity: GlobalEntity }): void;
+  update({ entity, entities }: { entity: GlobalEntity; entities?: GlobalEntityMap }): void;
 }
 
 export type { IEntityStateHandler };

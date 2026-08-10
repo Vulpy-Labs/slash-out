@@ -72,7 +72,9 @@ The `VelocitySystem` applies movement intentions to physics bodies and handles s
 
 ## Dependencies & Relationships
 
-- **Core Dependencies:** `Phaser.Physics.Matter.Sprite`, `MatterJS.BodyType`
+- **Core Dependencies:** 
+  - `Phaser.Physics.Matter.Sprite`: Physics sprite implementation
+  - `MatterJS.BodyType`: Physics body type
 - **Related Systems:**
   - `MovementSystem`: Consumes intent vectors
   - `AnimationSystem`: Reacts to flip states

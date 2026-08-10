@@ -1,6 +1,6 @@
 import { BULLET, DEPTH, ENTITY_TYPES, GUN_STATE } from '@/config/constants';
 import { GlobalEntity } from '@/ecs/entities';
-import { defaultInput, defaultKeymap } from '@/utils/factories/ecs/components';
+import { defaultMovement } from '@/utils/factories/ecs/components';
 import { IWeaponHandler } from '../types.i';
 
 export class GunWeaponHandler implements IWeaponHandler {
@@ -33,12 +33,9 @@ export class GunWeaponHandler implements IWeaponHandler {
       height: BULLET.CONFIG.HEIGHT,
     });
 
-    sprite.setSensor(true);
     sprite.setIgnoreGravity(true);
     sprite.setVisible(false);
     sprite.setDepth(DEPTH.ENTITIES);
-
-    const playerRef = ownerEntityId.includes('02') ? '02' : '01';
 
     return {
       entityId: `gun_${ownerEntityId}`,
@@ -46,8 +43,8 @@ export class GunWeaponHandler implements IWeaponHandler {
       entityType: ENTITY_TYPES.GUN,
       sprite,
       state: { current: GUN_STATE.IDLE },
-      input: defaultInput(),
-      keymap: defaultKeymap({ player: playerRef }),
+      movement: defaultMovement({ entityType: ENTITY_TYPES.GUN }),
+      velocity: { vx: 0, vy: 0 },
     };
   }
 }

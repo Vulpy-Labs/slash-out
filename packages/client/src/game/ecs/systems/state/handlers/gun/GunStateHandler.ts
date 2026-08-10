@@ -6,28 +6,25 @@ import { IEntityStateHandler } from '../types.i';
 import { GunStateHandlerUpdateProp, ValidGunEntity } from './types.p';
 
 class GunStateHandler implements IEntityStateHandler {
-  update({ entity }: GunStateHandlerUpdateProp): void {
+  update({ entity, entities }: GunStateHandlerUpdateProp): void {
     if (!this.isValidGun(entity)) return;
 
-    const { state, input } = entity;
+    const { state } = entity;
 
     if (isTickerActive({ state })) {
       decrementStateTicker({ state });
       return;
     }
 
-    this.resetExpiredAttackState({ state });
-    this.updateAttackLockState({ state, input });
+    const owner = entity.ownerEntityId && entities ? entities.get(entity.ownerEntityId) : undefined;
+    const input = owner?.input;
+    if (!input) return;
+
+    this.resolveAttackSpamming({ state, input });
     this.resolveGunState({ state, input });
   }
 
-  private resetExpiredAttackState({ state }: { state: StateComponent }): void {
-    if (state.current === GUN_STATE.FIRING) {
-      state.current = GUN_STATE.IDLE;
-    }
-  }
-
-  private updateAttackLockState({
+  private resolveAttackSpamming({
     state,
     input,
   }: {
@@ -50,13 +47,17 @@ class GunStateHandler implements IEntityStateHandler {
       state.current = GUN_STATE.FIRING;
       state.ticker = BULLET.ATTACK.DURATION_TICKS;
       state.isAttackSpamming = true;
-    } else {
+      return;
+    }
+
+    if (state.current !== GUN_STATE.IN_FLIGHT) {
       state.current = GUN_STATE.IDLE;
+      return;
     }
   }
 
   private isValidGun(entity: GlobalEntity): entity is ValidGunEntity {
-    return !!entity.input && !!entity.state && entity.entityType === ENTITY_TYPES.GUN;
+    return !!entity.state && entity.entityType === ENTITY_TYPES.GUN;
   }
 }
 

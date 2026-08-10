@@ -16,8 +16,12 @@ The `GunStateHandler` manages state transitions for gun entities, handling firin
 ## Responsibilities
 
 - Manages gun state transitions
-- Handles attack cooldown timers
-- Prevents attack spamming
+- Handles attack cooldown timers via state ticker
+- Prevents attack spamming using `isAttackSpamming` flag
+- Manages transition between states:
+  - `IDLE` -> `FIRING` on input
+  - `FIRING` -> `IN_FLIGHT` after duration
+  - `IN_FLIGHT` -> `IDLE` when complete
 
 ---
 
@@ -28,12 +32,13 @@ The `GunStateHandler` manages state transitions for gun entities, handling firin
 - **Reads:**
   - `StateComponent`: Checks current state and ticker
   - `InputComponent`: Evaluates gun input
+  - `GlobalEntityMap`: Accesses owner entity
 - **Writes:**
-  - `StateComponent`: Updates current state and ticker
+  - `StateComponent`: Updates current state, ticker and isAttackSpamming flag
 
 ### Configuration Props
 
-- `GunStateHandlerUpdateProp` (`*.p.ts`): Contains the entity to be processed
+- `GunStateHandlerUpdateProp` (`*.p.ts`): Contains the entity to be processed and optional complete entities collection
 
 ---
 
@@ -50,7 +55,7 @@ The `GunStateHandler` manages state transitions for gun entities, handling firin
 
 ## Methods
 
-### `update({ entity }: GunStateHandlerUpdateProp): void`
+### `update({ entity, entities }: GunStateHandlerUpdateProp): void`
 
 **Description:** Main update method for gun state transitions
 
@@ -89,6 +94,17 @@ The `GunStateHandler` manages state transitions for gun entities, handling firin
 - Modifies StateComponent.isAttackSpamming
 
 ### `private resolveGunState({ state, input }: { state: StateComponent; input: InputComponent }): void`
+
+**Description:** Determines gun state based on input
+
+**Flow:**
+1. Checks for gun input
+2. Sets FIRING state if input detected and not locked
+3. Sets IDLE state otherwise
+
+**Side Effects:**
+- Modifies StateComponent.current
+- Updates StateComponent.ticker
 
 **Description:** Determines gun state based on input
 
