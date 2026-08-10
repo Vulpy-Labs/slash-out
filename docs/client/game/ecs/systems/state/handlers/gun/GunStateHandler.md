@@ -38,7 +38,7 @@ The `GunStateHandler` manages state transitions for gun entities, handling firin
 
 ### Configuration Props
 
-- `GunStateHandlerUpdateProp` (`*.p.ts`): Contains the entity to be processed
+- `GunStateHandlerUpdateProp` (`*.p.ts`): Contains the entity to be processed and optional complete entities collection
 
 ---
 
@@ -55,7 +55,7 @@ The `GunStateHandler` manages state transitions for gun entities, handling firin
 
 ## Methods
 
-### `update({ entity }: GunStateHandlerUpdateProp): void`
+### `update({ entity, entities }: GunStateHandlerUpdateProp): void`
 
 **Description:** Main update method for gun state transitions
 

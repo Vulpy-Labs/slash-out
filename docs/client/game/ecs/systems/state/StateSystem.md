@@ -64,7 +64,7 @@ The `StateSystem` manages entity state transitions using registered state handle
 - For each entity:
   - Skips if entity lacks `state` component
   - Gets handler using `entity.entityType` as Map key
-  - Calls handler's `update({ entity })` if handler exists
+  - Calls handler's `update({ entity, entities })` if handler exists
   - Handler receives entity with all components
 - Skipped if:
   - No `StateComponent` present

@@ -44,8 +44,8 @@ The `GunWeaponSystemHandler` manages the visual representation and positioning o
 1. **Initialization:** N/A
 2. **Update Loop:**
    - Validates entity
-   - Positions gun if firing
-   - Hides gun if not firing
+   - Fires bullet when state is `GUN_STATE.FIRING`
+   - Hides and resets projectile when state is not `FIRING` and not `IN_FLIGHT`
 3. **Teardown:** N/A
 
 ---
@@ -54,74 +54,65 @@ The `GunWeaponSystemHandler` manages the visual representation and positioning o
 
 ### `update({ entity, entities }: GunWeaponSystemHandlerUpdateProp): void`
 
-**Description:** Main update method for gun positioning
+**Description:** Main update method for gun positioning and firing logic
 
 **Flow:**
 
 1. Validates entity
-2. Shows and positions gun if firing
-3. Hides gun if not firing
+2. Calls `fireBullet({ entity, entities })` if current state is `GUN_STATE.FIRING`
+3. Calls `hideAndResetGun({ entity })` if state is not `GUN_STATE.IN_FLIGHT`
 
 **Side Effects:**
 
-- Modifies sprite properties
+- Modifies sprite properties and movement intent
 
-### `private showAndPositionGun({ entity, entities }): void`
+### `private fireBullet({ entity, entities }): void`
 
-**Description:** Handles visible gun state
+**Description:** Executes bullet firing sequence
 
 **Flow:**
-1. Checks if sprite is already visible
-2. Makes sprite visible if not
-3. Sets proper depth
-4. Finds owner entity
-5. Calculates position relative to owner
+
+1. Obtains owner entity and flip state
+2. Calls `populateFireTransform` to calculate transform offsets and movement intent
+3. Sets sprite position, flipX, angle, depth, and visibility to `true`
+4. Sets movement intent `moveX` and `moveY` on entity
+5. Transitions current state to `GUN_STATE.IN_FLIGHT`
 
 **Side Effects:**
-- Modifies sprite visibility and position
-- Updates sprite depth
 
-### `private updateTransform({ gun, owner }): void`
+- Modifies sprite position, angle, flip, visibility, and depth
+- Sets movement intent
+- Updates state to `GUN_STATE.IN_FLIGHT`
 
-**Description:** Calculates and applies gun positioning
+### `private populateFireTransform({ ownerState, ownerInput, isFlipped }): void`
+
+**Description:** Determines gun positioning offsets, angles, and movement intent
 
 **Flow:**
-1. Checks owner flip state
-2. Calculates offsets based on attack direction (up/down/neutral)
-3. Adjusts angle for vertical attacks (90° up/down)
-4. Maintains horizontal offset for neutral attacks
-5. Applies final position, angle and flip to sprite
+
+1. Checks owner attack states and up/down inputs
+2. Calculates offsets (`BULLET.CONFIG.OFFSET`), angles (90°/-90° for vertical attacks, 0° for horizontal), and movement direction (`moveX`, `moveY`)
+3. Stores parameters in `transformTarget` object
 
 **Side Effects:**
-- Updates sprite transform properties
 
-### `private populateOffsetAndAngle({ ownerState, ownerInput, isFlipped }): void`
+- Updates internal `transformTarget` object
 
-**Description:** Determines gun positioning offsets
+### `private hideAndResetGun({ entity }): void`
+
+**Description:** Resets movement intent and hides projectile sprite off-screen
 
 **Flow:**
-1. Checks for up/down attack inputs
-2. Calculates appropriate offsets and angles:
-   - 90° up/down for vertical attacks
-   - 0° for horizontal attacks
-   - Offset determined by BULLET.CONFIG.OFFSET
-3. Stores results in transform target
+
+1. Resets `movement.intent.moveX` and `moveY` to `0`
+2. Sets sprite visibility to `false`
+3. Resets sprite angle to `0`
+4. Moves sprite off-screen to `(-9999, -9999)`
 
 **Side Effects:**
-- Updates internal transform target object
 
-**Description:** Determines gun positioning offsets
-
-**Flow:**
-1. Checks for up/down attack inputs
-2. Calculates appropriate offsets and angles:
-   - 90° up/down for vertical attacks
-   - 0° for horizontal attacks
-   - Offset determined by BULLET.CONFIG.OFFSET
-3. Stores results in transform target
-
-**Side Effects:**
-- Updates internal transform target object
+- Resets movement intent
+- Modifies sprite visibility, angle, depth, and position
 
 ### `private isValidGun(entity: GlobalEntity): entity is ValidGunWeaponEntity`
 

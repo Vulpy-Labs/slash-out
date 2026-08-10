@@ -36,8 +36,8 @@ The `GunWeaponHandler` is responsible for loading and building gun weapon entiti
   - `scene`: Phaser.Scene instance
 - `build` Prop:
   - `scene`: Phaser.Scene instance
-  - `x`: Initial x position
-  - `y`: Initial y position
+  - `x`: Initial x position (unused; weapon is initialized off-screen at `(-9999, -9999)`)
+  - `y`: Initial y position (unused; weapon is initialized off-screen at `(-9999, -9999)`)
   - `ownerEntityId`: ID of owning entity
 
 ---
@@ -67,14 +67,14 @@ The `GunWeaponHandler` is responsible for loading and building gun weapon entiti
 
 ### `build({ scene, ownerEntityId }: { scene: Phaser.Scene; x: number; y: number; ownerEntityId: string }): GlobalEntity`
 
-**Description:** Creates a gun entity with components
+**Description:** Creates a gun entity with components initialized off-screen at `(-9999, -9999)` (`x` and `y` parameters are part of `IWeaponHandler` contract but unused)
 
 **Flow:**
 
 1. Creates Matter.js sprite at (-9999, -9999) (offscreen)
 2. Configures sprite properties (size, origin, body)
 3. Sets initial state and components
-4. Configures as sensor with no gravity
+4. Applies physics configuration (`setIgnoreGravity(true)`, `setVisible(false)`, depth)
 
 **Side Effects:**
 

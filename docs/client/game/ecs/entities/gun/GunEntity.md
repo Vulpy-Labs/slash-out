@@ -50,10 +50,9 @@ N/A (Type definition only)
 
 - **Core Dependencies:**
   - `BaseEntity`: Core entity properties
-  - `KeymapComponent`: Input mapping
-  - `InputComponent`: Current input state
   - `StateComponent`: State management
   - `Phaser.Physics.Matter.Sprite`: Visual representation
+  - Owner entity relationship represented by `ownerEntityId` and resolved through `GunStateHandler`
 - **Related Systems:**
   - `WeaponSystem`: Manages gun entity behavior
 - **Events Consumed/Emitted:** N/A
