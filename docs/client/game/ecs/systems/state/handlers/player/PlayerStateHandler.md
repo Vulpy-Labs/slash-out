@@ -8,17 +8,18 @@ The `PlayerStateHandler` is responsible for managing and transitioning between d
 
 ## Technical Identity
 
-- **Type:** Handler
-- **Domain:** State Management
+- **Type:** Handler  
+- **Domain:** State Management  
 
 ---
 
 ## Responsibilities
 
-- Ensures only valid player entities are processed
-- Determines player mobility state (grounded or airborne)
-- Delegates state resolution to appropriate handlers (`GroundedHandler`/`AirborneHandler`)
-- Maintains separation of concerns between grounded and airborne states
+- Ensures only valid player entities are processed  
+- Determines player mobility state (grounded or airborne)  
+- Delegates state resolution to appropriate handlers (`GroundedHandler`/`AirborneHandler`)  
+- Maintains separation of concerns between grounded and airborne states  
+- Manages attack state expiration and input lockout  
 
 ---
 
@@ -26,28 +27,30 @@ The `PlayerStateHandler` is responsible for managing and transitioning between d
 
 ### Manipulated Components
 
-- **Reads:**
-  - `StateComponent`: Checks current state
-  - `InputComponent`: Evaluates player input
-  - `VelocityComponent`: Indirectly used by `getMobility()` utility
-  - `Phaser.Physics.Matter.Sprite`: Determines mobility state via `getMobility()`
-- **Writes:**
-  - `StateComponent`: Explicitly sets to validated `CharacterState` from handler resolution
+- **Reads:**  
+  - `StateComponent`: Checks current state and ticker  
+  - `InputComponent`: Evaluates player input  
+  - `Phaser.Physics.Matter.Sprite`: Determines mobility state via `getMobility()`  
+- **Writes:**  
+  - `StateComponent`: Updates current state and attack lock status  
 
 ### Configuration Props
 
-- `PlayerStateHandlerUpdateProp` (`*.p.ts`): Contains the entity to be processed
+- `PlayerStateHandlerUpdateProp`: Contains the entity to be processed  
 
 ---
 
 ## Lifecycle & Execution Flow
 
-1. **Initialization:** Creates `GroundedHandler` and `AirborneHandler` instances
-2. **Update Loop:**
-   - Validates entity
-   - Determines mobility state
-   - Delegates to appropriate handler
-3. **Teardown:** N/A
+1. **Initialization:** Creates `GroundedHandler` and `AirborneHandler` instances  
+2. **Update Loop:**  
+   - Validates entity  
+   - Checks active ticker state  
+   - Resets expired attack states  
+   - Updates attack lock status  
+   - Determines effective input  
+   - Delegates to appropriate handler based on mobility  
+3. **Teardown:** N/A  
 
 ---
 
@@ -55,60 +58,104 @@ The `PlayerStateHandler` is responsible for managing and transitioning between d
 
 ### `update({ entity }: PlayerStateHandlerUpdateProp): void`
 
-**Description:** Main update method that processes player state transitions
+**Description:** Main update method that processes player state transitions  
 
-**Flow:**
+**Flow:**  
+1. Validates entity contains required components  
+2. Checks and decrements active ticker if present  
+3. Resets expired attack states  
+4. Updates attack lock status  
+5. Determines effective input (accounting for lockout)  
+6. Determines mobility state  
+7. Delegates to appropriate handler  
 
-1. Validates entity contains required components (input, state, sprite)
-2. Determines mobility state via `getMobility(sprite)` (GROUNDED/AIRBORNE)
-3. Delegates to appropriate handler based on mobility:
-   - `GroundedHandler`: Handles ground-based states (walk/idle/combat)
-   - `AirborneHandler`: Handles air-based states (jump/falling/airborne-attack)
+**Side Effects:**  
+- Modifies `StateComponent.current`  
+- Updates `StateComponent.isAttackSpamming`  
+- Updates `StateComponent.ticker`  
 
-**Implementation Details:**
+### `private resetExpiredAttackState({ state }: { state: StateComponent }): void`
 
-- Uses type guard for safe entity validation
-- Returns early if entity is invalid
-- Handler selection is strictly based on mobility state
-- Delegates actual state resolution to specialized handlers
+**Description:** Resets attack states to IDLE when expired  
 
-**Side Effects:**
+**Flow:**  
+1. Checks if current state is an attack state  
+2. Resets to IDLE if true  
 
-- Modifies `StateComponent.current` based on handler resolution
+**Side Effects:**  
+- Modifies `StateComponent.current`  
 
----
+### `private updateAttackLockState({ state, input }: { state: StateComponent; input: InputComponent }): void`
+
+**Description:** Manages attack input lockout state  
+
+**Flow:**  
+1. Resets lock if no sword input  
+2. Sets lock and ticker if sword input detected  
+
+**Side Effects:**  
+- Modifies `StateComponent.isAttackSpamming`  
+- Modifies `StateComponent.ticker`  
+
+### `private getEffectiveInput({ state, input }: { state: StateComponent; input: InputComponent }): InputComponent`
+
+**Description:** Returns modified input accounting for attack lockout  
+
+**Flow:**  
+1. Returns input with sword/gun disabled if locked  
+2. Returns original input otherwise  
+
+**Side Effects:** None  
+
+### `private resolvePlayerMobilityState({ state, sprite, input }: { state: StateComponent; sprite: Phaser.Physics.Matter.Sprite; input: InputComponent }): void`
+
+**Description:** Delegates to appropriate mobility handler  
+
+**Flow:**  
+1. Determines mobility via `getMobility()`  
+2. Delegates to `GroundedHandler` or `AirborneHandler`  
+
+**Side Effects:**  
+- Indirectly modifies `StateComponent.current` via handlers  
 
 ### `private isValidPlayer(entity: GlobalEntity): entity is ValidPlayerEntity`
 
-**Description:** Type guard that validates player entity structure
+**Description:** Type guard for valid player entities  
+
+**Flow:**  
+1. Checks for required components (`input`, `state`, `sprite`)  
+
+**Side Effects:** None  
+
+### `private resolvePlayerMobilityState({ state, sprite, input }: { state: StateComponent; sprite: Phaser.Physics.Matter.Sprite; input: InputComponent }): void`
+
+**Description:** Delegates to appropriate mobility handler
 
 **Flow:**
-
-1. Checks entity has all required components:
-   - `input`: Player input configurations
-   - `state`: Current state tracking
-   - `sprite`: Physics body representation
-2. Returns type-predicated boolean for type safety
+1. Determines mobility via getMobility()
+2. Delegates to GroundedHandler or AirborneHandler
 
 **Side Effects:**
-
-N/A
+- Indirectly modifies StateComponent.current via handlers
 
 ---
 
 ## Dependencies & Relationships
 
-- **Core Dependencies:**
-  - `getMobility()` physics utility
-  - `MOBILITY` and `CHARACTER_STATE` constants
-  - `Phaser.Physics.Matter.Sprite` (Runtime physics body type)
-- **Related Systems:**
-  - `StateSystem`: Receives state updates from this handler
-- **Events Consumed/Emitted:** N/A
+- **Core Dependencies:**  
+  - `CHARACTER_STATE`, `CHARACTER_COMBAT`, `MOBILITY` constants  
+  - `getMobility()`, `isTickerActive()`, `decrementStateTicker()` utilities  
+  - `GroundedHandler`, `AirborneHandler`  
+- **Related Systems:**  
+  - `StateSystem`: Receives state updates from this handler  
+- **Events Consumed/Emitted:** N/A  
 
 ---
 
 ## Maintenance Notes
 
 > [!WARNING]  
-> **Performance:** This handler runs on the `update` loop. Keep mobility checks lightweight.
+> **Performance:** This handler runs on the `update` loop. Keep mobility checks lightweight.  
+
+> [!NOTE]  
+> **State Management:** Attack states automatically expire after `CHARACTER_COMBAT.ATTACK.DURATION_TICKS`  

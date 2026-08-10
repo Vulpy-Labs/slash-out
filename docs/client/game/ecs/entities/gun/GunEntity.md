@@ -1,4 +1,4 @@
-# GunEntity Documentation
+# Gun Entity Documentation
 
 ## Overview
 
@@ -49,11 +49,10 @@ N/A (Type definition only)
 ## Dependencies & Relationships
 
 - **Core Dependencies:**
-  - `BaseEntity`
-  - `KeymapComponent`
-  - `InputComponent`
-  - `StateComponent`
-  - `Phaser.Physics.Matter.Sprite`
+  - `BaseEntity`: Core entity properties
+  - `StateComponent`: State management
+  - `Phaser.Physics.Matter.Sprite`: Visual representation
+  - Owner entity relationship represented by `ownerEntityId` and resolved through `GunStateHandler`
 - **Related Systems:**
   - `WeaponSystem`: Manages gun entity behavior
 - **Events Consumed/Emitted:** N/A
