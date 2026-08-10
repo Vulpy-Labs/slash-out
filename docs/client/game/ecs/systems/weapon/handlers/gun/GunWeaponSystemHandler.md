@@ -60,7 +60,7 @@ The `GunWeaponSystemHandler` manages the visual representation and positioning o
 
 1. Validates entity
 2. Calls `fireBullet({ entity, entities })` if current state is `GUN_STATE.FIRING`
-3. Calls `hideAndResetGun({ entity })` if state is not `GUN_STATE.IN_FLIGHT`
+3. Calls `hideAndResetGun({ entity })` if state is neither `GUN_STATE.FIRING` nor `GUN_STATE.IN_FLIGHT`
 
 **Side Effects:**
 
