@@ -5,3 +5,4 @@ export * from './velocity';
 export * from './animation';
 export * from './state';
 export * from './weapon';
+export * from './collision';
