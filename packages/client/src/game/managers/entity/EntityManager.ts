@@ -134,6 +134,10 @@ class EntityManager {
       this.players.set(entity.entityId, entity);
     }
 
+    if (entity.sprite?.body) {
+      (entity.sprite.body as MatterJS.BodyType).label = entity.entityId;
+    }
+
     this.entities.set(entity.entityId, entity);
   }
 }
