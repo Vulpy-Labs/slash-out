@@ -73,6 +73,7 @@ The `CollisionSystem` manages collision detection and handling for all game enti
 
 - Adds handler to internal Map
 - Associates with specified entityType
+- Can override default handlers for entity types
 
 **Side Effects:**
 
@@ -101,6 +102,8 @@ The `CollisionSystem` manages collision detection and handling for all game enti
   - `Phaser.Scene`: Required for Matter.js access
   - `MatterJS.BodyType`: Used for collision detection
   - `GlobalEntityMap`: Contains all game entities
+  - `ICollisionSystemHandler`: Interface that handlers must implement
+  - `ENTITY_TYPES`: Defines entity type constants
 - **Related Systems:**
   - `PlayerCollisionHandler`: Default handler for player collisions
 
@@ -110,3 +113,4 @@ The `CollisionSystem` manages collision detection and handling for all game enti
 
 > [!WARNING]  
 > **Performance:** Runs on every collision event. Keep handlers efficient.
+> **Implementation:** All handlers must implement ICollisionSystemHandler interface

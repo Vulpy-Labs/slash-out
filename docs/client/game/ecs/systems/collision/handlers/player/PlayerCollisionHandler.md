@@ -59,9 +59,10 @@ The `PlayerCollisionHandler` implements collision handling logic specific to pla
 
 **Flow:**
 
-- Validates affected entity as player
-- Checks if collider is active enemy weapon
+- Validates affected entity as player using `isValidPlayer()`
+- Checks if collider is active enemy weapon using `isActiveWeaponFromEnemy()`
 - Updates player state to DEAD if fatal collision
+- Sets death ticker duration using CHARACTER_COMBAT.DEATH.DURATION_TICKS
 
 **Side Effects:**
 
@@ -98,6 +99,7 @@ The `PlayerCollisionHandler` implements collision handling logic specific to pla
 - **Core Dependencies:**
   - `ENTITY_TYPES`: Defines entity type constants
   - `CHARACTER_STATE`: Defines player state constants
+  - `CHARACTER_COMBAT`: Defines combat-related constants
   - `SWORD_STATE`: Defines sword state constants
   - `GUN_STATE`: Defines gun state constants
 - **Related Systems:**
