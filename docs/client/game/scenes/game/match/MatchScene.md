@@ -31,9 +31,12 @@ The `MatchScene` is the core gameplay scene that initializes and manages the ECS
   - `CharacterComponent`
   - `InputComponent`
   - `KeymapComponent`
+  - `MatchConfig`
   - `MovementComponent`
   - `StateComponent`
+  - `TiledComponent`
   - `VelocityComponent`
+  - `WeaponComponent`
 - **Writes:**
   - `AnimationComponent`
   - `InputComponent`
@@ -41,6 +44,7 @@ The `MatchScene` is the core gameplay scene that initializes and manages the ECS
   - `MovementComponent`
   - `StateComponent`
   - `VelocityComponent`
+  - `WeaponComponent`
 
 ### Configuration Props
 
@@ -52,7 +56,8 @@ The `MatchScene` is the core gameplay scene that initializes and manages the ECS
 
 1. **Initialization:**
    - Receives `MatchConfig`
-   - Initializes systems, builders, and managers
+   - Initializes systems (Keymap, Input, Movement, Velocity, State, Weapon, Collision, Animation)
+   - Initializes builders and managers
 2. **Preloading:**
    - Loads map and entity assets
 3. **Creation:**
@@ -67,6 +72,7 @@ The `MatchScene` is the core gameplay scene that initializes and manages the ECS
 
 ### System Initializers
 
+- `init(data: MatchConfig)`: Initializes match with configuration
 - `initializeInstances()`: Initializes all instances
 - `initializeSystems()`: Creates all ECS systems in proper order
 - `initializeBuilders()`: Initializes world builders (e.g. `MapBuilder`)
@@ -85,9 +91,15 @@ The `MatchScene` is the core gameplay scene that initializes and manages the ECS
 
 - `create()`: Creates game world and entities
 - `createMap()`: Builds game world via `MapBuilder`
-- `createPlayers()`: Initializes player entities
-- `createKeyboardInputs()`: Sets up key listeners
-- `createAnimations()`: Configures entity animations
+  - Returns: `{ spawnPoints: MapSpawnPoint[] }`
+- `createPlayers()`: Initializes player entities via EntityManager
+  - Parameters: `spawnPoints: MapSpawnPoint[]`
+- `createKeyboardInputs()`: Sets up key listeners via KeymapSystem
+  - Parameters: `{ entities: GlobalEntityMap }`
+- `createAnimations()`: Configures entity animations via AnimationSystem
+  - Parameters: `{ entities: GlobalEntityMap }`
+- `createCollisionListeners()`: Sets up Matter.js collision handlers
+  - Parameters: `{ scene: Phaser.Scene, entities: GlobalEntityMap }`
 
 ---
 
@@ -113,8 +125,15 @@ The `MatchScene` is the core gameplay scene that initializes and manages the ECS
   - `EntityManager`
   - `GlobalEntityMap` type
   - ECS Systems
+  - `KeymapSystem`
 - **Related Systems:**
-  - All ECS systems in defined order
+  - `AnimationSystem`: Handles entity animations
+  - `CollisionSystem`: Manages physics collisions
+  - `InputSystem`: Processes player input
+  - `KeymapSystem`: Maps keyboard inputs
+  - `MovementSystem`: Handles entity movement
+  - `StateSystem`: Manages entity states
+  - `VelocitySystem`: Updates entity velocities
   - `WeaponSystem`: Manages weapon behaviors
 - **Builders:**
   - `MapBuilder`: Constructs game world
