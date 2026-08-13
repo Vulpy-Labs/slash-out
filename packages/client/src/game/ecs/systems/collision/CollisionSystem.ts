@@ -1,21 +1,22 @@
-import { ENTITY_TYPES, EntityTypes } from '@/config/constants';
-import {
-  GunCollisionHandler,
-  ICollisionSystemHandler,
-  PlayerCollisionHandler,
-  SwordCollisionHandler,
-} from './handlers';
+import { EntityTypes } from '@/config/constants';
+import { ICollisionSystemHandler } from './handlers';
 import { CollisionSystemCreateProp } from './types.p';
 
 class CollisionSystem {
   private readonly handlers: Map<EntityTypes, ICollisionSystemHandler>;
 
   constructor() {
-    this.handlers = new Map<EntityTypes, ICollisionSystemHandler>([
-      [ENTITY_TYPES.PLAYER, new PlayerCollisionHandler()],
-      [ENTITY_TYPES.GUN, new GunCollisionHandler()],
-      [ENTITY_TYPES.SWORD, new SwordCollisionHandler()],
-    ]);
+    this.handlers = new Map<EntityTypes, ICollisionSystemHandler>();
+  }
+
+  registerHandler({
+    entityType,
+    handler,
+  }: {
+    entityType: EntityTypes;
+    handler: ICollisionSystemHandler;
+  }): void {
+    this.handlers.set(entityType, handler);
   }
 
   createMatterListeners({ scene, entities }: CollisionSystemCreateProp): void {
