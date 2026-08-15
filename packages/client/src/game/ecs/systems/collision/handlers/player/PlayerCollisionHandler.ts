@@ -7,12 +7,12 @@ import {
 } from '@/config/constants';
 import { GlobalEntity } from '@/ecs/entities';
 import { CollisionHandleProp, ICollisionSystemHandler } from '../types.i';
-import { ValidPlayerCollisionEntity } from './types.p';
 
 class PlayerCollisionHandler implements ICollisionSystemHandler {
   handle({ affected, collider }: CollisionHandleProp): void {
-    if (!this.isValidPlayer(affected)) return;
+    if (!this.isValidPlayer({ entity: affected })) return;
     if (!this.isActiveWeaponFromEnemy({ player: affected, weapon: collider })) return;
+    if (!affected.state) return;
 
     affected.state.current = CHARACTER_STATE.DEAD;
     affected.state.ticker = CHARACTER_COMBAT.DEATH.DURATION_TICKS;
@@ -22,7 +22,7 @@ class PlayerCollisionHandler implements ICollisionSystemHandler {
     player,
     weapon,
   }: {
-    player: ValidPlayerCollisionEntity;
+    player: GlobalEntity;
     weapon: GlobalEntity;
   }): boolean {
     const isEnemyWeapon = weapon.ownerEntityId !== player.entityId;
@@ -36,7 +36,7 @@ class PlayerCollisionHandler implements ICollisionSystemHandler {
     return (isEnemyWeapon && isActiveSword) || isActiveBullet;
   }
 
-  private isValidPlayer(entity: GlobalEntity): entity is ValidPlayerCollisionEntity {
+  private isValidPlayer({ entity }: { entity: GlobalEntity }): boolean {
     return (
       entity.entityType === ENTITY_TYPES.PLAYER &&
       !!entity.state &&
