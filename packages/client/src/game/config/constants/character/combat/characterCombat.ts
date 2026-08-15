@@ -3,7 +3,7 @@ const CHARACTER_COMBAT = {
     DURATION_TICKS: 45,
   },
   DEATH: {
-    DURATION_TICKS: 60,
+    DURATION_TICKS: 65,
   },
 } as const;
 
