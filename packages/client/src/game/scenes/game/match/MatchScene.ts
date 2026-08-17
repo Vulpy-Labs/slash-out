@@ -3,6 +3,7 @@ import { EntityManager } from '@/managers';
 import { MatchConfig } from '@/ecs/components';
 import {
   AnimationSystem,
+  CollisionSystem,
   InputSystem,
   KeymapSystem,
   MovementSystem,
@@ -27,6 +28,7 @@ export class MatchScene extends Phaser.Scene {
   private inputSystem: InputSystem;
   private stateSystem: StateSystem;
   private weaponSystem: WeaponSystem;
+  private collisionSystem: CollisionSystem;
   private movementSystem: MovementSystem;
   private velocitySystem: VelocitySystem;
   private animationSystem: AnimationSystem;
@@ -55,6 +57,7 @@ export class MatchScene extends Phaser.Scene {
     this.velocitySystem = new VelocitySystem({ scene: this });
     this.stateSystem = new StateSystem();
     this.weaponSystem = new WeaponSystem();
+    this.collisionSystem = new CollisionSystem();
     this.animationSystem = new AnimationSystem({ scene: this });
   }
 
@@ -83,6 +86,7 @@ export class MatchScene extends Phaser.Scene {
     this.createPlayers();
     this.createKeyboardInputs();
     this.createAnimations();
+    this.createCollisionListeners();
   }
 
   createMap() {
@@ -100,6 +104,10 @@ export class MatchScene extends Phaser.Scene {
 
   createAnimations() {
     this.animationSystem.create({ entities: this.entities });
+  }
+
+  createCollisionListeners() {
+    this.collisionSystem.createMatterListeners({ scene: this, entities: this.entities });
   }
 
   update() {
