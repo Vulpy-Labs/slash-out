@@ -12,7 +12,7 @@ class PlayerCollisionHandler implements ICollisionSystemHandler {
   handle({ affected, collider }: CollisionHandleProp): void {
     if (!this.isValidPlayer({ entity: affected })) return;
     if (!this.isActiveWeaponFromEnemy({ player: affected, weapon: collider })) return;
-    if (!affected.state) return;
+    if (!affected.state || affected.state.current === CHARACTER_STATE.DEAD) return;
 
     affected.state.current = CHARACTER_STATE.DEAD;
     affected.state.ticker = CHARACTER_COMBAT.DEATH.DURATION_TICKS;
