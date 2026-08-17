@@ -1,8 +1,8 @@
-# CollisionSystem Documentation
+# Collision System Documentation
 
 ## Overview
 
-The `CollisionSystem` handles collision detection and response between entities using Matter.js physics engine.
+The `CollisionSystem` manages collision detection and handling for all game entities. It uses Matter.js collision events and delegates specific collision handling to registered handlers based on entity types.
 
 ---
 
@@ -15,9 +15,10 @@ The `CollisionSystem` handles collision detection and response between entities 
 
 ## Responsibilities
 
-- Registering collision handlers for specific entity types
-- Creating Matter.js collision listeners
-- Delegating collision events to appropriate handlers
+- Registers Matter.js collision listeners
+- Delegates collision handling to type-specific handlers
+- Maintains mapping of entity types to collision handlers
+- Provides handler registration interface
 
 ---
 
@@ -25,80 +26,91 @@ The `CollisionSystem` handles collision detection and response between entities 
 
 ### Manipulated Components
 
-- **Reads:**
-  - `EntityType`: Determines which handler to use
-- **Writes:** 
-  - N/A (Handlers may modify components)
+- **Reads:** N/A
+- **Writes:** N/A
 
 ### Configuration Props
 
-- `CollisionSystemCreateProp`: 
-  - `scene: Phaser.Scene`: Scene containing Matter.js world
-  - `entities: GlobalEntityMap`: Map of all entities
+- `CollisionSystemCreateProp` (`*.p.ts`):
+  - `scene: Phaser.Scene`: Required for Matter.js event registration
+  - `entities: GlobalEntityMap`: Contains all game entities for collision resolution
 
 ---
 
 ## Lifecycle & Execution Flow
 
 1. **Initialization:**
-   - Creates empty handler map
-2. **Registration:**
-   - Handlers registered via `registerHandler`
-3. **Execution:**
-   - Creates Matter.js collision listeners
-   - Delegates collision events to registered handlers
+   - Constructs with default handler mappings
+   - Registers Matter.js collision listeners via `createMatterListeners()`
+
+2. **Main Operations:**
+   - Receives collision events from Matter.js
+   - Delegates collision handling to appropriate handlers
+   - Handles both sides of collision pairs
+
+3. **Teardown:** N/A
 
 ---
 
 ## Methods
 
+### `constructor()`
+
+**Description:** Initializes system with default handlers
+
+**Flow:**
+
+- Creates handlers Map
+- Registers `PlayerCollisionHandler` for `ENTITY_TYPES.PLAYER`
+
+---
+
 ### `registerHandler({ entityType, handler })`
 
-**Description:** Registers collision handler for specific entity type
+**Description:** Allows registration of custom collision handlers
 
-**Parameters:**
-- `entityType: EntityTypes`: Entity type to handle
-- `handler: ICollisionSystemHandler`: Handler implementation
+**Flow:**
+
+- Adds handler to internal Map
+- Associates with specified entityType
+- Can override default handlers for entity types
 
 **Side Effects:**
-- Adds handler to internal map
+
+- Modifies internal handlers Map
 
 ---
 
 ### `createMatterListeners({ scene, entities })`
 
-**Description:** Creates Matter.js collision listeners
-
-**Parameters:**
-- `scene: Phaser.Scene`: Scene containing Matter.js world
-- `entities: GlobalEntityMap`: Map of all entities
+**Description:** Registers Matter.js collision listeners
 
 **Flow:**
-1. Listens for 'collisionstart' events
-2. For each collision pair:
-   - Gets entities from body labels
-   - Delegates to appropriate handlers
+
+- Attaches to Matter.js `collisionstart` event
+- Delegates collision pairs to appropriate handlers
 
 **Side Effects:**
-- Adds Matter.js event listener
+
+- Registers Matter.js event listener
 
 ---
 
 ## Dependencies & Relationships
 
 - **Core Dependencies:**
-  - `MatterJS.BodyType`
-  - `EntityTypes`
-  - `GlobalEntityMap`
+  - `Phaser.Scene`: Required for Matter.js access
+  - `MatterJS.BodyType`: Used for collision detection
+  - `GlobalEntityMap`: Contains all game entities
+  - `ICollisionSystemHandler`: Interface that handlers must implement
+  - `ENTITY_TYPES`: Defines entity type constants
 - **Related Systems:**
-  - N/A
-- **Events Consumed/Emitted:**
-  - `collisionstart`: Matter.js collision event
+  - `PlayerCollisionHandler`: Default handler for player collisions
 
 ---
 
 ## Maintenance Notes
 
-> [!WARNING]
-> **Performance:** Runs on every collision event. Keep handlers lightweight.
-> **Architecture:** Handlers must implement `ICollisionSystemHandler` interface.
+> [!WARNING]  
+> **Performance:** Runs on every collision event. Keep handlers efficient.
+> **Implementation:** All handlers must implement ICollisionSystemHandler interface

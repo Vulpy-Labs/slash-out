@@ -1,12 +1,15 @@
-import { EntityTypes } from '@/config/constants';
+import { ENTITY_TYPES, EntityTypes } from '@/config/constants';
 import { ICollisionSystemHandler } from './handlers';
 import { CollisionSystemCreateProp } from './types.p';
+import { PlayerCollisionHandler } from './handlers';
 
 class CollisionSystem {
   private readonly handlers: Map<EntityTypes, ICollisionSystemHandler>;
 
   constructor() {
-    this.handlers = new Map<EntityTypes, ICollisionSystemHandler>();
+    this.handlers = new Map<EntityTypes, ICollisionSystemHandler>([
+      [ENTITY_TYPES.PLAYER, new PlayerCollisionHandler()],
+    ]);
   }
 
   registerHandler({

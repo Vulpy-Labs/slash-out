@@ -48,7 +48,7 @@ The `EntityManager` is the single source of truth for all game entities, enforci
    - Constructs with scene and `matchConfig` references
    - Initializes `PlayerBuilder` and `WeaponBuilder` with creation callbacks
    - Loads player and weapon assets via builder load methods
-   - Automatically creates sword weapons for each player
+   - Automatically creates sword and gun weapons for each player
 
 2. **Main Operations:**
    - Creates player entities from `matchConfig` via `PlayerBuilder.build()`
@@ -78,14 +78,16 @@ The `EntityManager` is the single source of truth for all game entities, enforci
 
 ---
 
-### `createPlayers()`
+### `createPlayers(spawnPoints?: { x: number; y: number }[])`
 
 **Description:** Instantiates player entities from match configuration
 
 **Flow:**
 
 - Iterates `matchConfig.players.characters`
+- Uses optional spawnPoints array for positioning
 - Delegates to `PlayerBuilder.build()` for each character
+- Creates sword and gun weapons for each player via `WeaponBuilder`
 - Uses `registerEntity()` callback for player registration
 
 **Side Effects:**
@@ -212,9 +214,10 @@ The `EntityManager` is the single source of truth for all game entities, enforci
 - **Core Dependencies:**
   - `Phaser.Scene`: Required for sprite management
   - `PlayerBuilder`: Handles player entity construction
+  - `WeaponBuilder`: Handles weapon entity construction
   - `MatchConfig`: Provides player character definitions
 - **Related Systems:**
-  - `PlayerBuilder`: For player entity creation
+  - `PlayerBuilder`: For player entity creation  
   - `WeaponBuilder`: For weapon entity creation
 
 ---
@@ -226,3 +229,4 @@ The `EntityManager` is the single source of truth for all game entities, enforci
 >
 > - Destroy Phaser sprites
 > - Remove from both players and entities Maps
+> - Clean up any child entities owned by the destroyed entity

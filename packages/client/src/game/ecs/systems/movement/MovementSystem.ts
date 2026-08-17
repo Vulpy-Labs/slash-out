@@ -1,9 +1,10 @@
+import { CHARACTER_STATE } from '@/config/constants';
 import { MovementSystemUpdateProp } from './types.p';
 
 class MovementSystem {
   update({ entities }: MovementSystemUpdateProp) {
-    entities.forEach(({ input, movement }) => {
-      if (!input || !movement) return;
+    entities.forEach(({ input, movement, state }) => {
+      if (!input || !movement || state?.current === CHARACTER_STATE.DEAD) return;
 
       movement.intent.moveX = 0;
       movement.intent.moveY = 0;
