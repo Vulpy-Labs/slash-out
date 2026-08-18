@@ -13,6 +13,12 @@ export const SWORD = {
     },
     DURATION_TICKS: 45,
   },
+  COLLISION: {
+    KNOCKBACK_FORCE: {
+      X: 35,
+      Y: -2,
+    },
+  },
 } as const;
 
 export const BULLET = {
