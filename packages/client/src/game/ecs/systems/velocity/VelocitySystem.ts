@@ -13,8 +13,17 @@ class VelocitySystem {
       if (!movement || !sprite?.body) return;
 
       const body = sprite.body as MatterJS.BodyType;
-      const vx = this.resolveHorizontalVelocity({ movement });
-      const vy = this.resolveVerticalVelocity({ body, movement });
+      let vx = 0;
+      let vy = 0;
+
+      if (movement.externalForce) {
+        vx = movement.externalForce.x;
+        vy = movement.externalForce.y;
+        this.applyExternalForceDecay({ movement });
+      } else {
+        vx = this.resolveHorizontalVelocity({ movement });
+        vy = this.resolveVerticalVelocity({ body, movement });
+      }
 
       if (animation && movement.intent.moveX) {
         animation.flipX = movement.intent.moveX < 0;
@@ -47,6 +56,17 @@ class VelocitySystem {
     }
 
     return body.velocity.y;
+  }
+
+  private applyExternalForceDecay({ movement }: { movement: MovementComponent }): void {
+    if (!movement.externalForce) return;
+
+    movement.externalForce.x *= 0.85;
+    movement.externalForce.y *= 0.85;
+
+    if (Math.abs(movement.externalForce.x) < 0.5 && Math.abs(movement.externalForce.y) < 0.5) {
+      movement.externalForce = undefined;
+    }
   }
 }
 
