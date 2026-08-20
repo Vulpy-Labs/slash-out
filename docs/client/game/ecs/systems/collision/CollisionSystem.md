@@ -1,4 +1,4 @@
-# Collision System Documentation
+# CollisionSystem Documentation: 
 
 ## Overview
 
@@ -62,6 +62,7 @@ The `CollisionSystem` manages collision detection and handling for all game enti
 
 - Creates handlers Map
 - Registers `PlayerCollisionHandler` for `ENTITY_TYPES.PLAYER`
+- Registers `SwordCollisionHandler` for `ENTITY_TYPES.SWORD`
 
 ---
 
