@@ -23,7 +23,9 @@ class CollisionSystem {
   }
 
   createMatterListeners({ scene, entities }: CollisionSystemCreateProp): void {
-    const handleCollision = (event: { pairs: Array<{ bodyA: MatterJS.BodyType; bodyB: MatterJS.BodyType }> }) => {
+    const handleCollision = (event: {
+      pairs: Array<{ bodyA: MatterJS.BodyType; bodyB: MatterJS.BodyType }>;
+    }) => {
       event.pairs.forEach(pair => {
         const { bodyA, bodyB } = pair;
 
