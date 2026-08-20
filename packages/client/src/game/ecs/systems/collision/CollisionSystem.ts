@@ -23,31 +23,31 @@ class CollisionSystem {
   }
 
   createMatterListeners({ scene, entities }: CollisionSystemCreateProp): void {
-    scene.matter.world.on(
-      'collisionstart',
-      (event: { pairs: Array<{ bodyA: MatterJS.BodyType; bodyB: MatterJS.BodyType }> }) => {
-        event.pairs.forEach(pair => {
-          const { bodyA, bodyB } = pair;
+    const handleCollision = (event: { pairs: Array<{ bodyA: MatterJS.BodyType; bodyB: MatterJS.BodyType }> }) => {
+      event.pairs.forEach(pair => {
+        const { bodyA, bodyB } = pair;
 
-          const entityA = bodyA.label ? entities.get(bodyA.label) : undefined;
-          const entityB = bodyB.label ? entities.get(bodyB.label) : undefined;
+        const entityA = bodyA.label ? entities.get(bodyA.label) : undefined;
+        const entityB = bodyB.label ? entities.get(bodyB.label) : undefined;
 
-          if (!entityA || !entityB) return;
+        if (!entityA || !entityB) return;
 
-          this.handlers.get(entityA.entityType)?.handle({
-            affected: entityA,
-            collider: entityB,
-            entities,
-          });
-
-          this.handlers.get(entityB.entityType)?.handle({
-            affected: entityB,
-            collider: entityA,
-            entities,
-          });
+        this.handlers.get(entityA.entityType)?.handle({
+          affected: entityA,
+          collider: entityB,
+          entities,
         });
-      }
-    );
+
+        this.handlers.get(entityB.entityType)?.handle({
+          affected: entityB,
+          collider: entityA,
+          entities,
+        });
+      });
+    };
+
+    scene.matter.world.on('collisionstart', handleCollision);
+    scene.matter.world.on('collisionactive', handleCollision);
   }
 }
 

@@ -30,9 +30,12 @@ class SwordCollisionHandler implements ICollisionSystemHandler {
 
     const { x, y } = this.resolveKnockbackDirection({ owner });
 
+    const magnitudeX = SWORD.COLLISION.KNOCKBACK_FORCE.X;
+    const magnitudeY = SWORD.COLLISION.KNOCKBACK_FORCE.Y;
+
     owner.movement.externalForce = {
-      x: x * SWORD.COLLISION.KNOCKBACK_FORCE.X,
-      y: y * SWORD.COLLISION.KNOCKBACK_FORCE.Y,
+      x: x * magnitudeX,
+      y: y !== 0 ? y * magnitudeX : magnitudeY,
     };
   }
 
@@ -40,8 +43,8 @@ class SwordCollisionHandler implements ICollisionSystemHandler {
     const isFlipped = owner.animation?.flipX ?? false;
     const ownerState = owner.state?.current;
 
-    const isAttackingUp = ownerState === CHARACTER_STATE.SHORT_ATTACK_UP;
-    const isAttackingDown = ownerState === CHARACTER_STATE.SHORT_ATTACK_DOWN;
+    const isAttackingUp = ownerState === CHARACTER_STATE.SHORT_ATTACK_UP || !!owner.input?.up;
+    const isAttackingDown = ownerState === CHARACTER_STATE.SHORT_ATTACK_DOWN || !!owner.input?.down;
 
     if (isAttackingUp) {
       return { x: 0, y: 1 };

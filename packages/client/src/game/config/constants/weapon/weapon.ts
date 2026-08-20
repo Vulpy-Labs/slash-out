@@ -15,7 +15,7 @@ export const SWORD = {
   },
   COLLISION: {
     KNOCKBACK_FORCE: {
-      X: 35,
+      X: 21,
       Y: -2,
     },
   },
