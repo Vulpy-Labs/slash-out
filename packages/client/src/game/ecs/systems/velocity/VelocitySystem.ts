@@ -1,3 +1,4 @@
+import { PHYSICS } from '@/config/constants';
 import { MovementComponent } from '@/ecs/components';
 import { VelocitySystemProp, VelocitySystemUpdateProp } from './types.p';
 
@@ -61,8 +62,8 @@ class VelocitySystem {
   private applyExternalForceDecay({ movement }: { movement: MovementComponent }): void {
     if (!movement.externalForce) return;
 
-    movement.externalForce.x *= 0.85;
-    movement.externalForce.y *= 0.85;
+    movement.externalForce.x *= PHYSICS.EXTERNAL_FORCE_DECAY;
+    movement.externalForce.y *= PHYSICS.EXTERNAL_FORCE_DECAY;
 
     if (Math.abs(movement.externalForce.x) < 0.5 && Math.abs(movement.externalForce.y) < 0.5) {
       movement.externalForce = undefined;
