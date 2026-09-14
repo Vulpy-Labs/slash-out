@@ -3,6 +3,10 @@ interface MovementComponent {
     moveX: 0 | 1 | -1;
     moveY: 0 | 1 | -1;
   };
+  externalForce?: {
+    x: number;
+    y: number;
+  };
   air: {
     friction: number;
     speed: number;
