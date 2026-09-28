@@ -1,4 +1,4 @@
-# CollisionSystem Documentation: 
+# Collision System Documentation
 
 ## Overview
 
