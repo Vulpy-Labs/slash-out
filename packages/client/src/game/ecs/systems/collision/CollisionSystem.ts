@@ -1,7 +1,11 @@
 import { ENTITY_TYPES, EntityTypes } from '@/config/constants';
-import { ICollisionSystemHandler, PlayerCollisionHandler, SwordCollisionHandler } from './handlers';
+import {
+  GunCollisionHandler,
+  ICollisionSystemHandler,
+  PlayerCollisionHandler,
+  SwordCollisionHandler,
+} from './handlers';
 import { CollisionSystemCreateProp } from './types.p';
-import { GunCollisionHandler } from './handlers/gun';
 
 class CollisionSystem {
   private readonly handlers: Map<EntityTypes, ICollisionSystemHandler>;
