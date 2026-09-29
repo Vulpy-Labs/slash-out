@@ -63,6 +63,7 @@ The `CollisionSystem` manages collision detection and handling for all game enti
 - Creates handlers Map
 - Registers `PlayerCollisionHandler` for `ENTITY_TYPES.PLAYER`
 - Registers `SwordCollisionHandler` for `ENTITY_TYPES.SWORD`
+- Registers `GunCollisionHandler` for `ENTITY_TYPES.GUN`
 
 ---
 
@@ -107,6 +108,8 @@ The `CollisionSystem` manages collision detection and handling for all game enti
   - `ENTITY_TYPES`: Defines entity type constants
 - **Related Systems:**
   - `PlayerCollisionHandler`: Default handler for player collisions
+  - `SwordCollisionHandler`: Default handler for sword collisions
+  - `GunCollisionHandler`: Default handler for gun collisions
 
 ---
 
