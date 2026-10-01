@@ -1,5 +1,10 @@
 import { ENTITY_TYPES, EntityTypes } from '@/config/constants';
-import { ICollisionSystemHandler, PlayerCollisionHandler, SwordCollisionHandler } from './handlers';
+import {
+  GunCollisionHandler,
+  ICollisionSystemHandler,
+  PlayerCollisionHandler,
+  SwordCollisionHandler,
+} from './handlers';
 import { CollisionSystemCreateProp } from './types.p';
 
 class CollisionSystem {
@@ -9,6 +14,7 @@ class CollisionSystem {
     this.handlers = new Map<EntityTypes, ICollisionSystemHandler>([
       [ENTITY_TYPES.PLAYER, new PlayerCollisionHandler()],
       [ENTITY_TYPES.SWORD, new SwordCollisionHandler()],
+      [ENTITY_TYPES.GUN, new GunCollisionHandler()],
     ]);
   }
 
@@ -49,7 +55,6 @@ class CollisionSystem {
     };
 
     scene.matter.world.on('collisionstart', handleCollision);
-    scene.matter.world.on('collisionactive', handleCollision);
   }
 }
 

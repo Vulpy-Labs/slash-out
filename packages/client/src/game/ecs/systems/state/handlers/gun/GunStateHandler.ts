@@ -1,4 +1,4 @@
-import { BULLET, ENTITY_TYPES, GUN_STATE } from '@/config/constants';
+import { BULLET, CHARACTER_STATE, ENTITY_TYPES, GUN_STATE } from '@/config/constants';
 import { InputComponent, StateComponent } from '@/ecs/components';
 import { GlobalEntity } from '@/ecs/entities';
 import { decrementStateTicker, isTickerActive } from '@/utils/state';
@@ -16,12 +16,29 @@ class GunStateHandler implements IEntityStateHandler {
       return;
     }
 
+    if (state.current === GUN_STATE.IN_FLIGHT) {
+      return;
+    }
+
     const owner = entity.ownerEntityId && entities ? entities.get(entity.ownerEntityId) : undefined;
-    const input = owner?.input;
+    if (
+      !owner ||
+      owner.state?.current === CHARACTER_STATE.DEAD ||
+      owner.state?.current === CHARACTER_STATE.DEAD_NO_HEAD
+    ) {
+      this.handleDeadOwner({ state });
+      return;
+    }
+
+    const input = owner.input;
     if (!input) return;
 
     this.resolveAttackSpamming({ state, input });
     this.resolveGunState({ state, input });
+  }
+
+  private handleDeadOwner({ state }: { state: StateComponent }): void {
+    state.current = GUN_STATE.IDLE;
   }
 
   private resolveAttackSpamming({

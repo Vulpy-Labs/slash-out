@@ -10,7 +10,7 @@ class VelocitySystem {
   }
 
   update({ entities }: VelocitySystemUpdateProp) {
-    entities.forEach(({ animation, movement, sprite }) => {
+    entities.forEach(({ animation, movement, sprite, velocity }) => {
       if (!movement || !sprite?.body) return;
 
       const body = sprite.body as MatterJS.BodyType;
@@ -24,6 +24,11 @@ class VelocitySystem {
       } else {
         vx = this.resolveHorizontalVelocity({ movement });
         vy = this.resolveVerticalVelocity({ body, movement });
+      }
+
+      if (velocity) {
+        velocity.vx = vx;
+        velocity.vy = vy;
       }
 
       if (animation && movement.intent.moveX) {
